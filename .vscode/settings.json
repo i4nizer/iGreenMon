@@ -1,0 +1,26 @@
+{
+	"editor.formatOnSave": true,
+	"prettier.printWidth": 80,
+	"prettier.tabWidth": 4,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always"
+	},
+	"[vue]": {
+		"editor.tabSize": 4,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.indentSize": "tabSize",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.ts": "always"
+		}
+	},
+	"[typescript]": {
+		"editor.tabSize": 4,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.indentSize": "tabSize",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.ts": "always"
+		}
+	}
+}
