@@ -7,5 +7,17 @@ export default defineNuxtConfig({
 		databaseSync: "",
 		gmailAddress: "",
 		gmailPassword: "",
+		jwtAccessLife: 0,
+		jwtRefreshLife: 0,
+		jwtResetLife: 0,
+		jwtVerifyLife: 0,
+		jwtAccessSecret: "",
+		jwtRefreshSecret: "",
+		jwtResetSecret: "",
+		jwtVerifySecret: "",
+		public: {
+			jwtResetLife: 0,
+			jwtVerifyLife: 0,
+		},
 	},
 })
