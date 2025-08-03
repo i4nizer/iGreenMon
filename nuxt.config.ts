@@ -5,5 +5,7 @@ export default defineNuxtConfig({
 		nodeEnv: "",
 		databaseUrl: "",
 		databaseSync: "",
+		gmailAddress: "",
+		gmailPassword: "",
 	},
 })
