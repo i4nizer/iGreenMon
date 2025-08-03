@@ -7,4 +7,7 @@ export default defineNitroPlugin(() => {
     const config = useRuntimeConfig()
     initEmail(config.gmailAddress, config.gmailPassword)
     setInterval(() => loopEmail(), 500)
+
+    const isProd = config.nodeEnv == "production"
+    if (!isProd) console.info("Email service running.")
 })

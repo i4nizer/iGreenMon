@@ -40,5 +40,7 @@ export default defineNitroPlugin(() => {
 		},
     ]
     
-    tokenMetas.push(...jwtMetas)
+	tokenMetas.push(...jwtMetas)
+	const isProd = config.nodeEnv == "production"
+	if (!isProd) console.info("Token metas configured.")
 })
