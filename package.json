@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "ejs": "^3.1.10",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.3",
     "nodemailer": "^7.0.5",
@@ -20,6 +21,7 @@
     "zod": "^4.0.14"
   },
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^6.4.17"
   }
