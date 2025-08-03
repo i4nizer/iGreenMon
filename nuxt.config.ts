@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
-	devtools: { enabled: true },
+	devtools: { enabled: false },
+	modules: ["vuetify-nuxt-module"],
 	runtimeConfig: {
 		nodeEnv: "",
 		databaseUrl: "",
@@ -18,6 +19,33 @@ export default defineNuxtConfig({
 		public: {
 			jwtResetLife: 0,
 			jwtVerifyLife: 0,
+		},
+	},
+	vuetify: {
+		vuetifyOptions: {
+			defaults: {
+				VBtn: { class: "text-none" },
+				VTextField: {
+					variant: "outlined",
+					density: "compact",
+					class: "mt-1",
+				},
+				VNumberInput: {
+					variant: "outlined",
+					density: "compact",
+					class: "mt-1",
+				},
+				VSelect: {
+					variant: "outlined",
+					density: "compact",
+					class: "mt-1",
+				},
+				VTextarea: {
+					variant: "outlined",
+					density: "compact",
+					class: "mt-1",
+				},
+			},
 		},
 	},
 })
