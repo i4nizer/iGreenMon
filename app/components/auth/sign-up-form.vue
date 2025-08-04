@@ -3,7 +3,7 @@
 		class="pa-7 w-100 w-sm-75 w-md-100 w-lg-75"
 		:validation-schema="validationSchema"
 		#="{ meta, isSubmitting }"
-		@submit="signUp"
+		@submit="onSubmit"
 	>
 		<h2 class="text-green">Create an account</h2>
 		<span class="text-grey">Sign up for your IoT Dashboard account</span>
@@ -75,15 +75,26 @@ const validationSchema = toTypedSchema(UserSignUpSchema)
 
 // --- Data Binding
 const emit = defineEmits<{
-	error: []
-	success: [user: UserSafe]
+	error: [msg: string]
+	submit: [user: UserSignUp]
+	success: [redirectUrl: string]
 }>()
+const props = defineProps<{ handle?: boolean }>()
 
-// --- View Password State
+// --- Password Toggle
 const revealPassword = ref(false)
 
-// --- Pass Invoke
-const signUp = (values: any) => emit("success", values as UserSafe)
+// --- Auth core
+const auth = useAuth()
+
+const onSubmit = async (values: any) => {
+	if (props.handle) return emit("submit", values as UserSignUp)
+
+	const signUpResult = await auth.signUp(values as UserSignUp)
+	if (!signUpResult.success) return emit("error", signUpResult.error)
+
+	emit("success", signUpResult.data.redirectUrl)
+}
 
 //
 </script>
