@@ -40,7 +40,8 @@ const userAttributes: ModelAttributes<User, InferAttributes<User>> = {
 	},
 	phone: {
 		type: DataTypes.STRING,
-		allowNull: true,
+		allowNull: false,
+		defaultValue: "",
 	},
 	password: {
 		type: DataTypes.STRING,
