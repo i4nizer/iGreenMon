@@ -5,13 +5,16 @@ import { queueEmail, loopEmailQueue } from "./queue"
 //
 
 /** Initializes the nodemailer.transporter. */
-const initEmail = (emailAddress: string, emailPassword: string) => {
+const initEmail = async (emailAddress: string, emailPassword: string) => {
     emailConfig.transporter = nodemailer.createTransport({
         auth: {
             user: emailAddress,
             pass: emailPassword,
-        }
+        },
+        secure: true,
+        service: "gmail",
     })
+    return await emailConfig.transporter.verify()
 }
 
 /** Must be called in an interval. */
