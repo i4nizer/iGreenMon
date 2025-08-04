@@ -11,7 +11,7 @@ type ToastItem = {
 
 export const useToast = () => {
 	// --- Data
-	const toasts = useState<ToastItem[]>("toast")
+	const toasts = useState<ToastItem[]>("toast", () => [])
 
 	// --- Loggers
 	const log = (text: string, color: string, timeout: number = 3000) => {
