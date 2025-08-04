@@ -12,7 +12,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 	declare id: CreationOptional<number>
 	declare name: string
 	declare email: string
-	declare phone: string
+	declare phone: CreationOptional<string>
 	declare password: string
 	declare verified: CreationOptional<boolean>
 	declare disabled: CreationOptional<boolean>
@@ -40,7 +40,7 @@ const userAttributes: ModelAttributes<User, InferAttributes<User>> = {
 	},
 	phone: {
 		type: DataTypes.STRING,
-		allowNull: false,
+		allowNull: true,
 	},
 	password: {
 		type: DataTypes.STRING,

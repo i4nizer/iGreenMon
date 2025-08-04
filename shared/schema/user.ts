@@ -6,7 +6,7 @@ const UserSchema = z.object({
 	id: z.number().int(),
 	name: z.string().min(1).max(128),
 	email: z.email(),
-	phone: z.string(),
+	phone: z.string().optional(),
 	password: z.string().min(8).max(128),
 	verified: z.boolean(),
 	disabled: z.boolean(),
@@ -20,6 +20,7 @@ const UserSafeSchema = UserSchema.omit({ password: true })
 const UserSignUpSchema = UserSchema.pick({
 	name: true,
 	email: true,
+	phone: true,
 	password: true,
 })
 
