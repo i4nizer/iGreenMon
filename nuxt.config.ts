@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: false },
-	modules: ["vuetify-nuxt-module"],
+	modules: ["vuetify-nuxt-module", "@vee-validate/nuxt"],
 	runtimeConfig: {
 		nodeEnv: "",
 		databaseUrl: "",
@@ -46,6 +46,15 @@ export default defineNuxtConfig({
 					class: "mt-1",
 				},
 			},
+		},
+	},
+	veeValidate: {
+		autoImports: true,
+		componentNames: {
+			Form: "VeeForm",
+			Field: "VeeField",
+			FieldArray: "VeeFieldArray",
+			ErrorMessage: "VeeErrorMessage",
 		},
 	},
 })

@@ -10,6 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@vee-validate/nuxt": "^4.15.1",
+    "@vee-validate/zod": "^4.15.1",
     "bcrypt": "^6.0.0",
     "ejs": "^3.1.10",
     "jsonwebtoken": "^9.0.2",
@@ -20,7 +22,7 @@
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
     "vuetify-nuxt-module": "^0.18.7",
-    "zod": "^4.0.14"
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

@@ -5,8 +5,8 @@ import { z } from "zod"
 const UserSchema = z.object({
 	id: z.number().int(),
 	name: z.string().min(1).max(128),
-	email: z.email(),
-	phone: z.string().optional(),
+	email: z.string().email(),
+	phone: z.string().min(11).max(11).optional(),
 	password: z.string().min(8).max(128),
 	verified: z.boolean(),
 	disabled: z.boolean(),
@@ -27,7 +27,7 @@ const UserSignUpSchema = UserSchema.pick({
 const UserSignInSchema = UserSchema.pick({ email: true, password: true })
 const UserEmailSchema = UserSchema.pick({ email: true })
 const UserPasswordResetSchema = UserSchema.pick({ password: true })
-	.extend({ confirm: z.string().min(8).max(128), token: z.jwt() })
+	.extend({ confirm: z.string().min(8).max(128), token: z.string().jwt() })
 	.refine((data) => data.confirm === data.password, {
 		message: "Passwords must match.",
 		path: ["confirm"],
