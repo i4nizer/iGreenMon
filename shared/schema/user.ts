@@ -6,7 +6,7 @@ const UserSchema = z.object({
 	id: z.number().int(),
 	name: z.string().min(1).max(128),
 	email: z.string().email(),
-	phone: z.string().min(11).max(11).optional(),
+	phone: z.string().length(11).optional().or(z.string().length(0)),
 	password: z.string().min(8).max(128),
 	verified: z.boolean(),
 	disabled: z.boolean(),
