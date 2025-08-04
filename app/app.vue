@@ -3,6 +3,11 @@
 		<nuxt-layout :name="layout">
 			<nuxt-page />
 		</nuxt-layout>
+        <v-snackbar-queue
+            closable
+            location="right"
+            v-model="toasts"
+        ></v-snackbar-queue>
 	</div>
 </template>
 
@@ -12,6 +17,9 @@
 
 // --- Meta
 useHead({ title: "Greenmon" })
+
+// --- Notifications
+const { toasts } = useToast()
 
 // ---- Layout is based on route
 const route = useRoute()
