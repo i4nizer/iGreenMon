@@ -14,7 +14,13 @@
 				aria-autocomplete="both"
 				v-model="field.value"
 				:="field"
-				:error-messages="errorMessage ? [errorMessage] : []"
+				:error-messages="
+					[
+						isNameAvailable ? undefined : 'Name is not available.',
+						errorMessage,
+					].filter((e) => e != undefined)
+				"
+				@update:model-value="onTypeName"
 			></v-text-field>
 		</VeeField>
 		<VeeField name="email" #="{ field, errorMessage }">
@@ -24,7 +30,13 @@
 				aria-autocomplete="both"
 				v-model="field.value"
 				:="field"
-				:error-messages="errorMessage ? [errorMessage] : []"
+				:error-messages="
+					[
+						isEmailAvailable ? undefined : 'Email is already in use.',
+						errorMessage,
+					].filter((e) => e != undefined)
+				"
+				@update:model-value="onTypeEmail"
 			></v-text-field>
 		</VeeField>
 		<VeeField name="phone" #="{ field, errorMessage }">
@@ -81,12 +93,11 @@ const emit = defineEmits<{
 }>()
 const props = defineProps<{ handle?: boolean }>()
 
-// --- Password Toggle
+// --- Password toggle
 const revealPassword = ref(false)
 
-// --- Auth core
+// --- Auth handling
 const auth = useAuth()
-
 const onSubmit = async (values: any) => {
 	if (props.handle) return emit("submit", values as UserSignUp)
 
@@ -94,6 +105,33 @@ const onSubmit = async (values: any) => {
 	if (!signUpResult.success) return emit("error", signUpResult.error)
 
 	emit("success", signUpResult.data.redirectUrl)
+}
+
+// --- Name and email checking
+const authCheck = useAuthCheck()
+const lastTypeName = ref(Date.now())
+const lastTypeEmail = ref(Date.now())
+const isNameAvailable = ref(true)
+const isEmailAvailable = ref(true)
+
+const onTypeName = (name: string) => {
+	if (name.length <= 0) return
+	lastTypeName.value = Date.now()
+
+	setTimeout(async () => {
+		if (Date.now() - lastTypeName.value < 500) return
+		isNameAvailable.value = await authCheck.isNameAvailable(name)
+	}, 500)
+}
+
+const onTypeEmail = (email: string) => {
+	if (email.length <= 0) return
+	lastTypeEmail.value = Date.now()
+	
+	setTimeout(async () => {
+		if (Date.now() - lastTypeEmail.value < 500) return
+		isEmailAvailable.value = await authCheck.isEmailAvailable(email)
+	}, 500)
 }
 
 //
