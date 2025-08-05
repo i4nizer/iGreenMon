@@ -26,5 +26,5 @@ export default defineEventHandler(async (event) => {
 
 	// --- Redirect to display email sent
 	const user = signUpResult.data.dataValues
-	return { redirectUrl: `/auth/verification/sent?email=${user.email}` }
+	return { redirectUrl: `/auth/verification/email/${user.email}/sent` }
 })
