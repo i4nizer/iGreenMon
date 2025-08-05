@@ -11,10 +11,10 @@ export const useAuth = () => {
 				method: "POST",
 				body: user,
 			})
-			return { data: res, error: undefined, success: true }
+			return { success: true, data: res }
 		} catch (error) {
 			const msg = (error as any)?.message ?? "Something went wrong."
-			return { data: undefined, error: msg, success: false }
+			return { success: false, error: msg }
 		}
 	}
 

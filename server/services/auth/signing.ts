@@ -31,7 +31,7 @@ const signUp = async (
 			const nameError = "User name taken."
 			const emailError = "User email already exists."
 			const error = isSameName ? nameError : emailError
-			return { data: undefined, error, success: false }
+			return { success: false, error }
 		}
 
 		// --- Do not save raw password
@@ -69,14 +69,10 @@ const signUp = async (
 		)
 
 		// --- Return the signing user
-		return { data: signingUser, error: undefined, success: true }
+		return { success: true, data: signingUser }
 	} catch (error) {
 		console.error(error)
-		return {
-			data: undefined,
-			error: "Something went wrong.",
-			success: false,
-		}
+		return { success: false, error: "Something went wrong." }
 	}
 }
 

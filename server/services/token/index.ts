@@ -28,10 +28,10 @@ const safeCreateToken = (
 ): SafeResult<string> => {
 	try {
 		const token = createToken(payload, type)
-		return { data: token, error: undefined, success: true }
+		return { success: true, data: token }
 	} catch (error) {
 		const err = error as Error
-		return { data: undefined, error: err.message, success: false }
+		return { success: false, error: err.message }
 	}
 }
 
@@ -42,10 +42,10 @@ const safeVerifyToken = <T = any>(
 ): SafeResult<T, jwt.VerifyErrors | Error> => {
 	try {
 		const payload = verifyToken<T>(token, type)
-		return { data: payload, error: undefined, success: true }
+		return { success: true, data: payload }
 	} catch (error) {
 		const err = error as jwt.VerifyErrors | Error
-		return { data: undefined, error: err, success: false }
+		return { success: false, error: err }
 	}
 }
 

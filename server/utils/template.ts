@@ -25,9 +25,9 @@ const safeRenderTemplate = async (
 	try {
 		const filepath = `${process.cwd()}/templates/${template.toLowerCase()}.ejs`
 		const result = await ejs.renderFile(filepath, data)
-		return { data: result, error: undefined, success: true }
+		return { success: true, data: result }
 	} catch (error) {
-		return { data: undefined, error: error as Error, success: false }
+		return { success: false, error: error as Error }
 	}
 }
 
