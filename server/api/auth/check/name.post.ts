@@ -1,15 +1,14 @@
-import { z } from "zod"
 import { User } from "~~/server/models/user"
+import { UserSchema } from "~~/shared/schema/user"
 
 //
 
 export default defineEventHandler(async (event) => {
-    // --- Get and validate params
-    const params = getRouterParams(event)
-    const ParamsSchema = z.object({ name: z.string().min(1) })
-    const paramsResult = ParamsSchema.safeParse(params)
+    // --- Validation
+    const body = await readBody(event)
+    const bodyResult = UserSchema.pick({ name: true }).safeParse(body)
 
-    if (!paramsResult.success) {
+    if (!bodyResult.success) {
         throw createError({
             statusCode: 400,
             message: "Invalid name provided.",
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // --- Find user with such name
-    const { name } = paramsResult.data
+    const { name } = bodyResult.data
     const user = await User.findOne({ where: { name } })
 
     if (user != null) {

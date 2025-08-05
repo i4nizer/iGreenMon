@@ -1,15 +1,14 @@
-import { z } from "zod"
 import { User } from "~~/server/models/user"
+import { UserSchema } from "~~/shared/schema/user"
 
 //
 
 export default defineEventHandler(async (event) => {
-    // --- Get and validate params
-    const params = getRouterParams(event)
-    const ParamsSchema = z.object({ email: z.string().email() })
-    const paramsResult = ParamsSchema.safeParse(params)
+    // --- Validation
+    const body = await readBody(event)
+    const bodyResult = UserSchema.pick({ email: true }).safeParse(body)
 
-    if (!paramsResult.success) {
+    if (!bodyResult.success) {
         throw createError({
             statusCode: 400,
             message: "Invalid email provided.",
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // --- Find user with such email
-    const { email } = paramsResult.data
+    const { email } = bodyResult.data
     const user = await User.findOne({ where: { email } })
 
     if (user != null) {
