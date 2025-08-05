@@ -15,17 +15,10 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // --- Find user with such name
+    // --- Count user with such name
     const { name } = bodyResult.data
-    const user = await User.findOne({ where: { name } })
+    const count = await User.count({ where: { name } })
 
-    if (user != null) {
-        throw createError({
-            statusCode: 400,
-            message: "User name already taken.",
-        })
-    }
-
-    // --- Return nothing
-    return sendNoContent(event)
+    // --- Return state
+    return count > 0
 })

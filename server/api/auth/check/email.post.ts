@@ -15,17 +15,10 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // --- Find user with such email
+    // --- Count user with such email
     const { email } = bodyResult.data
-    const user = await User.findOne({ where: { email } })
+    const count = await User.count({ where: { email } })
 
-    if (user != null) {
-        throw createError({
-            statusCode: 400,
-            message: "User email already in use.",
-        })
-    }
-
-    // --- Return nothing
-    return sendNoContent(event)
+    // --- Return state
+    return count > 0
 })

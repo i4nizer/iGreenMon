@@ -123,7 +123,9 @@ const onTypeName = (name: string) => {
 
 	setTimeout(async () => {
 		if (Date.now() - lastTypeName.value < 500) return
-		isNameAvailable.value = await authCheck.isNameAvailable(name)
+		const checkResult = await authCheck.isNameAvailable(name)
+		if (!checkResult.success) return emit("error", checkResult.error)
+		isNameAvailable.value = checkResult.data
 	}, 500)
 }
 
@@ -136,7 +138,9 @@ const onTypeEmail = (email: string) => {
 
 	setTimeout(async () => {
 		if (Date.now() - lastTypeEmail.value < 500) return
-		isEmailAvailable.value = await authCheck.isEmailAvailable(email)
+		const checkResult = await authCheck.isEmailAvailable(email)
+		if (!checkResult.success) return emit("error", checkResult.error)
+		isEmailAvailable.value = checkResult.data
 	}, 500)
 }
 
