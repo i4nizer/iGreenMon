@@ -1,5 +1,4 @@
 import { signUp } from "~~/server/services/auth"
-import { queueEmail } from "~~/server/services/email"
 import { UserSignUpSchema } from "~~/shared/schema/user"
 
 //
@@ -16,7 +15,8 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// --- Pass signing up to auth service
-	const signUpResult = await signUp(bodyResult.data)
+	const origin = `${getRequestProtocol(event)}://${getRequestHost(event)}`
+	const signUpResult = await signUp(bodyResult.data, origin)
 	if (!signUpResult.success) {
 		throw createError({
 			statusCode: 400,
@@ -24,26 +24,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// --- Craft the link
-	const { user, token } = signUpResult.data
-	const baseUrl = `${getRequestProtocol(event)}://${getRequestHost(event)}`
-	const query = `?email=${user.email}&token=${token}`
-	const emailLink = `${baseUrl}/auth/verification/verify${query}`
-
-	// --- Render the email with the user and link
-	const emailTemplate = await renderTemplate("Verification", {
-		name: user.name,
-		link: emailLink,
-	})
-
-	// --- Send the email
-	queueEmail(
-		user.email,
-		"Account Verification - Greenmon",
-		undefined,
-		emailTemplate
-	)
-
 	// --- Redirect to display email sent
+	const user = signUpResult.data.dataValues
 	return { redirectUrl: `/auth/verification/sent?email=${user.email}` }
 })

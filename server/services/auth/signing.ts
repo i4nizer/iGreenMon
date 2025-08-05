@@ -2,20 +2,21 @@ import bcrypt from "bcrypt"
 import { Op } from "sequelize"
 import { Token } from "~~/server/models/token"
 import { User } from "~~/server/models/user"
+import { queueEmail } from "~~/server/services/email"
 import { createToken } from "~~/server/services/token"
-import { UserSafeSchema } from "~~/shared/schema/user"
 
 //
 
 /**
- * ##### NOTE: This doesn't send the email verification, hence returns the token.
  * - Checks if user doesn't have matching name or email.
  * - Hashes the user's password before saving.
  * - Creates the verification token.
+ * - Sends the verification link via email.
  */
 const signUp = async (
-	user: UserSignUp
-): Promise<SafeResult<{ user: UserSafe; token: string }>> => {
+	user: UserSignUp,
+	origin: string
+): Promise<SafeResult<User>> => {
 	try {
 		// --- Find user with same name or email
 		const sameUser = await User.findOne({
@@ -49,13 +50,26 @@ const signUp = async (
 			userId: signingUser.id,
 		})
 
-		// --- Provide the token for later use.
-		const safeUser = UserSafeSchema.parse(signingUser.dataValues)
-		return {
-			data: { user: safeUser, token: verificationToken },
-			error: undefined,
-			success: true,
-		}
+		// --- Craft the verification link
+		const query = `?email=${user.email}&token=${token}`
+		const verificationLink = `${origin}/auth/verification/verify${query}`
+
+		// --- Render the email with the user and link
+		const emailTemplate = await renderTemplate("Verification", {
+			name: user.name,
+			link: verificationLink,
+		})
+
+		// --- Send the email
+		queueEmail(
+			user.email,
+			"Account Verification - Greenmon",
+			undefined,
+			emailTemplate
+		)
+
+		// --- Return the signing user
+		return { data: signingUser, error: undefined, success: true }
 	} catch (error) {
 		console.error(error)
 		return {
