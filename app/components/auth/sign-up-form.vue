@@ -16,8 +16,8 @@
 				:="field"
 				:error-messages="
 					[
-						isNameAvailable ? undefined : 'Name is not available.',
 						errorMessage,
+						isNameAvailable ? undefined : 'Name is not available.',
 					].filter((e) => e != undefined)
 				"
 				@update:model-value="onTypeName"
@@ -32,8 +32,8 @@
 				:="field"
 				:error-messages="
 					[
-						isEmailAvailable ? undefined : 'Email is already in use.',
 						errorMessage,
+						isEmailAvailable ? undefined : 'Email already in use.',
 					].filter((e) => e != undefined)
 				"
 				@update:model-value="onTypeEmail"
@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserSignUpSchema } from "~~/shared/schema/user"
+import { UserSchema, UserSignUpSchema } from "~~/shared/schema/user"
 import { toTypedSchema } from "@vee-validate/zod"
 
 //
@@ -118,6 +118,9 @@ const onTypeName = (name: string) => {
 	if (name.length <= 0) return
 	lastTypeName.value = Date.now()
 
+	const nameResult = UserSchema.pick({ name: true }).safeParse({ name })
+	if (!nameResult.success) return
+
 	setTimeout(async () => {
 		if (Date.now() - lastTypeName.value < 500) return
 		isNameAvailable.value = await authCheck.isNameAvailable(name)
@@ -127,7 +130,10 @@ const onTypeName = (name: string) => {
 const onTypeEmail = (email: string) => {
 	if (email.length <= 0) return
 	lastTypeEmail.value = Date.now()
-	
+
+	const emailResult = UserSchema.pick({ email: true }).safeParse({ email })
+	if (!emailResult.success) return
+
 	setTimeout(async () => {
 		if (Date.now() - lastTypeEmail.value < 500) return
 		isEmailAvailable.value = await authCheck.isEmailAvailable(email)
