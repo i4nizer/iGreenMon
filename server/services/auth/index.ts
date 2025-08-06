@@ -1,4 +1,5 @@
 import { signUp, signIn } from "./signing"
+import { forgotPassword } from "./recovery"
 import {
 	verifyUser,
 	getNextResendTime,
