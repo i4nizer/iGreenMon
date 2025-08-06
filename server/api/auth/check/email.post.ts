@@ -20,5 +20,5 @@ export default defineEventHandler(async (event) => {
     const count = await User.count({ where: { email } })
 
     // --- Return state
-    return count > 0
+    return count <= 0
 })
