@@ -1,5 +1,5 @@
 import { UserEmailSchema } from "~~/shared/schema/user"
-import { resendVerificationEmail } from "~~/server/services/auth/verification"
+import { resendVerificationEmail } from "~~/server/services/auth"
 
 //
 

@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { UserSchema } from "~~/shared/schema/user"
-import { verifyUser } from "~~/server/services/auth/verification"
+import { verifyUser } from "~~/server/services/auth"
 
 //
 

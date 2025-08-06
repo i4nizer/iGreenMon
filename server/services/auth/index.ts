@@ -1,5 +1,10 @@
-import { signUp } from "./signing";
+import { signUp } from "./signing"
+import {
+	verifyUser,
+	getNextResendTime,
+	resendVerificationEmail,
+} from "./verification"
 
 //
 
-export { signUp }
+export { signUp, verifyUser, getNextResendTime, resendVerificationEmail }

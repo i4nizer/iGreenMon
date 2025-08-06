@@ -1,5 +1,5 @@
 import { UserEmailSchema } from "~~/shared/schema/user"
-import { getNextResendTime } from "~~/server/services/auth/verification"
+import { getNextResendTime } from "~~/server/services/auth"
 
 //
 
