@@ -51,8 +51,9 @@ const signUp = async (
 		})
 
 		// --- Craft the verification link
-		const query = `?email=${user.email}&token=${token}`
-		const verificationLink = `${origin}/auth/verification/verify${query}`
+		const query = `?token=${token.value}`
+		const path = `/auth/verification/email/${user.email}/verify`
+		const verificationLink = `${origin}${path}${query}`
 
 		// --- Render the email with the user and link
 		const emailTemplate = await renderTemplate("Verification", {
