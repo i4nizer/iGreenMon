@@ -10,7 +10,10 @@
 				class="pa-0 d-flex align-center justify-center h-md-screen"
 			>
 				<div class="w-100 w-md-75 w-xl-50 d-flex align-center justify-center">
-					<sign-up-form @success="onSignedIn" />
+					<sign-up-form 
+						@error="onSignInError"
+						@success="onSignInSuccess" 
+					/>
 				</div>
 			</v-col>
 		</v-row>
@@ -21,9 +24,16 @@
 
 //
 
+// --- Notifications
+const toast = useToast()
+
 // --- Redirect on success
-const onSignedIn = async (redirectUrl: string) => {
+const onSignInSuccess = async (redirectUrl: string) => {
 	await navigateTo(redirectUrl)
+}
+
+const onSignInError = async (msg: string) => {
+	toast.error(msg)
 }
 
 //
