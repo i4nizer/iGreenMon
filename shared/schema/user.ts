@@ -24,7 +24,7 @@ const UserSignUpSchema = UserSchema.pick({
 	password: true,
 })
 
-const UserSignInSchema = UserSchema.pick({ email: true, password: true })
+const UserSignInSchema = UserSchema.pick({ name: true, password: true })
 const UserEmailSchema = UserSchema.pick({ email: true })
 const UserPasswordResetSchema = UserSchema.pick({ password: true })
 	.extend({ confirm: z.string().min(8).max(128), token: z.string().jwt() })
