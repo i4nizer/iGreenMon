@@ -66,7 +66,7 @@
 			type="submit"
 			color="green"
 			class="w-100 mt-3"
-			:disabled="!meta.valid"
+			:disabled="!meta.valid || !isNameAvailable || !isEmailAvailable"
 			:loading="isSubmitting"
 		></v-btn>
 		<div class="text-center mt-3">
