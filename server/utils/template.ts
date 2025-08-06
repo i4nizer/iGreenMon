@@ -8,6 +8,8 @@ type TemplateType =
 	| "Verification-Success"
 	| "Reset-Password"
 	| "Reset-Password-Success"
+	| "Sign-In-Failed"
+	| "Sign-In-Success"
 
 //
 
