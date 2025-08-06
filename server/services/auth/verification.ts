@@ -164,8 +164,8 @@ const resendVerificationEmail = async (
 		else await token.update({ updatedAt: new Date() })
 
 		// --- Craft email link and template
-		const params = `email/${user.email}/token/${token.value}`
-		const verificationLink = `${origin}/auth/verification/verify/${params}`
+		const pathMeta = `email/${user.email}/verify?token=${token.value}`
+		const verificationLink = `${origin}/auth/verification/${pathMeta}`
 		const emailTemplate = await renderTemplate({
 			type: "Verification",
 			data: { name: user.name, link: verificationLink }
