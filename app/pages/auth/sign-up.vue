@@ -29,6 +29,7 @@ const toast = useToast()
 
 // --- Redirect on success
 const onSignUpSuccess = async (redirectUrl: string) => {
+	toast.success("User sign-up successful.")
 	await navigateTo(redirectUrl)
 }
 
