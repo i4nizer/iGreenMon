@@ -13,7 +13,7 @@ export const useAuth = () => {
 			})
 			return { success: true, data: res }
 		} catch (error) {
-			const msg = (error as any)?.message ?? "Something went wrong."
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
 			return { success: false, error: msg }
 		}
 	}

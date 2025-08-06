@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 	if (!getTimeResult.success) {
 		throw createError({
 			statusCode: 400,
-			message: getTimeResult.error,
+			statusMessage: getTimeResult.error,
 		})
 	}
 

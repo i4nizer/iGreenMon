@@ -9,7 +9,7 @@ export const useAuthCheck = () => {
             const res = await $fetch(url, { method: "POST", body: { name } })
             return { success: true, data: res }
         } catch (error) {
-            const msg = (error as any)?.message ?? "Something went wrong."
+            const msg = (error as any)?.statusMessage ?? "Something went wrong."
 			return { success: false, error: msg }
         }
     }
@@ -21,7 +21,7 @@ export const useAuthCheck = () => {
 			const res = await $fetch(url, { method: "POST", body: { email } })
 			return { success: true, data: res }
 		} catch (error) {
-			const msg = (error as any)?.message ?? "Something went wrong."
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
 			return { success: false, error: msg }
 		}
     }

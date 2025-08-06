@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 	if (!bodyResult.success) {
 		throw createError({
 			statusCode: 400,
-			message: bodyResult.error.message,
+			statusMessage: bodyResult.error.message,
 		})
 	}
 
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 	if (!resendResult.success) {
 		throw createError({
 			statusCode: 400,
-			message: resendResult.error,
+			statusMessage: resendResult.error,
 		})
 	}
 

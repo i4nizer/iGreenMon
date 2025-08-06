@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 	if (!bodyResult.success) {
 		throw createError({
 			statusCode: 400,
-			message: bodyResult.error.message,
+			statusMessage: bodyResult.error.message,
 		})
 	}
 
@@ -18,9 +18,10 @@ export default defineEventHandler(async (event) => {
 	const origin = `${getRequestProtocol(event)}://${getRequestHost(event)}`
 	const signUpResult = await signUp(bodyResult.data, origin)
 	if (!signUpResult.success) {
+		console.log(signUpResult.error)
 		throw createError({
 			statusCode: 400,
-			message: signUpResult.error,
+			statusMessage: signUpResult.error,
 		})
 	}
 

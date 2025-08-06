@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     if (!bodyResult.success) {
         throw createError({
             statusCode: 400,
-            message: "Invalid name provided.",
+            statusMessage: "Invalid name provided.",
         })
     }
 
