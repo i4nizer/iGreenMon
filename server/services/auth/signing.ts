@@ -58,7 +58,7 @@ const signUp = async (
 		// --- Render the email with the user and link
 		const emailTemplate = await renderTemplate({
 			type: "Verification",
-			data: { name: user.name, link: verificationLink }
+			data: { name: user.name, link: verificationLink },
 		})
 
 		// --- Send the email
@@ -77,6 +77,103 @@ const signUp = async (
 	}
 }
 
+/**
+ * - Finds the user by name.
+ * - Checks if the user is not disabled.
+ * - Checks if the user is verified.
+ * - Matches the password provided.
+ * - Creates or updates existing refresh token in database.
+ * - Emails user on either successful or failed sign-in attempt.
+ */
+const signIn = async (
+	name: string,
+	password: string
+): Promise<SafeResult<{ accessToken: string; refreshToken: string }>> => {
+	try {
+		// --- Find user
+		const user = await User.findOne({ where: { name } })
+		if (!user) return { success: false, error: "User not registered." }
+
+		// --- Dev/Admin can block user
+		if (user.disabled) return { success: false, error: "User is blocked." }
+
+		// --- Must be verified first
+		if (!user.verified) {
+			return { success: false, error: "User is not yet verified." }
+		}
+
+		// --- Compare password
+		const match = await bcrypt.compare(password, user.password)
+
+		// --- Failed attempt
+		if (!match) {
+			// --- Craft failed attempt template
+			const failedTemplate = await renderTemplate({
+				type: "Sign-In-Failed",
+				data: { name: user.name, timestamp: new Date() }
+			})
+			
+			// --- Email the user about the failed sign-in
+			queueEmail(
+				user.email,
+				"Sign-In Attempt Failed - Greenmon",
+				undefined,
+				failedTemplate
+			)
+			
+			return { success: false, error: "Incorrect password." }
+		}
+
+		// --- Create access and refresh tokens
+		const payload = { id: user.id }
+		const accessToken = createToken(payload, "Access")
+		const refreshToken = createToken(payload, "Refresh")
+
+		// --- Find existing refresh token of user
+		const tokenCondition = { type: "Refresh", userId: user.id }
+		const refreshTokenCount = await Token.count({ where: tokenCondition })
+
+		// --- Save refresh token in the database
+		if (refreshTokenCount <= 0) {
+			await Token.create({
+				type: "Refresh",
+				value: refreshToken,
+				userId: user.id,
+			})
+		}
+		// --- Update existing refresh token
+		else {
+			await Token.update(
+				{ type: "Refresh", value: refreshToken },
+				{ where: { type: "Refresh", userId: user.id } }
+			)
+		}
+
+		// --- Craft successful sign-in email
+		const successTemplate = await renderTemplate({
+			type: "Sign-In-Success",
+			data: { name: user.name, timestamp: new Date() }
+		})
+
+		// --- Email user about the successful sign-in
+		queueEmail(
+			user.email,
+			"Sign-In Successful - Greenmon",
+			undefined,
+			successTemplate
+		)
+
+		// --- Provide the tokens to be attached to client
+		return {
+			success: true,
+			data: { accessToken, refreshToken },
+		}
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
+
 //
 
-export { signUp }
+export { signUp, signIn }
