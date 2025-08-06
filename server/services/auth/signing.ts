@@ -56,9 +56,9 @@ const signUp = async (
 		const verificationLink = `${origin}${path}${query}`
 
 		// --- Render the email with the user and link
-		const emailTemplate = await renderTemplate("Verification", {
-			name: user.name,
-			link: verificationLink,
+		const emailTemplate = await renderTemplate({
+			type: "Verification",
+			data: { name: user.name, link: verificationLink }
 		})
 
 		// --- Send the email
