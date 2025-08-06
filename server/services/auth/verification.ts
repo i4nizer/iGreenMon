@@ -21,9 +21,9 @@ const findUnverifiedUser = async (email: string): Promise<SafeResult<User>> => {
 		if (user.verified) {
 			return { success: false, error: "User already verified." }
 		}
-        
-        // --- User is blocked somehow
-        if (user.disabled) return { success: false, error: "User is blocked." }
+
+		// --- User is blocked somehow
+		if (user.disabled) return { success: false, error: "User is blocked." }
 
 		// --- Provide the user
 		return { success: true, data: user }
@@ -39,10 +39,10 @@ const findUnverifiedUser = async (email: string): Promise<SafeResult<User>> => {
  * - Creates new token if it is expired.
  */
 const findOrCreateValidVerificationToken = async (
-    userId: number
+	userId: number
 ): Promise<SafeResult<Token>> => {
-    try {
-        let token = await Token.findOne({ where: { type: "Verify", userId } })
+	try {
+		let token = await Token.findOne({ where: { type: "Verify", userId } })
 
 		// --- Edge case that unverified user doesn't have token
 		if (!token) {
@@ -62,14 +62,14 @@ const findOrCreateValidVerificationToken = async (
 			const payload = { id: userId }
 			const verifyToken = createToken(payload, "Verify")
 			await token.update({ value: verifyToken })
-        }
-        
-        // --- Provide the valid verification token
-        return { success: true, data: token }
+		}
+
+		// --- Provide the valid verification token
+		return { success: true, data: token }
 	} catch (error) {
-        console.error(error)
+		console.error(error)
 		return { success: false, error: "Something went wrong." }
-    }
+	}
 }
 
 //
@@ -84,31 +84,31 @@ const findOrCreateValidVerificationToken = async (
 const getNextResendTime = async (
 	email: string
 ): Promise<SafeResult<{ nextResendTime: number }>> => {
-    try {
-        // --- Find the user of email
-        const findUserResult = await findUnverifiedUser(email)
-        if (!findUserResult.success) {
-            return { success: false, error: findUserResult.error }
-        }
+	try {
+		// --- Find the user of email
+		const findUserResult = await findUnverifiedUser(email)
+		if (!findUserResult.success) {
+			return { success: false, error: findUserResult.error }
+		}
 
-        // --- This is unverified user
+		// --- This is unverified user
 		const user = findUserResult.data
 
 		// --- Find user's verification token
-        const tokenResult = await findOrCreateValidVerificationToken(user.id)
-        if (!tokenResult.success) {
-            return { success: false, error: tokenResult.error }
-        }
+		const tokenResult = await findOrCreateValidVerificationToken(user.id)
+		if (!tokenResult.success) {
+			return { success: false, error: tokenResult.error }
+		}
 
-        // --- This is the valid user verification token
-        const token = tokenResult.data
+		// --- This is the valid user verification token
+		const token = tokenResult.data
 
 		// --- Provide the time for the next resend
 		const cooldown = 60000
 		return {
 			success: true,
 			data: { nextResendTime: token.updatedAt.getTime() + cooldown },
-        }
+		}
 	} catch (error) {
 		console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -129,7 +129,7 @@ const resendVerificationEmail = async (
 	email: string,
 	origin: string
 ): Promise<SafeResult<{ nextResendTime: number }>> => {
-    try {
+	try {
 		// --- Find the user of email
 		const findUserResult = await findUnverifiedUser(email)
 		if (!findUserResult.success) {
@@ -190,6 +190,65 @@ const resendVerificationEmail = async (
 	}
 }
 
+/**
+ * - Checks if any user with such email exists.
+ * - Checks if the user is already verified.
+ * - Checks if the user is blocked.
+ * - Verifies the token of type "Verify".
+ * - Updates the user as verified and deletes the token.
+ * - Sends email to inform user of successful verification.
+ */
+const verifyUser = async (
+	email: string,
+	token: string
+): Promise<SafeResult<User>> => {
+	try {
+		// --- Find the corresponding user first
+		const userResult = await findUnverifiedUser(email)
+		if (!userResult.success) {
+			return { success: false, error: userResult.error }
+		}
+
+		// --- Validate token
+		const tokenResult = safeVerifyToken<{ id: number }>(token, "Verify")
+		if (!tokenResult.success) {
+			return { success: false, error: "Invalid verification token" }
+		}
+
+		// --- Find token in the database
+		const userId = userResult.data.id
+		const tokenWhere = { type: "Verify", value: token, userId }
+		const verificationToken = await Token.findOne({ where: tokenWhere })
+		if (!verificationToken) {
+			return { success: false, error: "Invalid verification token" }
+		}
+
+		// --- Verify user and delete token
+		const user = userResult.data
+		await user.update({ verified: true })
+		await verificationToken.destroy()
+
+		// --- Inform user via email
+		const emailTemplate = await renderTemplate("Verification-Success", {
+			name: user.name,
+		})
+
+		// --- Send email
+		queueEmail(
+			user.email,
+			"Account Verified - Greenmon",
+			undefined,
+			emailTemplate
+		)
+
+		// --- Provide the user
+		return { success: true, data: user }
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
+
 //
 
-export { getNextResendTime, resendVerificationEmail }
+export { getNextResendTime, resendVerificationEmail, verifyUser }
