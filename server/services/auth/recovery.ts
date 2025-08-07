@@ -1,7 +1,8 @@
-import { Token } from "~~/server/models/token"
 import { User } from "~~/server/models/user"
-import { createToken, safeVerifyToken } from "../token"
-import { queueEmail } from "../email"
+import { Token } from "~~/server/models/token"
+import { queueEmail } from "~~/server/services/email"
+import { createToken, safeVerifyToken } from "~~/server/services/token"
+import bcrypt from "bcrypt"
 
 //
 
@@ -181,7 +182,10 @@ const getNextResetResendTime = async (
 }
 
 /**
- * 
+ * - Finds the user of the email.
+ * - Finds the user's reset token.
+ * - Checks the cooldown time.
+ * - Sends the reset-password-email again.
  */
 const resendResetPasswordEmail = async (
 	email: string,
@@ -246,6 +250,70 @@ const resendResetPasswordEmail = async (
 	}
 }
 
+/**
+ * - Verifies the provided token.
+ * - Finds the user based on the token's payload.
+ * - Matches the token in the database.
+ * - Updates the user's password and deletes the reset token from database.
+ * - Emails the user about the reset.
+ */
+const resetPassword = async(
+	password: string,
+	resetToken: string
+): Promise<SafeResult<User>> => {
+	try {
+		// --- Validate the token
+		const tokenResult = safeVerifyToken<{ id: number }>(resetToken, "Reset")
+		if (!tokenResult.success) {
+			return { success: false, error: "Invalid token provided." }
+		}
+
+		// --- Find user through the token
+		const userId = tokenResult.data.id
+		const user = await User.findOne({ where: { id: userId } })
+		if (!user) {
+			return { success: false, error: "Invalid token provided." }
+		}
+
+		// --- Find the token in the database
+		const tokenQuery = { type: "Reset", value: resetToken, userId }
+		const token = await Token.findOne({ where: tokenQuery })
+		if (!token) {
+			return { success: false, error: "Invalid token provided." }
+		}
+
+		// --- Update user's password and delete the token
+		const hashedPassword = await bcrypt.hash(password, 10)
+		await user.update({ password: hashedPassword })
+		await token.destroy()
+
+		// --- Inform user via email
+		const emailTemplate = await renderTemplate({
+			type: "Reset-Password-Success",
+			data: { name: user.name }
+		})
+
+		// --- Send email
+		queueEmail(
+			user.email,
+			"Password Changed - Greenmon",
+			undefined,
+			emailTemplate
+		)
+		
+		// --- Provide the user
+		return { success: true, data: user }
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
+
 //
 
-export { forgotPassword, getNextResetResendTime, resendResetPasswordEmail }
+export {
+	forgotPassword,
+	getNextResetResendTime,
+	resendResetPasswordEmail,
+	resetPassword,
+}

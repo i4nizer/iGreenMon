@@ -3,6 +3,7 @@ import {
 	forgotPassword,
 	getNextResetResendTime,
 	resendResetPasswordEmail,
+	resetPassword,
 } from "./recovery"
 import {
 	verifyUser,
@@ -21,4 +22,5 @@ export {
 	forgotPassword,
 	getNextResetResendTime,
 	resendResetPasswordEmail,
+	resetPassword,
 }
