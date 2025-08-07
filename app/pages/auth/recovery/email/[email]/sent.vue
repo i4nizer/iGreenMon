@@ -51,7 +51,7 @@ const onResendError = (msg: string) => {
 }
 
 const onResendSuccess = async (nextResendTime: number) => {
-    toast.success("Email verification sent.")
+    toast.success("Email with reset link sent.")
     nextResetResendTime.value = nextResendTime
 }
 
