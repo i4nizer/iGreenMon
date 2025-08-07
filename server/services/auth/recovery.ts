@@ -147,6 +147,39 @@ const forgotPassword = async (
     }
 }
 
+/**
+ * - Finds the user of the email.
+ * - Finds the user's reset token.
+ * - Calculates and returns the cooldown time.
+ */
+const getNextResetResendTime = async (
+	email: string
+): Promise<SafeResult<{ nextResendTime: number }>> => {
+	try {
+		// --- Find user of email
+		const findUserResult = await findVerifiedUser(email)
+		if (!findUserResult.success) {
+			return { success: false, error: findUserResult.error }
+		}
+
+		// --- Find user's reset token
+		const user = findUserResult.data
+		const tokenQuery = { type: "Reset", userId: user.id }
+		const token = await Token.findOne({ where: tokenQuery })
+		if (!token) {
+			return { success: false, error: "User trying to reset password." }
+		}
+
+		// --- Provide the next valid time
+		const cooldown = 60000
+		const nextResendTime = token.updatedAt.getTime() + cooldown
+		return { success: true, data: { nextResendTime } }
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
+
 //
 
-export { forgotPassword }
+export { forgotPassword, getNextResetResendTime }

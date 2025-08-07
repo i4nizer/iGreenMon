@@ -1,5 +1,5 @@
 import { signUp, signIn } from "./signing"
-import { forgotPassword } from "./recovery"
+import { forgotPassword, getNextResetResendTime } from "./recovery"
 import {
 	verifyUser,
 	resendVerificationEmail,
@@ -15,4 +15,5 @@ export {
 	resendVerificationEmail,
 	getNextVerificationResendTime,
 	forgotPassword,
+	getNextResetResendTime,
 }
