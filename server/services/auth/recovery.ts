@@ -167,7 +167,7 @@ const getNextResetResendTime = async (
 		const tokenQuery = { type: "Reset", userId: user.id }
 		const token = await Token.findOne({ where: tokenQuery })
 		if (!token) {
-			return { success: false, error: "User trying to reset password." }
+			return { success: false, error: "User is not resetting password." }
 		}
 
 		// --- Provide the next valid time
@@ -180,6 +180,72 @@ const getNextResetResendTime = async (
 	}
 }
 
+/**
+ * 
+ */
+const resendResetPasswordEmail = async (
+	email: string,
+	origin: string
+): Promise<SafeResult<{ nextResendTime: number }>> => {
+	try {
+		// --- Find user of email
+		const findUserResult = await findVerifiedUser(email)
+		if (!findUserResult.success) {
+			return { success: false, error: findUserResult.error }
+		}
+
+		// --- Find user's reset token
+		const user = findUserResult.data
+		const tokenQuery = { type: "Reset", userId: user.id }
+		const token = await Token.findOne({ where: tokenQuery })
+		if (!token) {
+			return { success: false, error: "User is not resetting password." }
+		}
+
+		// --- Check the cooldown
+		const cooldown = 60000
+		const validResendTime = token.updatedAt.getTime() + cooldown
+		
+		// --- To avoid getting spammed
+		if (Date.now() < validResendTime) {
+			const msDiff = validResendTime - Date.now()
+			const secDiff = (msDiff == 0 ? 0 : msDiff / 1000).toFixed(0)
+			const error = `Please wait another ${secDiff}s before resending.`
+			return { success: false, error }
+		}
+		// --- Marks the last resend through updatedAt
+		else {
+			token.changed("updatedAt", true)
+			await token.update({ updatedAt: new Date() })
+		}
+
+		// --- Craft the forgot pass email link and template
+		const pathMeta = `email/${user.email}/reset?token=${token.value}`
+		const resetLink = `${origin}/auth/recovery/${pathMeta}`
+		const resetTemplate = await renderTemplate({
+			type: "Reset-Password",
+			data: { name: user.name, link: resetLink },
+		})
+
+		// --- Send the email with reset link
+		queueEmail(
+			user.email,
+			"Reset Your Password - Greenmon",
+			undefined,
+			resetTemplate
+		)
+
+		// --- Provide the next valid time
+		return {
+			success: true,
+			data: { nextResendTime: token.updatedAt.getTime() + cooldown },
+		}
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
+
 //
 
-export { forgotPassword, getNextResetResendTime }
+export { forgotPassword, getNextResetResendTime, resendResetPasswordEmail }
