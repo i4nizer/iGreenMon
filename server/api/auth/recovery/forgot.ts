@@ -1,4 +1,4 @@
-import { forgotPassword } from "~~/server/services/auth/recovery"
+import { forgotPassword } from "~~/server/services/auth"
 import { UserEmailSchema } from "~~/shared/schema/user"
 
 //

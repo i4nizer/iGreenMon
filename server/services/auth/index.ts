@@ -14,4 +14,5 @@ export {
 	verifyUser,
 	resendVerificationEmail,
 	getNextVerificationResendTime,
+	forgotPassword,
 }
