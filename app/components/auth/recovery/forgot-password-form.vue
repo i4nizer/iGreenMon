@@ -58,9 +58,9 @@ const props = defineProps<{ handle?: boolean }>()
 const { forgotPassword } = useAuthRecovery()
 
 const onSubmit = async (values: any) => {
-	if (props.handle) return;
 	const form = values as UserEmail
 	emit("submit", form)
+	if (props.handle) return;
 
 	const forgotResult = await forgotPassword(form.email)
 	if (!forgotResult.success) return emit("error", forgotResult.error)
