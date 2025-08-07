@@ -10,7 +10,7 @@ export default defineNitroPlugin(async () => {
 	// --- Instance and config
 	const config = useRuntimeConfig()
 	const isProd = config.nodeEnv == "production"
-	const logging = isProd ? false : console.info
+	const logging = isProd ? false : (data: any) => console.log("ℹ", data)
 	const sequelize = new Sequelize(config.databaseUrl, { logging })
 
 	// --- Run initializations
