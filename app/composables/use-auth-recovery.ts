@@ -42,8 +42,31 @@ export const useAuthRecovery = () => {
 			const msg = (error as any)?.statusMessage ?? "Something went wrong."
 			return { success: false, error: msg }
 		}
-    }
+	}
+	
+	/** Might error when the token is invalid. */
+	const resetPassword = async (
+		password: string,
+		confirm: string,
+		token: string
+	): Promise<SafeResult<{ redirectUrl: string }>> => {
+		try {
+			const res = await $fetch(`/api/auth/recovery/reset`, {
+				method: "POST",
+				body: { password, confirm, token }
+			})
+			return { success: true, data: res }
+		} catch (error) {
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+		}
+	}
     
     // --- Expose
-    return { forgotPassword, getNextResetResendTime, resendResetPasswordEmail }
+	return {
+		forgotPassword,
+		getNextResetResendTime,
+		resendResetPasswordEmail,
+		resetPassword,
+	}
 }
