@@ -2,8 +2,8 @@ import { signUp, signIn } from "./signing"
 import { forgotPassword } from "./recovery"
 import {
 	verifyUser,
-	getNextResendTime,
 	resendVerificationEmail,
+	getNextVerificationResendTime,
 } from "./verification"
 
 //
@@ -12,6 +12,6 @@ export {
 	signUp,
 	signIn,
 	verifyUser,
-	getNextResendTime,
 	resendVerificationEmail,
+	getNextVerificationResendTime,
 }

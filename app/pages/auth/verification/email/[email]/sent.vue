@@ -32,11 +32,11 @@ const route = useRoute()
 const email = route.params.email as string
 
 // --- Initial time for counter
-const { getNextResendTime } = useAuthVerification()
+const { getNextVerificationResendTime } = useAuthVerification()
 const nextResendTime = ref(0)
 
 onBeforeMount(async () => {
-    const getTimeResult = await getNextResendTime(email)
+    const getTimeResult = await getNextVerificationResendTime(email)
     if (!getTimeResult.success) return;
     nextResendTime.value = getTimeResult.data.nextResendTime
 })

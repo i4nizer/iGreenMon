@@ -1,5 +1,5 @@
 import { UserEmailSchema } from "~~/shared/schema/user"
-import { getNextResendTime } from "~~/server/services/auth"
+import { getNextVerificationResendTime } from "~~/server/services/auth"
 
 //
 
@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// --- Pass the logic to auth service
-	const getTimeResult = await getNextResendTime(bodyResult.data.email)
+	const { email } = bodyResult.data
+	const getTimeResult = await getNextVerificationResendTime(email)
 	if (!getTimeResult.success) {
 		throw createError({
 			statusCode: 400,

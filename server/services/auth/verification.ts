@@ -81,7 +81,7 @@ const findOrCreateValidVerificationToken = async (
  * - Creates the token if it doesn't exists.
  * - Creates new token if it is expired.
  */
-const getNextResendTime = async (
+const getNextVerificationResendTime = async (
 	email: string
 ): Promise<SafeResult<{ nextResendTime: number }>> => {
 	try {
@@ -252,4 +252,4 @@ const verifyUser = async (
 
 //
 
-export { getNextResendTime, resendVerificationEmail, verifyUser }
+export { getNextVerificationResendTime, resendVerificationEmail, verifyUser }

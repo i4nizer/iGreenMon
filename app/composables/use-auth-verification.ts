@@ -3,7 +3,7 @@
 
 export const useAuthVerification = () => {
 	/** Provides the time when will the resend be available. */
-	const getNextResendTime = async (
+	const getNextVerificationResendTime = async (
 		email: string
 	): Promise<SafeResult<{ nextResendTime: number }>> => {
 		try {
@@ -48,5 +48,5 @@ export const useAuthVerification = () => {
 	}
 
 	// --- Expose
-	return { getNextResendTime, resendVerificationEmail, verifyUser }
+	return { getNextVerificationResendTime, resendVerificationEmail, verifyUser }
 }
