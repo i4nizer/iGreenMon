@@ -29,7 +29,21 @@ export const useAuthRecovery = () => {
 			return { success: false, error: msg }
 		}
     }
+
+    /** Requests the server to resend the email. */
+    const resendResetPasswordEmail = async (
+        email: string
+    ): Promise<SafeResult<{ nextResendTime: number }>> => {
+        try {
+			const url = `/api/auth/recovery/resend`
+			const res = await $fetch(url, { method: "POST", body: { email } })
+			return { success: true, data: res }
+		} catch (error) {
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+		}
+    }
     
     // --- Expose
-    return { forgotPassword, getNextResetResendTime }
+    return { forgotPassword, getNextResetResendTime, resendResetPasswordEmail }
 }
