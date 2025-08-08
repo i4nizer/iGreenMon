@@ -34,6 +34,17 @@ export const useAuth = () => {
 		}
 	}
 
+	/** Tells the server the user wants to sign-out. */
+	const signOut = async (): Promise<SafeResult> => {
+		try {
+			const res = await $fetch(`/api/auth/sign-out`, { method: "POST" })
+			return { success: true, data: res }
+		} catch (error) {
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+		}
+	}
+
 	// --- Expose
-	return { signUp, signIn }
+	return { signUp, signIn, signOut }
 }
