@@ -30,6 +30,7 @@ const layout = computed(() => {
 
     if (slen <= 1) return "default"
     else if (path.startsWith("/auth")) return "auth"
+    else if (path.startsWith("/user") && slen == 4) return "user"
     else return "default"
 })
 
