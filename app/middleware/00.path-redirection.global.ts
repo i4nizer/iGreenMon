@@ -15,10 +15,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const accessToken = useCookie("access-token")
 
     // --- Trying to access user page without access token
-    if (isUserPage && !accessToken) return await navigateTo("/auth/sign-in")
+    if (isUserPage && !accessToken.value) return await navigateTo("/auth/sign-in")
     
     // --- Trying to access auth page with access token
-    if (isAuthPage && accessToken) {
+    if (isAuthPage && accessToken.value) {
         const { whoami } = useUser({ hydrate: false })
         const userResult = await whoami()
         if (!userResult.success) return;
