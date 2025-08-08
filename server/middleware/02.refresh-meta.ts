@@ -9,7 +9,7 @@ import { safeVerifyToken } from "~~/server/services/token"
  */
 export default defineEventHandler(async (event) => {
     // --- Skip non-user page requests
-    if (!event.context.isUserPage) return;
+    if (!event.context.isUserPage || !event.context.isAuthPage) return
 
     // --- Get valid refresh token
     const refreshToken = getCookie(event, "refresh-token")

@@ -8,10 +8,16 @@ import { User } from "~~/server/models/user"
  */
 export default defineEventHandler(async (event) => {
 	// Note: If this is user route, access and refresh token will surely exists.
-	const { isApi, isAuthPage, accessToken, accessTokenPayload } = event.context
+	const {
+		isApi,
+		isAuthPage,
+		isSignOutPage,
+		accessToken,
+		accessTokenPayload,
+	} = event.context
 
-	// --- Auth pages like /auth/sign-in shouldn't be accessed while signed-in
-	if (!isAuthPage || !accessToken) return
+	// --- Auth pages like /auth/sign-in shouldn't be accessed while signed-in except sign-out
+	if (!isAuthPage || !accessToken || isSignOutPage) return
 
 	// --- Do not allow auth requests while signed-in to avoid anomaly
 	if (isApi) {

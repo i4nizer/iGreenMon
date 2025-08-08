@@ -17,13 +17,14 @@ export default defineEventHandler(async (event) => {
 	const {
 		isApi,
 		isUserPage,
+		isAuthPage,
 		accessToken,
 		refreshToken,
 		refreshTokenPayload,
 	} = event.context
 
 	// --- Skip non-user page requests
-	if (!isUserPage) return
+	if (!isUserPage || !isAuthPage) return
 
 	// --- Access config
 	const config = useRuntimeConfig(event)
