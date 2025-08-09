@@ -15,24 +15,17 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// --- Check for user with same name or same email
+	// --- Check for user with same name
 	const userId = event.context.accessTokenPayload.id
-	const { name, email, phone } = bodyResult.data
-	const sameUser = await User.findOne({
-		where: {
-			id: { [Op.ne]: userId },
-			[Op.or]: [{ name }, { email }],
-		},
-		attributes: ["name", "email"],
-	})
+	const { name, phone } = bodyResult.data
+	const count = await User.count({ where: { id: { [Op.ne]: userId }, name } })
 
-	// --- If exists, name or email is taken
-	if (sameUser != null) {
-		const isSameName = sameUser.name == name
-		const nameError = "User name taken."
-		const emailError = "User email already exists."
-		const error = isSameName ? nameError : emailError
-		throw createError({ statusCode: 400, statusMessage: error })
+	// --- If exists, name is taken
+	if (count != 0) {
+        throw createError({
+			statusCode: 400,
+			statusMessage: "User name taken.",
+		})
 	}
 
 	// --- Find the user
@@ -47,6 +40,6 @@ export default defineEventHandler(async (event) => {
 	}
 
     // --- Udpate the user and provide it
-	await user.update({ name, email, phone })
+	await user.update({ name, phone })
 	return UserSafeSchema.parse(user)
 })

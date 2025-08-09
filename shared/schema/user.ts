@@ -33,7 +33,7 @@ const UserPasswordResetSchema = UserSchema.pick({ password: true })
 		path: ["confirm"],
 	})
 
-const UserUpdateSchema = UserSchema.pick({ name: true, email: true, phone: true })
+const UserUpdateSchema = UserSchema.pick({ name: true, phone: true })
 
 //
 
