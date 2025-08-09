@@ -28,8 +28,15 @@ const toast = useToast()
 
 // --- User
 const { user } = useUser()
-const onUpdateUserError = (msg: string) => toast.error(msg)
-const onUpdateUserSuccess = () => toast.success("User updated successfully.")
+
+const onUpdateUserError = (msg: string) => {
+    toast.error(msg)
+}
+
+const onUpdateUserSuccess = async (user: UserSafe) => {
+    toast.success("User updated successfully.")
+    await navigateTo(`/user/${user.name}/settings`)
+}
 
 //
 
