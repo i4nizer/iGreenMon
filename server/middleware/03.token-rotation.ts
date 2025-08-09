@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
 		refreshTokenPayload,
 	} = event.context
 
-	// --- Skip non-user page requests
-	if (!isUserPage || !isAuthPage) return
+	// --- Skip non-user/auth page requests
+	if (!isUserPage && !isAuthPage) return
 
 	// --- Access config
 	const config = useRuntimeConfig(event)
