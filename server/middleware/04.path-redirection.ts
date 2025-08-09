@@ -16,8 +16,14 @@ export default defineEventHandler(async (event) => {
 		accessTokenPayload,
 	} = event.context
 
-	// --- Auth pages like /auth/sign-in shouldn't be accessed while signed-in except sign-out
-	if (!isAuthPage || !accessToken || isSignOutPage) return
+	// --- Only handle auth page requests
+	if (!isAuthPage) return
+
+	// --- Auth page but no access token
+	if (!accessToken) return
+	
+	// --- Has access token but wants to sign-out
+	if (accessToken && isSignOutPage) return
 
 	// --- Do not allow auth requests while signed-in to avoid anomaly
 	if (isApi) {
