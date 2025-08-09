@@ -33,7 +33,7 @@ const UserPasswordResetSchema = UserSchema.pick({ password: true })
 		path: ["confirm"],
 	})
 
-const UserSettingsSchema = UserSchema.pick({ name: true })
+const UserUpdateSchema = UserSchema.pick({ name: true, email: true, phone: true })
 
 //
 
@@ -44,5 +44,5 @@ export {
 	UserSignInSchema,
 	UserEmailSchema,
 	UserPasswordResetSchema,
-	UserSettingsSchema,
+	UserUpdateSchema,
 }

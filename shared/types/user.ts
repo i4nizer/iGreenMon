@@ -6,7 +6,7 @@ import {
 	UserSignInSchema,
 	UserEmailSchema,
 	UserPasswordResetSchema,
-	UserSettingsSchema,
+	UserUpdateSchema,
 } from "#shared/schema/user"
 
 //
@@ -17,7 +17,7 @@ type UserSignUp = z.infer<typeof UserSignUpSchema>
 type UserSignIn = z.infer<typeof UserSignInSchema>
 type UserEmail = z.infer<typeof UserEmailSchema>
 type UserPasswordReset = z.infer<typeof UserPasswordResetSchema>
-type UserSettings = z.infer<typeof UserSettingsSchema>
+type UserUpdate = z.infer<typeof UserUpdateSchema>
 
 //
 
@@ -28,5 +28,5 @@ export type {
 	UserSignIn,
 	UserEmail,
 	UserPasswordReset,
-	UserSettings,
+	UserUpdate,
 }
