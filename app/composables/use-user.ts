@@ -19,6 +19,21 @@ export const useUser = (opts: { hydrate: boolean } = { hydrate: true }) => {
 		}
 	}
 
+	/** Updates the user details. */
+	const update = async (data: UserUpdate): Promise<SafeResult<UserSafe>> => {
+		try {
+			const res = await $fetch<UserSafe>("/api/user", {
+				method: "PATCH",
+				body: data,
+			})
+			user.value = res
+			return { success: true, data: res }
+		} catch (error) {
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+		}
+	}
+
 	/** Hydrate */
 	if (opts.hydrate) {
 		onBeforeMount(async () => await whoami())
@@ -26,5 +41,5 @@ export const useUser = (opts: { hydrate: boolean } = { hydrate: true }) => {
 	}
 
 	// --- Expose
-	return { user, whoami }
+	return { user, whoami, update }
 }
