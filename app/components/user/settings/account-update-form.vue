@@ -32,7 +32,7 @@
 			label="Email"
 			placeholder="example@email.com"
 			aria-autocomplete="both"
-			v-model="user.email"
+			:model-value="user.email"
 		></v-text-field>
 		<VeeField name="phone" #="{ field, errorMessage }">
 			<v-text-field
