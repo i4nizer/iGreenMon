@@ -64,6 +64,12 @@ export default defineEventHandler(async (event) => {
 			path: "/",
 			maxAge: config.jwtRefreshLife,
 		})
+
+		// --- Attach new tokens to event context
+		event.context.accessToken = newAccessToken
+		event.context.accessTokenPayload = { id }
+		event.context.refreshToken = newRefreshToken
+		event.context.refreshTokenPayload = { id }
 	}
 
 	// ### Unauthorized - when both tokens are missing
