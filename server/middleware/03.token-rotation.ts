@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// ### Unauthorized - when both tokens are missing
-	if (!accessToken && !refreshToken) {
+	if (!accessToken && !refreshToken && isUserPage) {
 		if (isApi) throw createError({ statusCode: 401 })
 		else return sendRedirect(event, "/auth/sign-in")
 	}
