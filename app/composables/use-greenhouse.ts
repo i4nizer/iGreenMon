@@ -63,7 +63,8 @@ export const useGreenhouse = () => {
         name: string
     ): Promise<SafeResult<Greenhouse>> => {
         try {
-            const res = await $fetch<Greenhouse>(`/api/user/greenhouse`, {
+            const url = `/api/user/greenhouse/${name}`
+            const res = await $fetch<Greenhouse>(url, {
                 method: "DELETE",
                 body: { name }
             })
