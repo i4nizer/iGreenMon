@@ -14,9 +14,11 @@ export default defineEventHandler(async (event) => {
 	const userPage = path.startsWith("/user") || path.startsWith("/api/user")
 	const authPage = path.startsWith("/auth") || path.startsWith("/api/auth")
 	const signOutPage = path === "/api/auth/sign-out"
+	const authCheckPage = path.startsWith("/api/auth/check")
 
 	event.context.isApi = path.startsWith("/api")
 	event.context.isUserPage = userPage
 	event.context.isAuthPage = authPage
 	event.context.isSignOutPage = signOutPage
+	event.context.isAuthCheckPage = authCheckPage
 })

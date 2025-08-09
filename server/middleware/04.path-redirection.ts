@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
 		isApi,
 		isAuthPage,
 		isSignOutPage,
+		isAuthCheckPage,
 		accessToken,
 		accessTokenPayload,
 	} = event.context
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
 	// --- Auth page but no access token
 	if (!accessToken) return
 	
-	// --- Has access token but wants to sign-out
-	if (accessToken && isSignOutPage) return
+	// --- Has access token but wants to sign-out or check name/email
+	if (accessToken && (isSignOutPage || isAuthCheckPage)) return
 
 	// --- Do not allow auth requests while signed-in to avoid anomaly
 	if (isApi) {
