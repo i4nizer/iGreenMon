@@ -1,4 +1,4 @@
-import { Greenhouse } from "~~/server/models/greenhouse"
+import { createGH } from "~~/server/services/greenhouse"
 import { GreenhouseCreateSchema } from "~~/shared/schema/greenhouse"
 
 //
@@ -14,21 +14,16 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // --- Do not allow greenhouse with the same name
+    // --- Pass to greenhouse service
     const userId = event.context.accessTokenPayload.id
-    const { name } = bodyResult.data
-    const count = await Greenhouse.count({ where: { name, userId } })
-    if (count != 0) {
+    const createResult = await createGH(bodyResult.data, userId)
+    if (!createResult.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: "Greenhouse name taken.",
+            statusMessage: createResult.error,
         })
     }
 
-    // --- Create the greenhouse
-    const data = { ...bodyResult.data, userId }
-    const greenhouse = await Greenhouse.create(data)
-
     // --- Return the greenhouse
-    return greenhouse.dataValues
+    return createResult.data.dataValues
 })

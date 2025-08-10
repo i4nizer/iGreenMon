@@ -1,4 +1,4 @@
-import { Greenhouse } from "~~/server/models/greenhouse"
+import { updateGH } from "~~/server/services/greenhouse"
 import { GreenhouseUpdateSchema } from "~~/shared/schema/greenhouse"
 
 //
@@ -14,32 +14,16 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// --- Find only the user's greenhouse
+	// --- Pass to greenhouse service
 	const userId = event.context.accessTokenPayload.id as number
-    const { id, name, description } = bodyResult.data
-	const greenhouse = await Greenhouse.findOne({ where: { id, userId } })
-    if (!greenhouse) {
+	const updateResult = await updateGH(bodyResult.data, userId)
+    if (!updateResult.success) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: "Greenhouse not found.",
+			statusCode: 400,
+			statusMessage: updateResult.error,
 		})
     }
-    
-    // --- Watch name change
-    const isNameChanged = name != greenhouse.name
-    if (isNameChanged) {
-		const count = await Greenhouse.count({ where: { name, userId } })
 
-		// --- Do not allow greenhouse with the same name
-		if (count != 0) {
-			throw createError({
-				statusCode: 400,
-				statusMessage: "Greenhouse name taken.",
-			})
-		}
-	}
-
-	// --- Update and send the greenhouse
-	await greenhouse.update({ name, description })
-	return greenhouse.dataValues
+	// --- Send the updated greenhouse
+	return updateResult.data.dataValues
 })

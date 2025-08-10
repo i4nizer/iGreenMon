@@ -1,4 +1,4 @@
-import { Greenhouse } from "~~/server/models/greenhouse"
+import { retrieveGH } from "~~/server/services/greenhouse"
 
 //
 
@@ -6,19 +6,16 @@ export default defineEventHandler(async (event) => {
 	// --- Get name from params
 	const { ghname } = getRouterParams(event, { decode: true })
 
-	// --- Find greenhouse relative to user
+	// --- Pass to greenhouse service
 	const userId = event.context.accessTokenPayload.id
-	const greenhouse = await Greenhouse.findOne({
-		where: { name: ghname, userId },
-	})
-
-	if (!greenhouse) {
+	const retrieveResult = await retrieveGH(ghname, userId)
+	if (!retrieveResult.success) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: "Greenhouse not found.",
+			statusCode: 400,
+			statusMessage: retrieveResult.error,
 		})
 	}
 
 	// --- Provide greenhouse
-	return greenhouse.dataValues
+	return retrieveResult.data.dataValues
 })

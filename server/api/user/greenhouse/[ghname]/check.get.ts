@@ -1,4 +1,4 @@
-import { Greenhouse } from "~~/server/models/greenhouse"
+import { isGHNameAvailable } from "~~/server/services/greenhouse"
 
 //
 
@@ -8,8 +8,14 @@ export default defineEventHandler(async (event) => {
     
     // --- Count greenhouse with same name relative to user
     const userId = event.context.accessTokenPayload.id
-    const count = await Greenhouse.count({ where: { name: ghname, userId } })
+    const checkResult = await isGHNameAvailable(ghname, userId)
+    if (!checkResult.success) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: checkResult.error,
+        })
+    }
     
     // --- Return state
-    return count <= 0
+    return checkResult.data
 })

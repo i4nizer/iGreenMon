@@ -1,4 +1,4 @@
-import { Greenhouse } from "~~/server/models/greenhouse"
+import { deleteGH } from "~~/server/services/greenhouse"
 
 //
 
@@ -8,17 +8,14 @@ export default defineEventHandler(async (event) => {
 
 	// --- Delete greenhouse relative to user
 	const userId = event.context.accessTokenPayload.id
-	const count = await Greenhouse.destroy({
-		where: { name: ghname, userId },
-	})
-
-	if (count <= 0) {
+	const delResult = await deleteGH(ghname, userId)
+	if (!delResult.success) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: "Greenhouse not found.",
+			statusCode: 400,
+			statusMessage: delResult.error,
 		})
 	}
 
 	// --- Send result
-	return count > 0
+	return delResult.data > 0
 })
