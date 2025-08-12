@@ -1,4 +1,4 @@
-import { InferAttributes, Op } from "sequelize"
+import { Op } from "sequelize"
 import { Greenhouse } from "~~/server/models/greenhouse"
 import { Invitation } from "~~/server/models/invitation"
 import { User } from "~~/server/models/user"
@@ -40,11 +40,5 @@ export default defineEventHandler(async (event) => {
         ],
     })
 
-    // --- Type the return
-    type InvitationGet = InferAttributes<Invitation>
-        & { invitee: Pick<InferAttributes<User>, "name"> }
-        & { invitee: Pick<InferAttributes<User>, "name"> }
-        & { greenhouse: Pick<InferAttributes<Greenhouse>, "name"> }
-    
     return invitations.map((i) => i.dataValues) as InvitationGet[]
 })

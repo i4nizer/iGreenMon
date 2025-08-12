@@ -1,3 +1,6 @@
+import { Greenhouse } from "~~/server/models/greenhouse"
+import { Invitation } from "~~/server/models/invitation"
+import { User } from "~~/server/models/user"
 import { rejectInvitation } from "~~/server/services/invitation"
 
 //
@@ -25,6 +28,34 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    // --- Get the invitation with a join
+    const invitation = await Invitation.findOne({
+        where: { id: invid },
+        include: [
+            {
+                model: User,
+                as: "invitee",
+                required: true,
+                foreignKey: "inviteeId",
+                attributes: ["name"],
+            },
+            {
+                model: User,
+                as: "inviter",
+                required: true,
+                foreignKey: "inviterId",
+                attributes: ["name"],
+            },
+            {
+                model: Greenhouse,
+                as: "greenhouse",
+                required: true,
+                foreignKey: "greenhouseId",
+                attributes: ["name"],
+            },
+        ],
+    }) as Invitation
+
     // --- Return the invitation
-    return acceptResult.data.dataValues
+    return invitation.dataValues as InvitationGet
 })
