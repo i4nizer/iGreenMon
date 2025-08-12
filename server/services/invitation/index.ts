@@ -18,7 +18,6 @@ const createInvitation = async (
 				inviteeId: data.inviteeId,
 				greenhouseId: data.greenhouseId,
 			},
-			attributes: ["id"],
 		})
 
 		// --- Already invited
