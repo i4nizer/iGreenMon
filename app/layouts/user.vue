@@ -28,6 +28,12 @@
                     ></v-list-item>
                     <v-list-item
                         link
+                        title="Invitation"
+                        prepend-icon="mdi-email"
+                        :to="`/user/${user?.name}/invitation`"
+                    ></v-list-item>
+                    <v-list-item
+                        link
                         title="Settings"
                         prepend-icon="mdi-cog"
                         :to="`/user/${user?.name}/settings`"
