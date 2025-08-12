@@ -17,8 +17,9 @@ const initModels = (sequelize: Sequelize) => {
 const initModelRelationships = () => {
 	// --- Model relationships
 	User.hasMany(Token, { foreignKey: "userId", onDelete: "CASCADE" })
-	Token.belongsTo(User, { foreignKey: "userId" })
-	Greenhouse.belongsTo(User, { foreignKey: "userId" })
+	User.hasMany(Greenhouse, { foreignKey: "userId", onDelete: "CASCADE" })
+	Token.belongsTo(User, { as: "user", foreignKey: "userId" })
+	Greenhouse.belongsTo(User, { as: "user", foreignKey: "userId" })
 }
 
 //
