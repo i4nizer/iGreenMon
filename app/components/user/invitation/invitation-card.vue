@@ -5,12 +5,12 @@
     >
 		<template #prepend>
 			<span v-if="incoming" :class="responded ? 'text-grey-darken-2' : ''">
-				<strong>{{ inv.inviter.name }}</strong> invited you to collaborate on
-				<strong>{{ inv.greenhouse.name }}</strong>
+				<strong>{{ invitation.inviter.name }}</strong> invited you to collaborate on
+				<strong>{{ invitation.greenhouse.name }}</strong>
 			</span>
             <span v-else :class="responded ? 'text-grey-darken-2' : ''">
-                You invited <strong>{{ inv.invitee.name }}</strong> to collaborate on
-                <strong>{{ inv.greenhouse.name }}</strong>
+                You invited <strong>{{ invitation.invitee.name }}</strong> to collaborate on
+                <strong>{{ invitation.greenhouse.name }}</strong>
             </span>
 		</template>
 		<template #text>
@@ -86,14 +86,20 @@ const props = defineProps<{
 }>()
 
 // --- State
-const inv = computed(() => props.invitation)
-const accepted = computed(() => inv.value.response == "Accepted")
-const responded = computed(() => inv.value.response != "Unset")
-
-// --- Date Format
 const date = useDate()
-const format = "fullDateTime12h"
-const creation = computed(() => date.format(inv.value.createdAt, format))
+const accepted = ref(false)
+const responded = ref(false)
+const creation = ref("")
+
+watch(
+	() => props.invitation,
+	nv => {
+		accepted.value = nv.response == "Accepted"
+		responded.value = nv.response != "Unset"
+		creation.value = date.format(nv.createdAt, "fullDateTime12h")
+	},
+	{ deep: true, immediate: true }
+)
 
 // --- State Binding
 const loading = ref(false)

@@ -58,11 +58,12 @@
         <v-row>
             <!-- Invitation Lists -->
             <v-col 
-                v-for="inv in filteredInvs"
+                v-for="inv in invs"
                 cols="12"
                 :key="inv.id"
             >
                 <invitation-card
+                    :key="inv.id"
                     :incoming="user?.id == inv.inviteeId"
                     :invitation="inv"
                     @cancel="onCancelInv"
@@ -118,6 +119,7 @@ const fetchInvs = async () => {
     const res = await invUtil.retrieveAllInvitation()
     if (!res.success) return toast.error(res.error)
     res.data.forEach((i) => invStore.append(i))
+    invs.value = filterInvs(res.data, filter)
 }
 
 const onCancelInv = async (
@@ -128,7 +130,7 @@ const onCancelInv = async (
     const res = await invUtil.cancelInvitation(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
-    invStore.change(inv)
+    invStore.change(res.data)
     toast.success(`Invitation cancelled successfully.`)
 }
 
@@ -140,7 +142,7 @@ const onAcceptInv = async (
     const res = await invUtil.acceptInvitation(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
-    invStore.change(inv)
+    invStore.change(res.data)
     toast.success(`Invitation accepted successfully.`)
 }
 
@@ -152,7 +154,7 @@ const onRejectInv = async (
     const res = await invUtil.rejectInvitation(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
-    invStore.change(inv)
+    invStore.change(res.data)
     toast.success(`Invitation declined successfully.`)
 }
 
@@ -165,22 +167,28 @@ const onCreateInvSuccess = (inv: InvitationGet) => {
     toast.success(`${inv.invitee.name} invited to ${inv.greenhouse.name}.`)
 }
 
-onBeforeMount(async () => await fetchInvs().then(() => filterInvs()))
-onServerPrefetch(async () => await fetchInvs().then(() => filterInvs()))
+onBeforeMount(async () => await fetchInvs())
+onServerPrefetch(async () => await fetchInvs())
 
 // --- Filtering
+const invs = useState<InvitationGet[]>("invs", () => [])
 const filter = reactive({
     status: ["Emailed", "Not Emailed"],
     response: ["Unset", "Accepted", "Rejected", "Cancelled"],
     direction: ["Incoming", "Outgoing"],
 })
-const filteredInvs = useState<InvitationGet[]>("filtered-invs", () => [])
 
-const filterInvs = () => {
-    if (!filteredInvs.value) return
-    filteredInvs.value.splice(0, filteredInvs.value.length)
+const filterInvs = (
+    invs: InvitationGet[],
+    filter: {
+        status: string[],
+        response: string[],
+        direction: string[]
+    }
+) => {
+    const temp = []
 
-    for (const inv of invitations) {
+    for (const inv of invs) {
         const status = inv.emailed ? "Emailed" : "Not Emailed"
         const incoming = user.value?.id == inv.inviteeId
         const direction = incoming ? "Incoming" : "Outgoing"
@@ -189,12 +197,23 @@ const filterInvs = () => {
         match = match && filter.response.includes(inv.response)
         match = match && filter.direction.includes(direction)
 
-        if (match) filteredInvs.value.push(inv)
+        if (match) temp.push(inv)
     }
+
+    return temp
 }
 
-watch(filter, nv => filterInvs(), { deep: true, immediate: true })
-watch(invitations, nv => filterInvs(), { deep: true, immediate: true })
+watch(
+    filter,
+    nv => invs.value = filterInvs(invitations, nv),
+    { deep: true, immediate: true }
+)
+
+watch(
+    invitations,
+    nv => invs.value = filterInvs(nv, filter),
+    { deep: true, immediate: true }
+)
 
 //
 
