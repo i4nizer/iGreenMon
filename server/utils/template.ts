@@ -15,25 +15,23 @@ type Template =
 
 const renderTemplate = async (template: Template) => {
 	const { type, data } = template
-	const filepath = `${process.cwd()}/templates/${type.toLowerCase()}.ejs`
+	const cwd = process.cwd()
+	const file = type.toLocaleLowerCase()
+	const filepath = `${cwd}/templates/${file}.ejs`
 	return await ejs.renderFile(filepath, data)
 }
 
 //
 
-const safeRenderTemplate = async (
-	template: Template
-): Promise<SafeResult<string, Error>> => {
-	try {
-		const { type, data } = template
-		const filepath = `${process.cwd()}/templates/${type.toLowerCase()}.ejs`
-		const result = await ejs.renderFile(filepath, data)
-		return { success: true, data: result }
-	} catch (error) {
-		return { success: false, error: error as Error }
+export const useTemplate = async <S extends boolean = false>(
+	opts: Template & { safe?: S }
+): Promise<S extends true ? SafeResult<string, Error> : string> => {
+	if (opts.safe) {
+		try {
+			return { success: true, data: await renderTemplate(opts) } as any
+		} catch (error) {
+			return { success: false, error: error as Error } as any
+		}
 	}
+	return renderTemplate(opts) as any
 }
-
-//
-
-export { type Template, renderTemplate, safeRenderTemplate }

@@ -124,7 +124,7 @@ const forgotPassword = async (
         // --- Craft the forgot pass email link and template
         const pathMeta = `email/${user.email}/reset?token=${token.value}`
 		const resetLink = `${origin}/auth/recovery/${pathMeta}`
-		const resetTemplate = await renderTemplate({
+		const resetTemplate = await useTemplate({
 			type: "Reset-Password",
 			data: { name: user.name, link: resetLink },
         })
@@ -226,7 +226,7 @@ const resendResetPasswordEmail = async (
 		// --- Craft the forgot pass email link and template
 		const pathMeta = `email/${user.email}/reset?token=${token.value}`
 		const resetLink = `${origin}/auth/recovery/${pathMeta}`
-		const resetTemplate = await renderTemplate({
+		const resetTemplate = await useTemplate({
 			type: "Reset-Password",
 			data: { name: user.name, link: resetLink },
 		})
@@ -288,7 +288,7 @@ const resetPassword = async(
 		await token.destroy()
 
 		// --- Inform user via email
-		const emailTemplate = await renderTemplate({
+		const emailTemplate = await useTemplate({
 			type: "Reset-Password-Success",
 			data: { name: user.name }
 		})

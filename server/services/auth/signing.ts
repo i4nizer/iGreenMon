@@ -56,7 +56,7 @@ const signUp = async (
 		const verificationLink = `${origin}${path}${query}`
 
 		// --- Render the email with the user and link
-		const emailTemplate = await renderTemplate({
+		const emailTemplate = await useTemplate({
 			type: "Verification",
 			data: { name: user.name, link: verificationLink },
 		})
@@ -108,7 +108,7 @@ const signIn = async (
 		// --- Failed attempt
 		if (!match) {
 			// --- Craft failed attempt template
-			const failedTemplate = await renderTemplate({
+			const failedTemplate = await useTemplate({
 				type: "Sign-In-Failed",
 				data: { name: user.name, timestamp: new Date() }
 			})
@@ -150,7 +150,7 @@ const signIn = async (
 		}
 
 		// --- Craft successful sign-in email
-		const successTemplate = await renderTemplate({
+		const successTemplate = await useTemplate({
 			type: "Sign-In-Success",
 			data: { name: user.name, timestamp: new Date() }
 		})

@@ -166,7 +166,7 @@ const resendVerificationEmail = async (
 		// --- Craft email link and template
 		const pathMeta = `email/${user.email}/verify?token=${token.value}`
 		const verificationLink = `${origin}/auth/verification/${pathMeta}`
-		const emailTemplate = await renderTemplate({
+		const emailTemplate = await useTemplate({
 			type: "Verification",
 			data: { name: user.name, link: verificationLink }
 		})
@@ -229,7 +229,7 @@ const verifyUser = async (
 		await verificationToken.destroy()
 
 		// --- Inform user via email
-		const emailTemplate = await renderTemplate({
+		const emailTemplate = await useTemplate({
 			type: "Verification-Success",
 			data: { name: user.name }
 		})
