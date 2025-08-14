@@ -17,8 +17,6 @@ type Template =
 			inviter: string;
 			message: string;
 			greenhouse: string;
-			acceptLink: string;
-			declineLink: string;
 		}
 	} | {
 		type:
