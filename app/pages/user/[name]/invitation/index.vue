@@ -6,8 +6,12 @@
             </v-col>
         </v-row>
         <v-row>
+            <!-- Own Invite ID -->
+            <v-col cols="3">
+                <span>My Invitee ID: <strong>{{ user?.id }}</strong></span>
+            </v-col>
             <!-- For creating invitations -->
-            <v-col cols="12" class="text-end py-0">
+            <v-col cols="9" class="text-end py-0">
                 <v-dialog class="w-100 w-md-50">
                     <template #activator="{ props: activatorProps }">
                         <v-btn class="bg-green" :="activatorProps">
@@ -60,6 +64,7 @@
             <v-col 
                 v-for="inv in invs"
                 cols="12"
+                class="pb-0"
                 :key="inv.id"
             >
                 <invitation-card
