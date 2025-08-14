@@ -3,7 +3,7 @@
 
 export const useInvitation = () => {
 	// --- CRUD utilities
-	const createInvitation = async (
+	const create = async (
 		data: InvitationCreate
 	): Promise<SafeResult<InvitationGet>> => {
 		try {
@@ -19,7 +19,7 @@ export const useInvitation = () => {
 		}
     }
     
-    const retrieveInvitation = async (
+    const retrieve = async (
         invitationId: number
     ): Promise<SafeResult<InvitationGet>> => {
         try {
@@ -33,7 +33,7 @@ export const useInvitation = () => {
 		}
     }
 
-    const retrieveAllInvitation = async (
+    const retrieveAll = async (
     ): Promise<SafeResult<InvitationGet[]>> => {
         try {
             const url = `/api/user/invitation`
@@ -47,7 +47,7 @@ export const useInvitation = () => {
     }
 
     // --- Response utilities
-	const cancelInvitation = async (
+	const cancel = async (
 		invid: number
 	): Promise<SafeResult<InvitationGet>> => {
 		try {
@@ -61,7 +61,7 @@ export const useInvitation = () => {
 		}
 	}
 
-	const acceptInvitation = async (
+	const accept = async (
 		invid: number
 	): Promise<SafeResult<InvitationGet>> => {
 		try {
@@ -75,7 +75,7 @@ export const useInvitation = () => {
 		}
 	}
 
-	const rejectInvitation = async (
+	const reject = async (
 		invid: number
 	): Promise<SafeResult<InvitationGet>> => {
 		try {
@@ -91,11 +91,11 @@ export const useInvitation = () => {
 
 	// --- Expose
     return {
-        retrieveInvitation,
-        retrieveAllInvitation,
-		createInvitation,
-		cancelInvitation,
-		acceptInvitation,
-		rejectInvitation,
+        retrieve,
+        retrieveAll,
+		create,
+		cancel,
+		accept,
+		reject,
 	}
 }

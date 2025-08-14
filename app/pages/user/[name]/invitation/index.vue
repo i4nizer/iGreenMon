@@ -121,7 +121,7 @@ const { invitations } = invStore
 
 const fetchInvs = async () => {
     if (invitations.length > 0) return
-    const res = await invUtil.retrieveAllInvitation()
+    const res = await invUtil.retrieveAll()
     if (!res.success) return toast.error(res.error)
     res.data.forEach((i) => invStore.append(i))
     invs.value = filterInvs(res.data, filter)
@@ -132,7 +132,7 @@ const onCancelInv = async (
     opts: { loading: Ref<boolean> }
 ) => {
     opts.loading.value = true
-    const res = await invUtil.cancelInvitation(inv.id)
+    const res = await invUtil.cancel(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
     invStore.change(res.data)
@@ -144,7 +144,7 @@ const onAcceptInv = async (
     opts: { loading: Ref<boolean> }
 ) => {
     opts.loading.value = true
-    const res = await invUtil.acceptInvitation(inv.id)
+    const res = await invUtil.accept(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
     invStore.change(res.data)
@@ -156,7 +156,7 @@ const onRejectInv = async (
     opts: { loading: Ref<boolean> }
 ) => {
     opts.loading.value = true
-    const res = await invUtil.rejectInvitation(inv.id)
+    const res = await invUtil.reject(inv.id)
     opts.loading.value = false
     if (!res.success) return toast.error(res.error)
     invStore.change(res.data)
