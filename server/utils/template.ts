@@ -10,6 +10,27 @@ type Template =
 	| { type: "Reset-Password-Success"; data: { name: string } }
 	| { type: "Sign-In-Failed"; data: { name: string; timestamp?: Date } }
 	| { type: "Sign-In-Success"; data: { name: string; timestamp?: Date } }
+	| {
+		type: "Invitation";
+		data: {
+			invitee: string;
+			inviter: string;
+			message: string;
+			greenhouse: string;
+			acceptLink: string;
+			declineLink: string;
+		}
+	} | {
+		type:
+			| "Invitation-Accepted" 
+			| "Invitation-Declined" 
+			| "Invitation-Cancelled"
+		data: {
+			invitee: string;
+			inviter: string;
+			greenhouse: string;
+		}
+	}
 
 //
 
