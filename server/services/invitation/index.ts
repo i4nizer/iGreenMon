@@ -1,4 +1,8 @@
+import { InferAttributes } from "sequelize"
+import { Greenhouse } from "~~/server/models/greenhouse"
 import { Invitation } from "~~/server/models/invitation"
+import { User } from "~~/server/models/user"
+import { queueEmail } from "~~/server/services/email"
 
 //
 
@@ -27,6 +31,47 @@ const createInvitation = async (
 
 		// --- Create and return the invitation
 		const inv = await Invitation.create({ ...data, inviterId })
+
+		// --- Get invitee name
+		const invitee = await User.findOne({
+			where: { id: data.inviteeId },
+			attributes: ["name", "email"],
+		})
+		if (!invitee) return { success: false, error: "Invitee not found." }
+
+		// --- Get inviter name
+		const inviter = await User.findOne({
+			where: { id: inviterId },
+			attributes: ["name"],
+		})
+		if (!inviter) return { success: false, error: "Inviter not found." }
+
+		// --- Get greenhouse
+		const gh = await Greenhouse.findOne({
+			where: { id: data.greenhouseId },
+			attributes: ["name"],
+		})
+		if (!gh) return { success: false, error: "Greenhouse not found." }
+
+		// --- Craft invitation email
+		const template = await useTemplate({
+			type: "Invitation",
+			data: {
+				invitee: invitee.name,
+				inviter: inviter.name,
+				message: data.message,
+				greenhouse: gh.name,
+			},
+		})
+
+		// --- Send email
+		queueEmail(
+			invitee.email,
+			"Crew Invitation - Greenmon",
+			undefined,
+			template
+		)
+
 		return { success: true, data: inv }
 	} catch (error) {
 		console.error(error)
@@ -50,13 +95,60 @@ const cancelInvitation = async (
 				response: "Unset",
 				inviterId,
 			},
+			include: [
+				{
+					model: User,
+					as: "invitee",
+					required: true,
+					foreignKey: "inviteeId",
+					attributes: ["name", "email"],
+				},
+				{
+					model: User,
+					as: "inviter",
+					required: true,
+					foreignKey: "inviterId",
+					attributes: ["name"],
+				},
+				{
+					model: Greenhouse,
+					as: "greenhouse",
+					required: true,
+					foreignKey: "greenhouseId",
+					attributes: ["name"],
+				},
+			],
 		})
 
 		// --- The inviter either doesn't own the invitation or done
 		if (!inv) return { success: false, error: "Invitation not found." }
-
-		// --- Cancel and provide the invitation
+		
+		// --- Cancel the invitation
 		await inv.update({ response: "Cancelled" })
+		const invitation = inv.dataValues as InferAttributes<Invitation> & {
+			invitee: { name: string; email: string }
+			inviter: { name: string }
+			greenhouse: { name: string }
+		}
+
+		// --- Inform the invitee about the cancellation
+		const template = await useTemplate({
+			type: "Invitation-Cancelled",
+			data: {
+				invitee: invitation.invitee.name,
+				inviter: invitation.inviter.name,
+				greenhouse: invitation.greenhouse.name,
+			},
+		})
+
+		// --- Send the email
+		queueEmail(
+			invitation.invitee.email,
+			"Invitation Cancelled - Greenmon",
+			undefined,
+			template
+		)
+
 		return { success: true, data: inv }
 	} catch (error) {
 		console.error(error)
@@ -80,13 +172,60 @@ const acceptInvitation = async (
 				response: "Unset",
 				inviteeId,
 			},
+			include: [
+				{
+					model: User,
+					as: "invitee",
+					required: true,
+					foreignKey: "inviteeId",
+					attributes: ["name"],
+				},
+				{
+					model: User,
+					as: "inviter",
+					required: true,
+					foreignKey: "inviterId",
+					attributes: ["name", "email"],
+				},
+				{
+					model: Greenhouse,
+					as: "greenhouse",
+					required: true,
+					foreignKey: "greenhouseId",
+					attributes: ["name"],
+				},
+			],
 		})
 
 		// --- The invitee either wasn't invited or done
 		if (!inv) return { success: false, error: "Invitation not found." }
 
-		// --- Accept the invitation and return it
+		// --- Accept the invitation
 		await inv.update({ response: "Accepted" })
+		const invitation = inv.dataValues as InferAttributes<Invitation> & {
+			invitee: { name: string }
+			inviter: { name: string; email: string }
+			greenhouse: { name: string }
+		}
+
+		// --- Inform the inviter about the acceptance
+		const template = await useTemplate({
+			type: "Invitation-Accepted",
+			data: {
+				invitee: invitation.invitee.name,
+				inviter: invitation.inviter.name,
+				greenhouse: invitation.greenhouse.name,
+			},
+		})
+
+		// --- Send the email
+		queueEmail(
+			invitation.inviter.email,
+			"Invitation Accepted - Greenmon",
+			undefined,
+			template
+		)
+
 		return { success: true, data: inv }
 	} catch (error) {
 		console.error(error)
@@ -110,13 +249,60 @@ const rejectInvitation = async (
 				response: "Unset",
 				inviteeId,
 			},
+			include: [
+				{
+					model: User,
+					as: "invitee",
+					required: true,
+					foreignKey: "inviteeId",
+					attributes: ["name"],
+				},
+				{
+					model: User,
+					as: "inviter",
+					required: true,
+					foreignKey: "inviterId",
+					attributes: ["name", "email"],
+				},
+				{
+					model: Greenhouse,
+					as: "greenhouse",
+					required: true,
+					foreignKey: "greenhouseId",
+					attributes: ["name"],
+				},
+			],
 		})
 
 		// --- The invitee either wasn't invited or done
 		if (!inv) return { success: false, error: "Invitation not found." }
 
-		// --- Reject the invitation and return it
+		// --- Reject the invitation
 		await inv.update({ response: "Rejected" })
+		const invitation = inv.dataValues as InferAttributes<Invitation> & {
+			invitee: { name: string }
+			inviter: { name: string; email: string }
+			greenhouse: { name: string }
+		}
+
+		// --- Inform the inviter about the rejection
+		const template = await useTemplate({
+			type: "Invitation-Declined",
+			data: {
+				invitee: invitation.invitee.name,
+				inviter: invitation.inviter.name,
+				greenhouse: invitation.greenhouse.name,
+			},
+		})
+
+		// --- Send the email
+		queueEmail(
+			invitation.inviter.email,
+			"Invitation Declined - Greenmon",
+			undefined,
+			template
+		)
+
 		return { success: true, data: inv }
 	} catch (error) {
 		console.error(error)
