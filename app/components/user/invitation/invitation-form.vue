@@ -73,14 +73,14 @@ const props = defineProps<{
 }>()
 
 // --- Handling
-const { createInvitation } = useInvitation()
+const invUtil = useInvitation()
 
 const onSubmit = async (values: any, event: any) => {
     const inv = values as InvitationCreate
     emit("submit", inv)
     if (props.handler) return props.handler(inv, event)
 
-    const invResult = await createInvitation(inv)
+    const invResult = await invUtil.create(inv)
     if (!invResult.success) return emit("error", invResult.error)
 
     emit("success", invResult.data)
