@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 		const id = refreshTokenPayload.id as number
 
 		// --- Find refresh token first
-		const tokenQuery = { type: "Refresh", value: refreshToken, userId: id }
+		const tokenQuery = { type: "Refresh", userId: id }
 		const token = await Token.findOne({ where: tokenQuery })
 
 		// --- Invalid refresh token
