@@ -1,4 +1,5 @@
 import { InferAttributes } from "sequelize"
+import { Crew } from "~~/server/models/crew"
 import { Greenhouse } from "~~/server/models/greenhouse"
 import { Invitation } from "~~/server/models/invitation"
 import { User } from "~~/server/models/user"
@@ -207,6 +208,12 @@ const acceptInvitation = async (
 			inviter: { name: string; email: string }
 			greenhouse: { name: string }
 		}
+
+		// --- Create crew with the userId
+		await Crew.create({
+			userId: inv.inviteeId,
+			greenhouseId: inv.greenhouseId,
+		})
 
 		// --- Inform the inviter about the acceptance
 		const template = await useTemplate({
