@@ -84,7 +84,7 @@ const { user } = useUser()
 
 // --- Responsive
 const { mdAndDown, smAndDown } = useDisplay()
-const isDrawer = ref(!smAndDown)
+const isDrawer = ref(!smAndDown.value)
 const isMobile = computed(() => smAndDown.value)
 const isTablet = computed(() => !isMobile.value && mdAndDown.value)
 
