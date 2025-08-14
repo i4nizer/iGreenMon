@@ -18,8 +18,16 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// --- Pass logic to the inv service
+	// --- Do not self invite
 	const userId = event.context.accessTokenPayload.id
+	if (userId == bodyResult.data.inviteeId) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Can't invite self.",
+		})
+	}
+	
+	// --- Pass logic to the inv service
 	const invResult = await createInvitation(bodyResult.data, userId)
 
 	if (!invResult.success) {
