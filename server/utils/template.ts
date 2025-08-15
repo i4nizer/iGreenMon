@@ -28,6 +28,13 @@ type Template =
 			inviter: string;
 			greenhouse: string;
 		}
+	} | {
+		type: "Crew-Removal-Notif"
+		data: {
+			crew: string;
+			owner: string;
+			greenhouse: string;
+		}
 	}
 
 //
