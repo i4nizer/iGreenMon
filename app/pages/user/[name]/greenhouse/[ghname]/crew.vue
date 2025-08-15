@@ -7,7 +7,10 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <crew-table :crews />
+                <crew-table 
+                    :crews 
+                    @remove="onRemoveCrew"
+                />
             </v-col>
         </v-row>
     </v-container>
@@ -31,6 +34,14 @@ const fetchCrews = async () => {
     const res = await crewUtil.retrieveAll(ghname)
     if (!res.success) return toast.error(res.error)
     crews.value.push(...res.data)
+}
+
+const onRemoveCrew = async (crew: CrewGet) => {
+    const removeResult = await crewUtil.destroy(crew.id)
+    if (!removeResult.success) return toast.error(removeResult.error)
+    const idx = crews.value.findIndex((c) => c.id == crew.id)
+    if (idx != -1) crews.value.splice(idx, 1)
+    toast.success(`${crew.user.name} will be informed of removal.`)
 }
 
 onBeforeMount(async () => await fetchCrews())
