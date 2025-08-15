@@ -2,16 +2,28 @@
 //
 
 export const useCrew = () => {
-    /**
-     * @param ghname - greenhouse.name
-     */
-    const retrieveAll = async (
-        ghname: string
-    ): Promise<SafeResult<CrewGet[]>> => {
+	/**
+	 * @param ghname - greenhouse.name
+	 */
+	const retrieveAll = async (
+		ghname: string
+	): Promise<SafeResult<CrewGet[]>> => {
+		try {
+			const url = `/api/user/greenhouse/crew?ghname=${ghname}`
+			const reqFetch = useRequestFetch()
+			const res = await reqFetch<CrewGet[]>(url)
+			return { success: true, data: res }
+		} catch (error) {
+			const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+		}
+	}
+
+    const destroy = async (crewId: number): Promise<SafeResult> => {
         try {
-            const url = `/api/user/greenhouse/crew?ghname=${ghname}`
+            const url = `/api/user/greenhouse/crew?crewid=${crewId}`
             const reqFetch = useRequestFetch()
-            const res = await reqFetch<CrewGet[]>(url)
+            const res = await reqFetch(url, { method: "DELETE" })
             return { success: true, data: res }
         } catch (error) {
             const msg = (error as any)?.statusMessage ?? "Something went wrong."
@@ -19,6 +31,6 @@ export const useCrew = () => {
         }
     }
 
-    // --- Expose
-    return { retrieveAll }
+	// --- Expose
+	return { retrieveAll, destroy }
 }
