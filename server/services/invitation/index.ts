@@ -15,6 +15,21 @@ const createInvitation = async (
 	inviterId: number
 ): Promise<SafeResult<Invitation>> => {
 	try {
+		// --- Check if already a crew
+		const crewCount = await Crew.count({
+			where: {
+				userId: data.inviteeId,
+				greenhouseId: data.greenhouseId,
+			},
+		})
+
+		if (crewCount > 0) {
+			return {
+				success: false,
+				error: "User is already a crew of the greenhouse.",
+			}
+		}
+
 		// --- Check if there is valid existing in invitation for the same greenhouse
 		const invCount = await Invitation.count({
 			where: {
