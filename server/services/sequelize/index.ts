@@ -3,6 +3,7 @@ import { Token, tokenAttributes, tokenOptions } from "~~/server/models/token";
 import { Greenhouse, greenhouseAttributes, greenhouseOptions } from "~~/server/models/greenhouse";
 import { Invitation, invitationAttributes, invitationOptions } from "~~/server/models/invitation";
 import { Crew, crewAttributes, crewOptions } from "~~/server/models/crew";
+import { Permission, permissionAttributes, permissionOptions } from "~~/server/models/permission";
 import { Sequelize } from "sequelize";
 
 //
@@ -15,6 +16,7 @@ const initModels = (sequelize: Sequelize) => {
 	Greenhouse.init(greenhouseAttributes, greenhouseOptions(sequelize))
 	Invitation.init(invitationAttributes, invitationOptions(sequelize))
 	Crew.init(crewAttributes, crewOptions(sequelize))
+	Permission.init(permissionAttributes, permissionOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -30,6 +32,7 @@ const initModelRelationships = () => {
 	Greenhouse.belongsTo(User, { as: "user", foreignKey: "userId" })
 	Greenhouse.hasMany(Invitation, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Crew, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Greenhouse.hasMany(Permission, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Invitation.belongsTo(User, { as: "inviter", foreignKey: "inviterId" })
 	Invitation.belongsTo(User, { as: "invitee", foreignKey: "inviteeId" })
@@ -37,6 +40,10 @@ const initModelRelationships = () => {
 
 	Crew.belongsTo(User, { as: "user", foreignKey: "userId" })
 	Crew.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	Crew.hasMany(Permission, { foreignKey: "crewId", onDelete: "CASCADE" })
+
+	Permission.belongsTo(Crew, { as: "crew", foreignKey: "crewId" })
+	Permission.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
