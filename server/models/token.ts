@@ -7,7 +7,7 @@ import type {
 	ModelAttributes,
 	InitOptions,
 } from "sequelize"
-import { type TokenType, TokenTypes } from "~~/server/types/token-type"
+import { TokenType } from "~~/server/types/token"
 
 //
 
@@ -36,7 +36,7 @@ const tokenAttributes: ModelAttributes<Token, InferAttributes<Token>> = {
 		allowNull: false,
 	},
 	type: {
-		type: DataTypes.ENUM(...TokenTypes),
+		type: DataTypes.ENUM(...TokenType),
 		allowNull: false,
 	},
 	userId: {
