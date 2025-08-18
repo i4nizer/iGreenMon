@@ -3,6 +3,7 @@ const TokenType = [
 	"Refresh",
 	"Reset",
 	"Verify",
+	"Esp32",
 ] as const
 type TokenType = (typeof TokenType)[number]
 

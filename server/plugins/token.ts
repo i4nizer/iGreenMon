@@ -1,4 +1,4 @@
-import type { TokenType } from "../types/token-type"
+import type { TokenType } from "../types/token"
 import { tokenMetas } from "~~/server/services/token"
 
 //
@@ -11,13 +11,15 @@ export default defineNitroPlugin(() => {
 		jwtRefreshLife,
 		jwtVerifyLife,
 		jwtResetLife,
+		jwtEsp32Life,
 		jwtAccessSecret,
 		jwtRefreshSecret,
 		jwtVerifySecret,
 		jwtResetSecret,
-    } = config
-    
-    const jwtMetas: { type: TokenType, life: number, secret: string }[] = [
+		jwtEsp32Secret,
+	} = config
+
+	const jwtMetas: { type: TokenType; life: number; secret: string }[] = [
 		{
 			type: "Access",
 			life: jwtAccessLife,
@@ -38,8 +40,13 @@ export default defineNitroPlugin(() => {
 			life: jwtResetLife,
 			secret: jwtResetSecret,
 		},
-    ]
-    
+		{
+			type: "Esp32",
+			life: jwtEsp32Life,
+			secret: jwtEsp32Secret,
+		},
+	]
+
 	tokenMetas.push(...jwtMetas)
 	const isProd = config.nodeEnv == "production"
 	if (!isProd) console.info("Token metas configured.")

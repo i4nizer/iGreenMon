@@ -18,10 +18,12 @@ export default defineNuxtConfig({
 		jwtRefreshLife: 0,
 		jwtResetLife: 0,
 		jwtVerifyLife: 0,
+		jwtEsp32Life: 0,
 		jwtAccessSecret: "",
 		jwtRefreshSecret: "",
 		jwtResetSecret: "",
 		jwtVerifySecret: "",
+		jwtEsp32Secret: "",
 		public: {
 			jwtResetLife: 0,
 			jwtVerifyLife: 0,
