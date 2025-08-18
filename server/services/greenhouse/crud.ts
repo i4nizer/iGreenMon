@@ -1,5 +1,7 @@
 import { Greenhouse } from "~~/server/models/greenhouse"
 import { isGHNameAvailable } from "./util"
+import { Op } from "sequelize"
+import { Crew } from "~~/server/models/crew"
 
 //
 
@@ -33,7 +35,23 @@ const retrieveGH = async (
 	userId: number
 ): Promise<SafeResult<Greenhouse>> => {
 	try {
-		const gh = await Greenhouse.findOne({ where: { name, userId } })
+		// --- Find crew instances of the user
+		const crews = await Crew.findAll({
+			where: { userId },
+			attributes: ["greenhouseId"],
+		})
+
+		// --- Find greenhouse including from crew instances
+		const ghIds = crews.map((c) => c.greenhouseId)
+		const gh = await Greenhouse.findOne({
+			where: {
+				[Op.or]: [
+					{ name, userId },
+					{ id: { [Op.in]: ghIds }, name },
+				],
+			},
+		})
+
 		if (!gh) return { success: false, error: "Greenhouse not found." }
 		return { success: true, data: gh }
 	} catch (error) {
@@ -59,6 +77,9 @@ const updateGH = async (
 		// --- Find greenhouse
 		const gh = await Greenhouse.findOne({ where: { id, userId } })
 		if (!gh) return { success: false, error: "Greenhouse not found." }
+
+		// --- Update greenhouse
+		await gh.update({ name, description })
 
 		// --- Provide greenhouse
 		return { success: true, data: gh }
