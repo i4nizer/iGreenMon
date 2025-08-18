@@ -50,6 +50,8 @@
             >
                 <greenhouse-card
                     :greenhouse
+                    :hide-edit="user?.id != greenhouse.userId"
+                    :hide-delete="user?.id != greenhouse.userId"
                     @view="onViewGH"
                     @edit="onEditGH"
                     @delete="onDeleteGH"
@@ -76,6 +78,9 @@
 const route = useRoute()
 const toast = useToast()
 
+// --- User
+const { user } = useUser()
+onMounted(() => console.log(JSON.stringify(user.value)))
 // --- Utilities
 const { retrieve, retrieveAll, destroy } = useGreenhouse()
 const { greenhouses, append, change, remove } = useGreenhouseStore()
