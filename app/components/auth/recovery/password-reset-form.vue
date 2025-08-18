@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { UserPasswordResetSchema } from "~~/shared/schema/user"
-import type { UserPasswordReset } from "~~/shared/types/user"
+import type { UserPasswordReset } from "~~/shared/schema/user"
 
 //
 

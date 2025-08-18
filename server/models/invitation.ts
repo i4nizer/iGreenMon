@@ -6,16 +6,7 @@ import type {
 	CreationOptional,
 	InferCreationAttributes,
 } from "sequelize"
-
-//
-
-const InvitationResponse = [
-	"Unset",
-	"Accepted",
-	"Rejected",
-	"Cancelled",
-] as const
-type InvitationResponse = (typeof InvitationResponse)[number]
+import { InvitationResponse } from "#shared/schema/invitation"
 
 //
 

@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import type { UserSafe } from '~~/shared/schema/user'
 
 //
 

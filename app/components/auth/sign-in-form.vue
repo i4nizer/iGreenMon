@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserSignIn } from "~~/shared/types/user"
+import type { UserSignIn } from "~~/shared/schema/user"
 import { UserSchema, UserSignInSchema } from "~~/shared/schema/user"
 
 //

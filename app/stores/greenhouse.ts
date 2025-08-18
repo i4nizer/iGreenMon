@@ -1,3 +1,4 @@
+import type { Greenhouse } from "~~/shared/schema/greenhouse"
 
 //
 

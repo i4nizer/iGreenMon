@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { UserEmailSchema } from "~~/shared/schema/user"
-import type { UserEmail } from "~~/shared/types/user"
+import type { UserEmail } from "~~/shared/schema/user"
 
 //
 

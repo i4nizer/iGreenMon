@@ -71,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import type { Greenhouse } from '~~/shared/schema/greenhouse'
 
 //
 

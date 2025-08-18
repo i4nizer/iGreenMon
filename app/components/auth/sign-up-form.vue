@@ -77,7 +77,11 @@
 </template>
 
 <script setup lang="ts">
-import { UserSchema, UserSignUpSchema } from "~~/shared/schema/user"
+import {
+	UserSchema,
+	UserSignUpSchema,
+	type UserSignUp,
+} from "~~/shared/schema/user"
 import { toTypedSchema } from "@vee-validate/zod"
 
 //

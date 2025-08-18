@@ -1,4 +1,4 @@
-import type { PermissionGrant } from "#shared/types/permission"
+import type { PermissionGrant, PermissionRevoke } from "#shared/schema/permission"
 import { Greenhouse } from "~~/server/models/greenhouse"
 import { Permission } from "~~/server/models/permission"
 

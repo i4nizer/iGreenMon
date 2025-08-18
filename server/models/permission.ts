@@ -6,28 +6,7 @@ import type {
     CreationOptional,
     InferCreationAttributes,
 } from "sequelize"
-
-//
-
-const PermissionType = ["Create", "Retrieve", "Update", "Delete"] as const
-type PermissionType = (typeof PermissionType)[number]
-
-const PermissionResource = [
-	"Esp32",
-	"Pin",
-	"Sensor",
-	"Output",
-	"Hook",
-	"Reading",
-	"Actuator",
-	"Input",
-	"Esp32-Cam",
-	"Action",
-	"Condition",
-	"Schedule",
-	"Threshold",
-] as const
-type PermissionResource = (typeof PermissionResource)[number]
+import { PermissionResource, PermissionType } from "~~/shared/schema/permission"
 
 //
 

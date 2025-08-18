@@ -1,3 +1,8 @@
+import type {
+    Permission,
+    PermissionGrant,
+    PermissionRevoke,
+} from "~~/shared/schema/permission"
 
 //
 

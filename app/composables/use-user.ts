@@ -1,3 +1,4 @@
+import type { UserSafe, UserUpdate } from "~~/shared/schema/user"
 
 //
 

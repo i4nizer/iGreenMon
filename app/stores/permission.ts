@@ -1,3 +1,8 @@
+import type {
+	Permission,
+	PermissionType,
+	PermissionResource,
+} from "~~/shared/schema/permission"
 
 //
 

@@ -46,7 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { GreenhouseCreateSchema, GreenhouseSchema } from '~~/shared/schema/greenhouse';
+import {
+	GreenhouseCreateSchema,
+	GreenhouseSchema,
+	type Greenhouse,
+	type GreenhouseCreate,
+} from '~~/shared/schema/greenhouse';
 
 //
 

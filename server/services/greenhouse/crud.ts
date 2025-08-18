@@ -2,6 +2,7 @@ import { Greenhouse } from "~~/server/models/greenhouse"
 import { isGHNameAvailable } from "./util"
 import { Op } from "sequelize"
 import { Crew } from "~~/server/models/crew"
+import { GreenhouseCreate, GreenhouseUpdate } from "~~/shared/schema/greenhouse"
 
 //
 

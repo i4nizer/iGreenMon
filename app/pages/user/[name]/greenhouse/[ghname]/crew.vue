@@ -48,6 +48,13 @@
 </template>
 
 <script setup lang="ts">
+import type {
+    Permission,
+    PermissionGrant,
+    PermissionKey,
+    PermissionType,
+    PermissionResource,
+} from '~~/shared/schema/permission'
 
 //
 

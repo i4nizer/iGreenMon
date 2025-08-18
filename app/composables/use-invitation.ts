@@ -1,3 +1,4 @@
+import type { InvitationCreate } from "~~/shared/schema/invitation"
 
 //
 

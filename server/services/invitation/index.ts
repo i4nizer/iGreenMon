@@ -4,6 +4,7 @@ import { Greenhouse } from "~~/server/models/greenhouse"
 import { Invitation } from "~~/server/models/invitation"
 import { User } from "~~/server/models/user"
 import { queueEmail } from "~~/server/services/email"
+import { InvitationCreate } from "~~/shared/schema/invitation"
 
 //
 
