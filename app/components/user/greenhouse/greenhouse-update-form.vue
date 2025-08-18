@@ -62,20 +62,21 @@ const emit = defineEmits<{
 	submit: [greenhouse: GreenhouseUpdate]
 	success: [greenhouse: Greenhouse]
 }>()
+
 const props = defineProps<{
 	greenhouse: Greenhouse;
 	handler?: (values: GreenhouseCreate, event: any) => any;
 }>()
 
 // --- CRUD
-const { create } = useGreenhouse()
+const { update } = useGreenhouse()
 
 const onSubmit = async (values: any, event: any) => {
 	const gh = values as GreenhouseUpdate
 	emit("submit", gh)
 	if (props.handler) return await props.handler(gh, event)
 
-	const createResult = await create(gh)
+	const createResult = await update(gh)
 	if (!createResult.success) return emit("error", createResult.error)
 
 	emit("success", createResult.data)
