@@ -2,11 +2,20 @@ import { z } from "zod";
 
 //
 
+const InvitationResponse = [
+	"Unset",
+	"Accepted",
+	"Rejected",
+	"Cancelled",
+] as const
+
+//
+
 const InvitationSchema = z.object({
 	id: z.number(),
 	message: z.string(),
 	emailed: z.boolean(),
-	response: z.enum(["Unset", "Accepted", "Rejected", "Cancelled"]),
+	response: z.enum(InvitationResponse),
 	inviteeId: z.number(),
 	inviterId: z.number(),
 	greenhouseId: z.number(),
@@ -24,4 +33,16 @@ const InvitationCreateSchema = InvitationSchema.pick({
 
 //
 
-export { InvitationSchema, InvitationCreateSchema }
+type Invitation = z.infer<typeof InvitationSchema>
+type InvitationCreate = z.infer<typeof InvitationCreateSchema>
+type InvitationResponse = (typeof InvitationResponse)[number]
+
+//
+
+export {
+	InvitationResponse,
+	InvitationSchema,
+	InvitationCreateSchema,
+}
+
+export type { Invitation, InvitationCreate }

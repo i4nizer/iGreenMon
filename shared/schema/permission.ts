@@ -18,6 +18,7 @@ const PermissionResource = [
 	"Schedule",
 	"Threshold",
 ] as const
+
 const PermissionKey = PermissionResource.map((pr) =>
 	PermissionType.map((pt) => `${pr}:${pt}`)
 ).flat() as `${(typeof PermissionResource)[number]}:${(typeof PermissionType)[number]}`[]
@@ -53,6 +54,15 @@ const PermissionRevokeSchema = PermissionSchema.pick({
 
 //
 
+type Permission = z.infer<typeof PermissionSchema>
+type PermissionGrant = z.infer<typeof PermissionGrantSchema>
+type PermissionRevoke = z.infer<typeof PermissionRevokeSchema>
+type PermissionType = (typeof PermissionType)[number]
+type PermissionResource = (typeof PermissionResource)[number]
+type PermissionKey = (typeof PermissionKey)[number]
+
+//
+
 export {
 	PermissionType,
 	PermissionResource,
@@ -60,4 +70,10 @@ export {
 	PermissionSchema,
 	PermissionGrantSchema,
 	PermissionRevokeSchema,
+}
+
+export type {
+	Permission,
+	PermissionGrant,
+	PermissionRevoke,
 }

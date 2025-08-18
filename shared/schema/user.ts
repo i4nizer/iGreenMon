@@ -26,7 +26,9 @@ const UserSignUpSchema = UserSchema.pick({
 
 const UserSignInSchema = UserSchema.pick({ name: true, password: true })
 const UserEmailSchema = UserSchema.pick({ email: true })
-const UserPasswordResetSchema = UserSchema.pick({ password: true })
+
+const UserPasswordResetSchema = UserSchema
+	.pick({ password: true })
 	.extend({ confirm: z.string().min(8).max(128), token: z.string().jwt() })
 	.refine((data) => data.confirm === data.password, {
 		message: "Passwords must match.",
@@ -34,6 +36,16 @@ const UserPasswordResetSchema = UserSchema.pick({ password: true })
 	})
 
 const UserUpdateSchema = UserSchema.pick({ name: true, phone: true })
+
+//
+
+type User = z.infer<typeof UserSchema>
+type UserSafe = z.infer<typeof UserSafeSchema>
+type UserSignUp = z.infer<typeof UserSignUpSchema>
+type UserSignIn = z.infer<typeof UserSignInSchema>
+type UserEmail = z.infer<typeof UserEmailSchema>
+type UserPasswordReset = z.infer<typeof UserPasswordResetSchema>
+type UserUpdate = z.infer<typeof UserUpdateSchema>
 
 //
 
@@ -45,4 +57,14 @@ export {
 	UserEmailSchema,
 	UserPasswordResetSchema,
 	UserUpdateSchema,
+}
+
+export type {
+	User,
+	UserSafe,
+	UserSignUp,
+	UserSignIn,
+	UserEmail,
+	UserPasswordReset,
+	UserUpdate,
 }

@@ -12,4 +12,10 @@ const CrewSchema = z.object({
 
 //
 
+type Crew = z.infer<typeof CrewSchema>
+
+//
+
 export { CrewSchema }
+
+export type { Crew }
