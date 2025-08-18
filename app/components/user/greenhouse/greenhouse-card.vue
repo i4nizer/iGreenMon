@@ -12,15 +12,26 @@
 			}}
 		</v-card-text>
 		<v-card-actions>
-			<v-btn @click="onClickView">
+			<v-btn 
+				v-if="!hideView" 
+				@click="onClickView"
+			>
 				<v-icon class="mr-1">mdi-cog</v-icon>
 				<span v-if="$vuetify.display.smAndUp">View</span>
 			</v-btn>
-			<v-btn color="blue" @click="onClickEdit">
+			<v-btn 
+				v-if="!hideEdit" 
+				color="blue" 
+				@click="onClickEdit"
+			>
 				<v-icon class="mr-1">mdi-pencil</v-icon>
 				<span v-if="$vuetify.display.smAndUp">Edit</span>
 			</v-btn>
-			<v-btn color="red" @click="onClickDelete">
+			<v-btn 
+				v-if="!hideDelete" 
+				color="red" 
+				@click="onClickDelete"
+			>
 				<v-icon class="mr-1">mdi-delete</v-icon>
 				<span v-if="$vuetify.display.smAndUp">Delete</span>
 			</v-btn>
@@ -38,7 +49,13 @@ const emit = defineEmits<{
 	edit: [greenhouse: Greenhouse, opts: { loading: Ref<boolean> }]
 	delete: [greenhouse: Greenhouse, opts: { loading: Ref<boolean> }]
 }>()
-const props = defineProps<{ greenhouse: Greenhouse }>()
+
+const props = defineProps<{
+	greenhouse: Greenhouse
+	hideView?: boolean
+	hideEdit?: boolean
+	hideDelete?: boolean
+}>()
 
 // --- State binding
 const loading = ref(false)
