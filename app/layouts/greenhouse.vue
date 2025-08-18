@@ -23,6 +23,7 @@
                 <v-divider></v-divider>
                 <v-list density="compact" nav>
                     <v-list-item
+                        v-if="user?.id == gh?.userId"
                         link
                         title="Crew"
                         prepend-icon="mdi-account-group"
@@ -73,6 +74,20 @@ const toast = useToast()
 const route = useRoute()
 const { user } = useUser()
 const ghname = route.params?.ghname as string
+
+// --- Remove some navs when user don't have a permission on
+const ghUtil = useGreenhouse()
+const gh = useState<Greenhouse|undefined>("layout-greenhouse", () => undefined)
+
+const fetchGH = async () => {
+    if (gh.value) return;
+    const res = await ghUtil.retrieve(ghname)
+    if (!res.success) return toast.error(res.error)
+    gh.value = res.data
+}
+
+onBeforeMount(async () => await fetchGH())
+onServerPrefetch(async () => await fetchGH())
 
 // --- Responsive
 const { mdAndDown, smAndDown } = useDisplay()
