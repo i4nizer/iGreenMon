@@ -81,9 +81,9 @@ const toast = useToast()
 
 // --- User
 const { user } = useUser()
-onMounted(() => console.log(JSON.stringify(user.value)))
+
 // --- Utilities
-const { retrieve, retrieveAll, destroy } = useGreenhouse()
+const { retrieveAll, destroy } = useGreenhouse()
 const { greenhouses, append, change, remove } = useGreenhouseStore()
 
 // --- Initialization
