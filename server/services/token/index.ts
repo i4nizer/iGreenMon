@@ -1,4 +1,4 @@
-import type { TokenType } from "~~/server/types/token-type"
+import type { TokenType } from "~~/server/types/token"
 import type { SafeResult } from "~~/shared/types/safe-result"
 import jwt from "jsonwebtoken"
 import { tokenMetas } from "./config"
@@ -52,7 +52,7 @@ const safeVerifyToken = <T = any>(
 //
 
 export {
-    tokenMetas,
+	tokenMetas,
 	createToken,
 	verifyToken,
 	safeCreateToken,

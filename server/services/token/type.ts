@@ -1,4 +1,4 @@
-import type { TokenType } from "~~/server/types/token-type"
+import type { TokenType } from "~~/server/types/token"
 
 //
 
