@@ -10,15 +10,10 @@ const isGHNameAvailable = async (
     exceptId?: number
 ): Promise<SafeResult<boolean>> => {
     try {
-        const id = exceptId ? { [Op.ne]: exceptId } : undefined
-        const count = await Greenhouse.count({
-            where: {
-                id,
-                name,
-                userId,
-            },
-            attributes: ["id"],
-        })
+        const where = exceptId
+            ? { id: { [Op.ne]: exceptId }, name, userId }
+            : { name, userId }
+        const count = await Greenhouse.count({ where, attributes: ["id"] })
         return { success: true, data: count <= 0 }
     } catch (error) {
         console.error(error)
