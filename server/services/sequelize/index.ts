@@ -4,6 +4,7 @@ import { Greenhouse, greenhouseAttributes, greenhouseOptions } from "~~/server/m
 import { Invitation, invitationAttributes, invitationOptions } from "~~/server/models/invitation";
 import { Crew, crewAttributes, crewOptions } from "~~/server/models/crew";
 import { Permission, permissionAttributes, permissionOptions } from "~~/server/models/permission";
+import { Esp32, esp32Attributes, esp32Options } from "~~/server/models/esp32";
 import { Sequelize } from "sequelize";
 
 //
@@ -17,6 +18,7 @@ const initModels = (sequelize: Sequelize) => {
 	Invitation.init(invitationAttributes, invitationOptions(sequelize))
 	Crew.init(crewAttributes, crewOptions(sequelize))
 	Permission.init(permissionAttributes, permissionOptions(sequelize))
+	Esp32.init(esp32Attributes, esp32Options(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -44,6 +46,9 @@ const initModelRelationships = () => {
 
 	Permission.belongsTo(Crew, { as: "crew", foreignKey: "crewId" })
 	Permission.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	
+	Esp32.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
+	Esp32.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
