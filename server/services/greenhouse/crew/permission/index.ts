@@ -1,8 +1,56 @@
-import type { PermissionGrant, PermissionRevoke } from "#shared/schema/permission"
+import type { PermissionGrant, PermissionResource, PermissionRevoke, PermissionType } from "#shared/schema/permission"
+import { Crew } from "~~/server/models/crew"
 import { Greenhouse } from "~~/server/models/greenhouse"
 import { Permission } from "~~/server/models/permission"
 
 //
+
+const hasPermission = async (
+	type: PermissionType,
+	resource: PermissionResource,
+	userId: number,
+	greenhouseId: number
+): Promise<SafeResult<boolean>> => {
+	try {
+		// --- Find the greenhouse
+		const gh = await Greenhouse.findOne({
+			where: { id: greenhouseId },
+			attributes: ["id", "userId"],
+		})
+		if (!gh) return { success: false, error: "Greenhouse not found." }
+
+		// --- Doesn't own it
+		if (gh.userId != userId) {
+
+			// --- Find user's crew instance on the greenhouse
+			const crew = await Crew.findOne({
+				where: { userId, greenhouseId },
+				attributes: ["id"],
+			})
+			if (!crew) return { success: false, error: "Greenhouse not found." }
+
+			// --- Check for permission
+			const perm = await Permission.findOne({
+				where: {
+					type,
+					resource,
+					crewId: crew.id,
+					greenhouseId,
+				},
+				attributes: ["id"],
+			})
+
+			// --- Doesn't have permission either
+			if (!perm) return { success: true, data: false }
+		}
+
+		// --- Owner/permitted-crew of the greenhouse
+		return { success: true, data: true }
+	} catch (error) {
+		console.error(error)
+		return { success: false, error: "Something went wrong." }
+	}
+}
 
 /**
  * - Checks if the permission is already granted.
@@ -86,4 +134,4 @@ const revokePermission = async (
 
 //
 
-export { grantPermission, revokePermission }
+export { hasPermission, grantPermission, revokePermission }
