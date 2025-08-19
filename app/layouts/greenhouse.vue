@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
+import type { Greenhouse } from '~~/shared/schema/greenhouse';
 
 //
 
