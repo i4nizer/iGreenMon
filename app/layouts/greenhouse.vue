@@ -23,7 +23,14 @@
                 <v-divider></v-divider>
                 <v-list density="compact" nav>
                     <v-list-item
-                        v-if="user?.id == gh?.userId"
+                        v-if="isOwnGH || canAccess(`Esp32`, permissions)"
+                        link
+                        title="Esp32"
+                        prepend-icon="mdi-chip"
+                        :to="`/user/${user?.name}/greenhouse/${ghname}/esp32`"
+                    ></v-list-item>
+                    <v-list-item
+                        v-if="isOwnGH"
                         link
                         title="Crew"
                         prepend-icon="mdi-account-group"
@@ -67,28 +74,49 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
 import type { Greenhouse } from '~~/shared/schema/greenhouse';
+import type { Permission } from '~~/shared/schema/permission';
 
 //
 
-// --- Get user, greenhouse & notif
-const toast = useToast()
+// --- Get utils
 const route = useRoute()
-const { user } = useUser()
+const toast = useToast()
+const ghUtil = useGreenhouse()
+const permUtil = usePermission()
+const { canAccess } = permUtil
+const { user, whoami } = useUser({ hydrate: false })
+
+// --- Get params
 const ghname = route.params?.ghname as string
 
-// --- Remove some navs when user don't have a permission on
-const ghUtil = useGreenhouse()
-const gh = useState<Greenhouse|undefined>("layout-greenhouse", () => undefined)
+// --- Get greenhouse & permissions
+const gh = useState<Greenhouse | undefined>("layout-greenhouse", () => undefined)
+const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
+const permissions = useState<Permission[]>("layout-permissions", () => [])
 
-const fetchGH = async () => {
-    if (gh.value) return;
-    const res = await ghUtil.retrieve(ghname)
-    if (!res.success) return toast.error(res.error)
-    gh.value = res.data
+const fetchGHPerms = async () => {
+    const nctx = useNuxtApp()
+    const rwnctx = nctx.runWithContext
+
+    if (!user.value) await rwnctx(whoami)
+
+    if (!gh.value) {
+        const req = async () => await ghUtil.retrieve(ghname)
+        const res = await rwnctx(req)
+        if (res.success) gh.value = res.data
+        else toast.error(res.error)
+    }
+
+    if (!isOwnGH.value && permissions.value.length <= 0) {
+        const req = async () => await permUtil.retrieveAll(ghname)
+        const res = await rwnctx(req)
+        if (res.success) permissions.value = res.data
+        else toast.error(res.error)
+    }
 }
 
-onBeforeMount(async () => await fetchGH())
-onServerPrefetch(async () => await fetchGH())
+onBeforeMount(async () => await fetchGHPerms())
+onServerPrefetch(async () => await fetchGHPerms())
 
 // --- Responsive
 const { mdAndDown, smAndDown } = useDisplay()
