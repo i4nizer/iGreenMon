@@ -168,13 +168,13 @@ const resendVerificationEmail = async (
 		const verificationLink = `${origin}/auth/verification/${pathMeta}`
 		const emailTemplate = await useTemplate({
 			type: "Verification",
-			data: { name: user.name, link: verificationLink }
+			data: { name: user.name, link: verificationLink },
 		})
 
 		// --- Send email verification
 		queueEmail(
 			user.email,
-			"Account Verification - Greenmon",
+			"Account Verification - iGreenMon",
 			undefined,
 			emailTemplate
 		)
@@ -231,13 +231,13 @@ const verifyUser = async (
 		// --- Inform user via email
 		const emailTemplate = await useTemplate({
 			type: "Verification-Success",
-			data: { name: user.name }
+			data: { name: user.name },
 		})
 
 		// --- Send email
 		queueEmail(
 			user.email,
-			"Account Verified - Greenmon",
+			"Account Verified - iGreenMon",
 			undefined,
 			emailTemplate
 		)

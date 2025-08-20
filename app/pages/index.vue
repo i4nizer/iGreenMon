@@ -51,7 +51,7 @@
 			</v-col>
 		</v-row>
 		<v-footer class="bg-green-darken-4 pa-5">
-			<span>© 2025 Greenmon. All rights reserved.</span>
+			<span>© 2025 iGreenMon. All rights reserved.</span>
 		</v-footer>
 	</v-container>
 </template>

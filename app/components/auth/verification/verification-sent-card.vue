@@ -7,8 +7,8 @@
 				<span class="text-wrap text-center text-grey-darken-3">
 					We've sent a verification link to
 					<span class="font-weight-bold">
-						{{ props.email ?? " your email address" }} 
-                    </span>. to activate your Greenmon account. Click the link to
+						{{ props.email ?? " your email address" }} </span
+					>. to activate your iGreenMon account. Click the link to
 					start monitoring your greenhouse.
 				</span>
 				<span class="text-wrap text-grey-darken-3 my-4">
@@ -21,18 +21,12 @@
 					:disabled="counter.count.value > 0"
 					@click="onClickResend"
 				></v-btn>
-				<nuxt-link 
-                    to="/auth/sign-in" 
-                    class="text-grey-darken-2"
-                >
-                    Go to Sign In
-                </nuxt-link>
-				<nuxt-link 
-                    to="/auth/sign-up" 
-                    class="text-grey-darken-2"
-                >
-                    Use a different email.
-                </nuxt-link>
+				<nuxt-link to="/auth/sign-in" class="text-grey-darken-2">
+					Go to Sign In
+				</nuxt-link>
+				<nuxt-link to="/auth/sign-up" class="text-grey-darken-2">
+					Use a different email.
+				</nuxt-link>
 			</div>
 		</v-card-text>
 	</v-card>
@@ -57,13 +51,15 @@ const props = defineProps<{
 const counter = useCounter()
 const resendText = ref("Resend Verification Email")
 
-counter.onUpdate((count) => resendText.value = `Resend in ${count.toFixed(0)}s`)
-counter.onFinish(() => resendText.value = "Resend Verification Email")
+counter.onUpdate(
+	(count) => (resendText.value = `Resend in ${count.toFixed(0)}s`)
+)
+counter.onFinish(() => (resendText.value = "Resend Verification Email"))
 
 const runCooldown = (nextResendTime: number) => {
-    const cooldownMs = nextResendTime - Date.now()
-    const cooldownSec = cooldownMs == 0 ? 0 : cooldownMs / 1000
-    if (cooldownSec > 0) counter.run(cooldownSec, 0, 1, 1000)
+	const cooldownMs = nextResendTime - Date.now()
+	const cooldownSec = cooldownMs == 0 ? 0 : cooldownMs / 1000
+	if (cooldownSec > 0) counter.run(cooldownSec, 0, 1, 1000)
 }
 
 watch(props, (nv) => runCooldown(nv.nextResendTime ?? 0), { deep: true })
@@ -75,19 +71,18 @@ onBeforeUnmount(() => counter.stop())
 const { resendVerificationEmail } = useAuthVerification()
 
 const onClickResend = async () => {
-    emit("resend", props.email)
-    if (props.handle) return;
+	emit("resend", props.email)
+	if (props.handle) return
 
-    const resendResult = await resendVerificationEmail(props.email)
-    if (!resendResult.success) return emit("error", resendResult.error)
+	const resendResult = await resendVerificationEmail(props.email)
+	if (!resendResult.success) return emit("error", resendResult.error)
 
-    const { nextResendTime } = resendResult.data
-    emit("success", nextResendTime)
-    runCooldown(resendResult.data.nextResendTime)
+	const { nextResendTime } = resendResult.data
+	emit("success", nextResendTime)
+	runCooldown(resendResult.data.nextResendTime)
 }
 
 //
-
 </script>
 
 <style scoped></style>

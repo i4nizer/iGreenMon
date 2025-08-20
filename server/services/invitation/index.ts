@@ -84,7 +84,7 @@ const createInvitation = async (
 		// --- Send email
 		queueEmail(
 			invitee.email,
-			"Crew Invitation - Greenmon",
+			"Crew Invitation - iGreenMon",
 			undefined,
 			template
 		)
@@ -139,7 +139,7 @@ const cancelInvitation = async (
 
 		// --- The inviter either doesn't own the invitation or done
 		if (!inv) return { success: false, error: "Invitation not found." }
-		
+
 		// --- Cancel the invitation
 		await inv.update({ response: "Cancelled" })
 		const invitation = inv.dataValues as InferAttributes<Invitation> & {
@@ -161,7 +161,7 @@ const cancelInvitation = async (
 		// --- Send the email
 		queueEmail(
 			invitation.invitee.email,
-			"Invitation Cancelled - Greenmon",
+			"Invitation Cancelled - iGreenMon",
 			undefined,
 			template
 		)
@@ -244,7 +244,7 @@ const acceptInvitation = async (
 		// --- Send the email
 		queueEmail(
 			invitation.inviter.email,
-			"Invitation Accepted - Greenmon",
+			"Invitation Accepted - iGreenMon",
 			undefined,
 			template
 		)
@@ -321,7 +321,7 @@ const rejectInvitation = async (
 		// --- Send the email
 		queueEmail(
 			invitation.inviter.email,
-			"Invitation Declined - Greenmon",
+			"Invitation Declined - iGreenMon",
 			undefined,
 			template
 		)

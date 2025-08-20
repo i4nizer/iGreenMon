@@ -4,7 +4,7 @@
 			<!-- Top Navigation -->
 			<v-app-bar class="border-b bg-green" elevation="0">
 				<v-icon size="large" class="pl-8 pl-md-10">mdi-leaf</v-icon>
-				<v-toolbar-title>Greenmon</v-toolbar-title>
+				<v-toolbar-title>iGreenMon</v-toolbar-title>
 				<template #append>
 					<v-btn
 						link

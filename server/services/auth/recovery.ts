@@ -41,7 +41,7 @@ const findVerifiedUser = async (email: string): Promise<SafeResult<User>> => {
  */
 const findOrCreateValidResetToken = async (
 	userId: number
-): Promise<SafeResult<{ token: Token, created: boolean }>> => {
+): Promise<SafeResult<{ token: Token; created: boolean }>> => {
 	try {
 		let token = await Token.findOne({ where: { type: "Reset", userId } })
 		let created = false
@@ -89,63 +89,63 @@ const forgotPassword = async (
 	email: string,
 	origin: string
 ): Promise<SafeResult<{ nextResendTime: number }>> => {
-    try {
-        // --- Find user of email
-        const findUserResult = await findVerifiedUser(email)
-        if (!findUserResult.success) {
-            return { success: false, error: findUserResult.error }
-        }
+	try {
+		// --- Find user of email
+		const findUserResult = await findVerifiedUser(email)
+		if (!findUserResult.success) {
+			return { success: false, error: findUserResult.error }
+		}
 
-        // --- Find user's reset token
-        const user = findUserResult.data
-        const tokenResult = await findOrCreateValidResetToken(user.id)
-        if (!tokenResult.success) {
-            return { success: false, error: tokenResult.error }
-        }
+		// --- Find user's reset token
+		const user = findUserResult.data
+		const tokenResult = await findOrCreateValidResetToken(user.id)
+		if (!tokenResult.success) {
+			return { success: false, error: tokenResult.error }
+		}
 
-        // --- Token's updatedAt field represents last send
-        const { token, created } = tokenResult.data
-        const cooldown = 60000
-        const validResendTime = token.updatedAt.getTime() + cooldown
+		// --- Token's updatedAt field represents last send
+		const { token, created } = tokenResult.data
+		const cooldown = 60000
+		const validResendTime = token.updatedAt.getTime() + cooldown
 
-        // --- Avoid spamming of email resend
-        if (Date.now() < validResendTime && !created) {
+		// --- Avoid spamming of email resend
+		if (Date.now() < validResendTime && !created) {
 			const msDiff = validResendTime - Date.now()
 			const secDiff = (msDiff == 0 ? 0 : msDiff / 1000).toFixed(0)
 			const error = `Please wait another ${secDiff}s before resending.`
 			return { error, success: false }
 		}
 		// --- Marks the last resend through updatedAt
-        else {
-            token.changed("updatedAt", true)
-            await token.update({ updatedAt: new Date() })
-        }
-        
-        // --- Craft the forgot pass email link and template
-        const pathMeta = `email/${user.email}/reset?token=${token.value}`
+		else {
+			token.changed("updatedAt", true)
+			await token.update({ updatedAt: new Date() })
+		}
+
+		// --- Craft the forgot pass email link and template
+		const pathMeta = `email/${user.email}/reset?token=${token.value}`
 		const resetLink = `${origin}/auth/recovery/${pathMeta}`
 		const resetTemplate = await useTemplate({
 			type: "Reset-Password",
 			data: { name: user.name, link: resetLink },
-        })
-        
-        // --- Send the email with reset link
-        queueEmail(
-            user.email,
-            "Reset Your Password - Greenmon",
-            undefined,
-            resetTemplate
-        )
+		})
 
-        // --- Provide the next resend time
-        return {
-            success: true,
-            data: { nextResendTime: token.updatedAt.getTime() + cooldown }
-        }
-    } catch (error) {
-        console.error(error)
+		// --- Send the email with reset link
+		queueEmail(
+			user.email,
+			"Reset Your Password - iGreenMon",
+			undefined,
+			resetTemplate
+		)
+
+		// --- Provide the next resend time
+		return {
+			success: true,
+			data: { nextResendTime: token.updatedAt.getTime() + cooldown },
+		}
+	} catch (error) {
+		console.error(error)
 		return { success: false, error: "Something went wrong." }
-    }
+	}
 }
 
 /**
@@ -209,7 +209,7 @@ const resendResetPasswordEmail = async (
 		// --- Check the cooldown
 		const cooldown = 60000
 		const validResendTime = token.updatedAt.getTime() + cooldown
-		
+
 		// --- To avoid getting spammed
 		if (Date.now() < validResendTime) {
 			const msDiff = validResendTime - Date.now()
@@ -234,7 +234,7 @@ const resendResetPasswordEmail = async (
 		// --- Send the email with reset link
 		queueEmail(
 			user.email,
-			"Reset Your Password - Greenmon",
+			"Reset Your Password - iGreenMon",
 			undefined,
 			resetTemplate
 		)
@@ -257,7 +257,7 @@ const resendResetPasswordEmail = async (
  * - Updates the user's password and deletes the reset token from database.
  * - Emails the user about the reset.
  */
-const resetPassword = async(
+const resetPassword = async (
 	password: string,
 	resetToken: string
 ): Promise<SafeResult<User>> => {
@@ -290,17 +290,17 @@ const resetPassword = async(
 		// --- Inform user via email
 		const emailTemplate = await useTemplate({
 			type: "Reset-Password-Success",
-			data: { name: user.name }
+			data: { name: user.name },
 		})
 
 		// --- Send email
 		queueEmail(
 			user.email,
-			"Password Changed - Greenmon",
+			"Password Changed - iGreenMon",
 			undefined,
 			emailTemplate
 		)
-		
+
 		// --- Provide the user
 		return { success: true, data: user }
 	} catch (error) {

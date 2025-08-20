@@ -64,7 +64,7 @@ const signUp = async (
 		// --- Send the email
 		queueEmail(
 			user.email,
-			"Account Verification - Greenmon",
+			"Account Verification - iGreenMon",
 			undefined,
 			emailTemplate
 		)
@@ -110,17 +110,17 @@ const signIn = async (
 			// --- Craft failed attempt template
 			const failedTemplate = await useTemplate({
 				type: "Sign-In-Failed",
-				data: { name: user.name, timestamp: new Date() }
+				data: { name: user.name, timestamp: new Date() },
 			})
-			
+
 			// --- Email the user about the failed sign-in
 			queueEmail(
 				user.email,
-				"Sign-In Attempt Failed - Greenmon",
+				"Sign-In Attempt Failed - iGreenMon",
 				undefined,
 				failedTemplate
 			)
-			
+
 			return { success: false, error: "Incorrect password." }
 		}
 
@@ -152,13 +152,13 @@ const signIn = async (
 		// --- Craft successful sign-in email
 		const successTemplate = await useTemplate({
 			type: "Sign-In-Success",
-			data: { name: user.name, timestamp: new Date() }
+			data: { name: user.name, timestamp: new Date() },
 		})
 
 		// --- Email user about the successful sign-in
 		queueEmail(
 			user.email,
-			"Sign-In Successful - Greenmon",
+			"Sign-In Successful - iGreenMon",
 			undefined,
 			successTemplate
 		)

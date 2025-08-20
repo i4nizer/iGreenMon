@@ -7,7 +7,7 @@
 			class="text-white text-decoration-none d-flex align-center ga-2"
 		>
 			<v-icon>mdi-sprout</v-icon>
-			<h2>Greenmon</h2>
+			<h2>iGreenMon</h2>
 		</nuxt-link>
 		<span class="pa-5">
 			"{{ quote?.quote }}" -
@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-
 //
 
 // --- Quotes
@@ -29,7 +28,6 @@ onUnmounted(() => (quote.value = getRandomQuote()))
 onServerPrefetch(() => (quote.value ??= getRandomQuote()))
 
 //
-
 </script>
 
 <style scoped></style>

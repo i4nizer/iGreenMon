@@ -1,26 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Sign-In Successful - iGreenMon</title>
+	</head>
 
-<head>
-    <meta charset="UTF-8" />
-    <title>Sign-In Successful - Greenmon</title>
-</head>
+	<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+		<h2>Sign-In Successful</h2>
+		<p>Hi <%= name %>,</p>
+		<p>
+			This is to let you know that your account was successfully signed in
+			to iGreenMon.
+		</p>
+		<p>
+			If this was you, there's nothing else you need to do. If you didn’t
+			sign in, please reset your password immediately to secure your
+			account.
+		</p>
+		<p><strong>Time: </strong><%= timestamp ? timestamp : new Date() %></p>
 
-<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333;">
-    <h2>Sign-In Successful</h2>
-    <p>Hi <%= name %>,</p>
-    <p>
-        This is to let you know that your account was successfully signed in to Greenmon.
-    </p>
-    <p>
-        If this was you, there's nothing else you need to do. If you didn’t sign in, please reset your password
-        immediately to secure your account.
-    </p>
-    <p>
-        <strong>Time: </strong><%= timestamp ? timestamp : new Date() %>
-    </p>
-
-    <p style="margin-top: 2rem;">Thank you,<br />The Greenmon Team</p>
-</body>
-
+		<p style="margin-top: 2rem">Thank you,<br />The iGreenMon Team</p>
+	</body>
 </html>

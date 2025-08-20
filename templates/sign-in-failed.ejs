@@ -1,30 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Sign-In Attempt Failed - iGreenMon</title>
+	</head>
 
-<head>
-    <meta charset="UTF-8" />
-    <title>Sign-In Attempt Failed - Greenmon</title>
-</head>
+	<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+		<h2>Unsuccessful Sign-In Attempt</h2>
+		<p>Hi <%= name %>,</p>
+		<p>We noticed a failed attempt to sign in to your iGreenMon account.</p>
+		<p>
+			If this was you and you simply forgot your password, you can reset
+			it using the "Forgot Password" option on the sign-in page.
+		</p>
+		<p>
+			If you did not attempt to sign in, we recommend updating your
+			password and reviewing your account activity for any suspicious
+			behavior.
+		</p>
+		<p><strong>Time: </strong><%= timestamp ? timestamp : new Date() %></p>
 
-<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333;">
-    <h2>Unsuccessful Sign-In Attempt</h2>
-    <p>Hi <%= name %>,</p>
-    <p>
-        We noticed a failed attempt to sign in to your Greenmon account.
-    </p>
-    <p>
-        If this was you and you simply forgot your password, you can reset it using the "Forgot Password" option on the
-        sign-in page.
-    </p>
-    <p>
-        If you did not attempt to sign in, we recommend updating your password and reviewing your account activity for
-        any suspicious behavior.
-    </p>
-    <p>
-        <strong>Time: </strong><%= timestamp ? timestamp : new Date() %>
-    </p>
-
-    <p style="margin-top: 2rem;">Stay safe,<br />The Greenmon Team</p>
-</body>
-
+		<p style="margin-top: 2rem">Stay safe,<br />The iGreenMon Team</p>
+	</body>
 </html>

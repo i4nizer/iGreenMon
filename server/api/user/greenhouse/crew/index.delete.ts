@@ -8,15 +8,15 @@ import { queueEmail } from "~~/server/services/email"
 
 const QuerySchema = z.object({ crewid: z.string().min(1) })
 const CrewSchema = z.object({
-    id: z.number().int(),
-    user: z.object({
-        name: z.string(),
-        email: z.string(),
-    }),
-    greenhouse: z.object({
-        name: z.string(),
-        user: z.object({ name: z.string() }),
-    }),
+	id: z.number().int(),
+	user: z.object({
+		name: z.string(),
+		email: z.string(),
+	}),
+	greenhouse: z.object({
+		name: z.string(),
+		user: z.object({ name: z.string() }),
+	}),
 })
 
 //
@@ -36,9 +36,9 @@ export default defineEventHandler(async (event) => {
 	// --- Find and delete crew
 	const userId = event.context.accessTokenPayload.id
 	const { crewid } = qResult.data
-	
-    const crew = await Crew.findOne({
-        where: { id: crewid },
+
+	const crew = await Crew.findOne({
+		where: { id: crewid },
 		include: [
 			{
 				model: User,
@@ -76,27 +76,27 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-    // --- Delete
-    const crewVal = CrewSchema.parse(crew.dataValues)
+	// --- Delete
+	const crewVal = CrewSchema.parse(crew.dataValues)
 	await crew.destroy()
 
 	// --- Craft removal email
 	const template = await useTemplate({
 		type: "Crew-Removal-Notif",
-        data: {
-            crew: crewVal.user.name,
-            owner: crewVal.greenhouse.user.name,
-            greenhouse: crewVal.greenhouse.name,
-        },
-    })
-    
-    // --- Send email
-    queueEmail(
-        crewVal.user.email,
-        "Crew Removal Notification - Greenmon",
-        undefined,
-        template
-    )
+		data: {
+			crew: crewVal.user.name,
+			owner: crewVal.greenhouse.user.name,
+			greenhouse: crewVal.greenhouse.name,
+		},
+	})
+
+	// --- Send email
+	queueEmail(
+		crewVal.user.email,
+		"Crew Removal Notification - iGreenMon",
+		undefined,
+		template
+	)
 
 	return sendNoContent(event)
 })
