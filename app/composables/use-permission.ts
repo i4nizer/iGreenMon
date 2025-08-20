@@ -74,13 +74,9 @@ export const usePermission = () => {
 	const canAccess = (
 		resource: PermissionResource,
 		permissions: Permission[],
-		crewId: number,
-		greenhouseId: number
 	): boolean => {
 		return permissions.some(
 			(p) =>
-				p.crewId == crewId &&
-				p.greenhouseId == greenhouseId &&
 				p.type == "Retrieve" &&
 				p.resource == resource
 		)
@@ -89,13 +85,9 @@ export const usePermission = () => {
 	const canCreate = (
         resource: PermissionResource,
         permissions: Permission[],
-		crewId: number,
-		greenhouseId: number,
 	): boolean => {
 		return permissions.some(
 			(p) =>
-				p.crewId == crewId &&
-				p.greenhouseId == greenhouseId &&
 				p.type == "Create" &&
 				p.resource == resource
 		)
@@ -104,13 +96,9 @@ export const usePermission = () => {
 	const canModify = (
 		resource: PermissionResource,
 		permissions: Permission[],
-		crewId: number,
-		greenhouseId: number
 	): boolean => {
 		return permissions.some(
 			(p) =>
-				p.crewId == crewId &&
-				p.greenhouseId == greenhouseId &&
 				p.type == "Update" &&
 				p.resource == resource
 		)
@@ -119,13 +107,9 @@ export const usePermission = () => {
 	const canDelete = (
 		resource: PermissionResource,
 		permissions: Permission[],
-		crewId: number,
-		greenhouseId: number
 	): boolean => {
 		return permissions.some(
 			(p) =>
-				p.crewId == crewId &&
-				p.greenhouseId == greenhouseId &&
 				p.type == "Delete" &&
 				p.resource == resource
 		)
@@ -135,13 +119,9 @@ export const usePermission = () => {
 		type: PermissionType,
         resource: PermissionResource,
         permissions: Permission[],
-		crewId: number,
-		greenhouseId: number,
 	): boolean => {
 		return permissions.some(
 			(p) =>
-				p.crewId == crewId &&
-				p.greenhouseId == greenhouseId &&
 				p.type == type &&
 				p.resource == resource
 		)
