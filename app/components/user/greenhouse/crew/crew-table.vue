@@ -4,6 +4,7 @@
         striped="even"
         :headers
         :items="crewsWithPermissions"
+        :header-props="{ class: `bg-green-darken-2 py-5` }"
     >
         <template #item.user="{ item }">
             {{ item.user.name }}
@@ -17,6 +18,10 @@
                     :text="perm"
                     v-tooltip="getPermissionCrudTooltip(item, perm)"
                 ></v-chip>
+                <em 
+                    v-if="item.permissions.length <= 0"
+                    class="text-grey"
+                >No permissions granted</em>
             </div>
         </template>
         <template #item.actions="{ item }">

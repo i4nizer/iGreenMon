@@ -1,9 +1,10 @@
 <template>
     <v-data-table
-        striped="even"
         class="border"
+        striped="even"
         :items="PermissionResource"
         :headers
+        :header-props="{ class: `bg-green-darken-2 py-5` }"
     >
         <template #item.permission="{ item }">
             <span>{{ item }}</span>
