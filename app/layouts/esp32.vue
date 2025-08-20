@@ -37,6 +37,13 @@
 						prepend-icon="mdi-view-dashboard"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/dashboard`"
 					></v-list-item>
+					<v-list-item
+						v-if="isOwnGH || canAccessPin"
+						link
+						title="Pin"
+						prepend-icon="mdi-sine-wave"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/pin`"
+					></v-list-item>
 				</v-list>
 				<template #append>
 					<v-divider></v-divider>
@@ -84,7 +91,8 @@ import type { Permission } from "~~/shared/schema/permission"
 // --- Get utilities
 const toast = useToast()
 const route = useRoute()
-const { user } = useUser()
+const userUtil = useUser({ hydrate: false })
+const { user } = userUtil
 const ghUtil = useGreenhouse()
 const permUtil = usePermission()
 const { canAccess } = permUtil
@@ -95,29 +103,37 @@ const ghname = route.params?.ghname as string
 const esp32id = route.params?.esp32id as string
 
 // --- Get greenhouse, permissions, esp32
-const gh = useState<Greenhouse | undefined>(
-	"layout-greenhouse",
-	() => undefined
-)
+const gh = useState<Greenhouse | undefined>("layout-greenhouse")
 const esp32 = useState<Esp32 | undefined>("layout-esp32", () => undefined)
+
 const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
 const permissions = useState<Permission[]>("layout-permissions", () => [])
 
+const canAccessPin = computed(() => canAccess("Pin", permissions.value))
+
 const fetchData = async () => {
+	// --- Preserve nuxt context between awaits
+	const nctx = useNuxtApp()
+	const rwnctx = nctx.runWithContext
+	if (!user.value) await rwnctx(userUtil.whoami)
+
 	if (!gh.value) {
-		const res = await ghUtil.retrieve(ghname)
+		const req = async () => await ghUtil.retrieve(ghname)
+		const res = await rwnctx(req)
 		if (res.success) gh.value = res.data
 		else toast.error(res.error)
 	}
 
 	if (!esp32.value) {
-		const res = await esp32Util.retrieve(parseInt(esp32id))
+		const req = async () => await esp32Util.retrieve(parseInt(esp32id))
+		const res = await rwnctx(req)
 		if (!res.success) toast.error(res.error)
 		else esp32.value = res.data
 	}
 
 	if (!isOwnGH.value && permissions.value.length <= 0) {
-		const res = await permUtil.retrieveAll(ghname)
+		const req = async () => await permUtil.retrieveAll(ghname)
+		const res = await rwnctx(req)
 		if (res.success) permissions.value = res.data
 		else toast.error(res.error)
 	}
