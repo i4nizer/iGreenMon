@@ -151,7 +151,10 @@ const updateEsp32 = async (
 const deleteEsp32 = async (id: number, userId: number): Promise<SafeResult> => {
 	try {
 		// --- Find esp32
-		const esp32 = await Esp32.findByPk(id, { attributes: ["greenhouseId"] })
+		const esp32 = await Esp32.findOne({
+			where: { id },
+			attributes: ["id", "greenhouseId"],
+		})
 		if (!esp32) return { success: false, error: "Esp32 not found." }
 
 		// --- Check for permission
@@ -170,7 +173,8 @@ const deleteEsp32 = async (id: number, userId: number): Promise<SafeResult> => {
 			}
 		}
 
-		// --- passed
+		// --- passed, delete it
+		await esp32.destroy()
 		return { success: true, data: undefined }
 	} catch (error) {
 		console.error(error)
