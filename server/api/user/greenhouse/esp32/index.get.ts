@@ -4,7 +4,7 @@ import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
 
 //
 
-const QuerySchema = z.object({ ghid: z.number().int() })
+const QuerySchema = z.object({ ghid: z.coerce.number().int() })
 
 //
 

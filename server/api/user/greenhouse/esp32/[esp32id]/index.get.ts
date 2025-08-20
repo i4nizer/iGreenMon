@@ -3,7 +3,7 @@ import { retrieveEsp32 } from "~~/server/services/greenhouse/esp32";
 
 //
 
-const ParamSchema = z.object({ esp32id: z.number().int() })
+const ParamSchema = z.object({ esp32id: z.coerce.number().int() })
 
 //
 

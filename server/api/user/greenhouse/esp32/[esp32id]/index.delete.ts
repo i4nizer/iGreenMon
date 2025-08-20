@@ -3,7 +3,7 @@ import { deleteEsp32 } from "~~/server/services/greenhouse/esp32"
 
 //
 
-const ParamSchema = z.object({ esp32id: z.number().int() })
+const ParamSchema = z.object({ esp32id: z.coerce.number().int() })
 
 //
 
@@ -22,15 +22,15 @@ export default defineEventHandler(async (event) => {
 	// --- Pass retrieve to esp32 service
 	const userId = event.context.accessTokenPayload.id
 	const { esp32id } = paramsResult.data
-	const retrieveResult = await deleteEsp32(esp32id, userId)
+	const delResult = await deleteEsp32(esp32id, userId)
 
-	if (!retrieveResult.success) {
+	if (!delResult.success) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: retrieveResult.error,
+			statusMessage: delResult.error,
 		})
 	}
 
-	// --- return the esp32
-	return retrieveResult.data.dataValues
+	// --- nothin left
+	return sendNoContent(event)
 })
