@@ -72,7 +72,6 @@ const { create } = useEsp32()
 
 const onSubmit = async (values: any, event: any) => {
 	const gh = values as Esp32Create
-	console.log(gh)
     emit("submit", gh)
     if (props.handler) return await props.handler(gh, event)
 
