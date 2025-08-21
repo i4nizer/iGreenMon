@@ -6,6 +6,7 @@ import { Crew, crewAttributes, crewOptions } from "~~/server/models/crew";
 import { Permission, permissionAttributes, permissionOptions } from "~~/server/models/permission";
 import { Esp32, esp32Attributes, esp32Options } from "~~/server/models/esp32";
 import { Pin, pinAttributes, pinOptions } from "~~/server/models/pin";
+import { Sensor, sensorAttributes, sensorOptions } from "~~/server/models/sensor";
 import { Sequelize } from "sequelize";
 
 //
@@ -21,6 +22,7 @@ const initModels = (sequelize: Sequelize) => {
 	Permission.init(permissionAttributes, permissionOptions(sequelize))
 	Esp32.init(esp32Attributes, esp32Options(sequelize))
 	Pin.init(pinAttributes, pinOptions(sequelize))
+	Sensor.init(sensorAttributes, sensorOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -51,9 +53,12 @@ const initModelRelationships = () => {
 	
 	Esp32.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
 	Esp32.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
-	Esp32.hasMany(Pin, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Esp32.hasMany(Pin, { foreignKey: "esp32Id", onDelete: "CASCADE" })
+	Esp32.hasMany(Sensor, { foreignKey: "esp32Id", onDelete: "CASCADE" })
 	
 	Pin.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
+	
+	Sensor.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 }
 
 //
