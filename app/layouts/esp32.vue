@@ -44,6 +44,13 @@
 						prepend-icon="mdi-sine-wave"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/pin`"
 					></v-list-item>
+					<v-list-item 
+						v-if="isOwnGH || canAccessSensor"
+						link 
+						title="Sensor" 
+						prepend-icon="mdi-thermometer"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/sensor`"
+					></v-list-item>
 				</v-list>
 				<template #append>
 					<v-divider></v-divider>
@@ -110,6 +117,7 @@ const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
 const permissions = useState<Permission[]>("layout-permissions", () => [])
 
 const canAccessPin = computed(() => canAccess("Pin", permissions.value))
+const canAccessSensor = computed(() => canAccess("Sensor", permissions.value))
 
 const fetchData = async () => {
 	// --- Preserve nuxt context between awaits
