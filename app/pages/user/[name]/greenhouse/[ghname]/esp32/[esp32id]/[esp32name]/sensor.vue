@@ -62,6 +62,7 @@
                 >
 					<template #menu="{ onEdit, onDelete, onToggle }">
 						<sensor-card-menu
+							v-if="isOwnGH || canModifySensor || canDeleteSensor"
 							:sensor
 							:hide-edit="!isOwnGH && !canModifySensor"
 							:hide-toggle="!isOwnGH && !canModifySensor"
