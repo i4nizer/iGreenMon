@@ -25,7 +25,7 @@
 						<sensor-create-form
 							:esp32-id="gh?.id ?? -1"
 							class="bg-white rounded"
-							@error="(e) => toast.error(e)"
+							@error="(e) => toastUtil.error(e)"
 							@success="onCreateSensorSuccess"
 						/>
 					</template>
@@ -39,8 +39,32 @@
 					<sensor-update-form
 						class="bg-white rounded"
 						:sensor="(sensorUpdateData as Sensor)"
-						@error="(e) => toast.error(e)"
+						@error="(e) => toastUtil.error(e)"
 						@success="onUpdateSensorSuccess"
+					/>
+				</template>
+			</v-dialog>
+			<!-- Output Create Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="outputCreateDialog">
+				<template #default>
+					<output-create-form
+						class="bg-white rounded"
+						:pins
+						:sensor-id="outputCreateSensorId"
+						@error="(e) => toastUtil.error(e)"
+						@success="onCreateOutputSuccess"
+					/>
+				</template>
+			</v-dialog>
+			<!-- Output Update Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="outputUpdateDialog">
+				<template #default>
+					<output-update-form
+						class="bg-white rounded"
+						:pins
+						:output="(outputUpdateData as Output)"
+						@error="(e) => toastUtil.error(e)"
+						@success="onUpdateOutputSuccess"
 					/>
 				</template>
 			</v-dialog>
@@ -50,8 +74,7 @@
                 xs="12" 
                 sm="6" 
                 md="4" 
-                lg="3" 
-                xl="2"
+                xl="3" 
                 :key="sensor.id"
             >
                 <sensor-card
@@ -72,6 +95,40 @@
 							@delete="onDelete"
 						></sensor-card-menu>
 					</template>
+					<template #output>
+						<v-list>
+							<v-list-subheader class="d-flex justify-end">
+								<v-btn 
+									v-if="isOwnGH || canCreateOutput"
+									text="Add Output"
+									color="white"
+									class="border"
+									elevation="0"
+									@click="onCreateOutput(sensor)"
+								></v-btn>
+							</v-list-subheader>
+							<v-list-item 
+								v-if="isOwnGH || canAccessOutput"
+								v-for="output in outputs.filter((o) => o.sensorId == sensor.id)"
+								:key="output.id"
+							>
+								<output-card
+									:key="output.id"
+									:output="output"
+									:hide-edit="!isOwnGH && !canModifyOutput"
+									:hide-delete="!isOwnGH && !canDeleteOutput"
+									@edit="onEditOutput"
+									@delete="onDeleteOutput"
+								/>
+							</v-list-item>
+							<v-list-item 
+								v-if="!outputs.some((o) => o.sensorId == sensor.id)" 
+								class="text-center"
+							>
+								<span class="text-grey">No Outputs Yet</span>
+							</v-list-item>
+						</v-list>
+					</template>
 				</sensor-card>
             </v-col>
 
@@ -90,91 +147,87 @@
 <script setup lang="ts">
 import type { Sensor } from "~~/shared/schema/sensor"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
+import type { Permission } from "~~/shared/schema/permission"
+import type { Output } from "~~/shared/schema/output"
 
 //
 
-// --- Utils
+// --- Preserve nuxt context between awaits
+const nctx = useNuxtApp()
+const rwnctx = nctx.runWithContext
+
+// --- User
+const userUtil = useUser()
+
+// --- Notit
+const toastUtil = useToast()
+
+// --- Route data
 const route = useRoute()
-const toast = useToast()
-const ghUtil = useGreenhouse()
-const sensorUtil = useSensor()
-const userUtil = useUser({ hydrate: false })
-
-// --- Store
-const sensorStore = useSensorStore()
-
-// --- Params
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
-// --- Greenhouse Permissions
+// --- Greenhouse
+const ghUtil = useGreenhouse()
+const gh = useState<Greenhouse | undefined>(`greenhouse`)
+
+const isOwnGH = computed(() => gh.value?.userId == userUtil.user.value?.id)
+
+const fetchGH = async () => {
+	const req = async () => await ghUtil.retrieve(ghname)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	gh.value = res.data
+}
+
+// --- Permissions
 const permUtil = usePermission()
-const { canCreate, canModify, canDelete } = permUtil
 const permStore = usePermissionStore()
 const { permissions } = permStore
+const { canCreate, canAccess, canModify, canDelete } = permUtil
 
-const gh = useState<Greenhouse | undefined>(`gh-${ghname}`, () => undefined)
-const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
+const fetchPerms = async () => {
+	if (isOwnGH.value || permissions.length > 0) return;
+	const req = async () => await permUtil.retrieveAll(ghname)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((p) => permStore.append(p))
+}
+
+// --- Pins
+const pinUtil = usePin()
+const pinStore = usePinStore()
+const { pins } = pinStore
+
+const fetchPins = async () => {
+	if (pins.length > 0) return;
+	const esp32Id = parseInt(esp32id)
+	const req = () => pinUtil.retrieveAll(esp32Id)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((p) => pinStore.append(p))
+}
+
+// --- Sensors
+const sensorUtil = useSensor()
+const sensorStore = useSensorStore()
+const { sensors } = sensorStore
+
 const canModifySensor = computed(() => canModify("Sensor", permissions))
 const canDeleteSensor = computed(() => canDelete("Sensor", permissions))
 
-// --- Data
-const { user } = userUtil
-const { sensors } = sensorStore
-
-const fetchData = async () => {
-	// --- Preserve nuxt context between awaits
-	const nctx = useNuxtApp()
-	const rwnctx = nctx.runWithContext
-	if (!user.value) await rwnctx(userUtil.whoami)
-
-	if (!gh.value) {
-		const req = async () => await ghUtil.retrieve(ghname)
-		const res = await rwnctx(req)
-		if (res.success) gh.value = res.data
-		else toast.error(res.error)
-	}
-
-    if (gh.value && sensors.length <= 0) {
-		const req = async () => sensorUtil.retrieveAll(parseInt(esp32id))
-		const res = await rwnctx(req)
-		if (res.success) res.data.forEach((e) => sensorStore.append(e))
-		else toast.error(res.error)
-	}
-
-	if (!isOwnGH.value && permissions.length <= 0) {
-		const req = async () => await permUtil.retrieveAll(ghname)
-		const res = await rwnctx(req)
-		if (res.success) res.data.forEach((p) => permStore.append(p))
-		else toast.error(res.error)
-	}
+const fetchSensors = async () => {
+	if (sensors.length > 0) return;
+	const req = async () => sensorUtil.retrieveAll(parseInt(esp32id))
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((s) => sensorStore.append(s))
 }
 
-onBeforeMount(fetchData)
-onServerPrefetch(fetchData)
-
-// --- For performance, single instance of update form dialog
+// --- Sensor CRUD
 const sensorUpdateData = ref<Sensor>()
 const sensorUpdateDialog = ref(false)
 
-// --- CRUD
-const onCreateSensorSuccess = (sensor: Sensor) => {
-	sensorStore.append(sensor)
-	toast.success("Sensor created successfully.")
-}
-
-const onUpdateSensorSuccess = (sensor: Sensor) => {
-	sensorStore.change(sensor)
-	toast.success("Sensor updated successfully.")
-	sensorUpdateDialog.value = false
-}
-
-const onDeleteSensorSuccess = (sensor: Sensor) => {
-	sensorStore.remove(sensor.id)
-	toast.success("Sensor deleted successfully.")
-}
-
-// --- Navigations from the table
 const onEditSensor = async (sensor: Sensor, opts: { loading: Ref<boolean> }) => {
 	sensorUpdateData.value = sensor
 	sensorUpdateDialog.value = true
@@ -185,7 +238,7 @@ const onToggleSensor = async (sensor: Sensor, opts: { loading: Ref<boolean> }) =
 	const res = await sensorUtil.update(sensor)
 	opts.loading.value = false
 
-	if (!res.success) toast.error(res.error)
+	if (!res.success) toastUtil.error(res.error)
 	else onUpdateSensorSuccess(sensor)
 }
 
@@ -194,9 +247,99 @@ const onDeleteSensor = async (sensor: Sensor, opts: { loading: Ref<boolean> }) =
 	const res = await sensorUtil.destroy(sensor.id)
 	opts.loading.value = false
 
-	if (!res.success) toast.error(res.error)
+	if (!res.success) toastUtil.error(res.error)
 	else onDeleteSensorSuccess(sensor)
 }
+
+const onCreateSensorSuccess = (sensor: Sensor) => {
+	sensorStore.append(sensor)
+	toastUtil.success("Sensor created successfully.")
+}
+
+const onUpdateSensorSuccess = (sensor: Sensor) => {
+	sensorStore.change(sensor)
+	toastUtil.success("Sensor updated successfully.")
+	sensorUpdateDialog.value = false
+}
+
+const onDeleteSensorSuccess = (sensor: Sensor) => {
+	sensorStore.remove(sensor.id)
+	toastUtil.success("Sensor deleted successfully.")
+}
+
+// --- Outputs
+const outputUtil = useOutput()
+const outputStore = useOutputStore()
+const { outputs } = outputStore
+
+const canAccessOutput = computed(() => canAccess("Output", permissions))
+const canCreateOutput = computed(() => canCreate("Output", permissions))
+const canModifyOutput = computed(() => canModify("Output", permissions))
+const canDeleteOutput = computed(() => canDelete("Output", permissions))
+
+const fetchOutputs = async () => {
+	if (outputs.length > 0) return;
+	const esp32Id = parseInt(esp32id)
+	const req = async () => await outputUtil.retrieveAllByEsp32(esp32Id)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((o) => outputStore.append(o))
+}
+
+// --- Output CRUD
+const outputCreateDialog = ref(false)
+const outputCreateSensorId = ref<number>(-1)
+const outputUpdateData = ref<Output>()
+const outputUpdateDialog = ref(false)
+
+const onCreateOutput = (sensor: Sensor) => {
+	outputCreateSensorId.value = sensor.id
+	outputCreateDialog.value = true
+}
+
+const onEditOutput = async (output: Output, opts: { loading: Ref<boolean> }) => {
+	outputUpdateData.value = output
+	outputUpdateDialog.value = true
+}
+
+const onDeleteOutput = async (output: Output, opts: { loading: Ref<boolean> }) => {
+	opts.loading.value = true
+	const res = await outputUtil.destroy(output.id)
+	opts.loading.value = false
+
+	if (!res.success) return toastUtil.error(res.error)
+	else onDeleteOutputSuccess(output)
+}
+
+const onCreateOutputSuccess = (output: Output) => {
+	outputStore.append(output)
+	toastUtil.success("Output created successfully.")
+}
+
+const onUpdateOutputSuccess = (output: Output) => {
+	outputStore.change(output)
+	toastUtil.success("Output updated successfully.")
+}
+
+const onDeleteOutputSuccess = (output: Output) => {
+	outputStore.remove(output.id)
+	toastUtil.success("Output deleted successfully.")
+}
+
+// --- Sequential data fetching on life cycle hooks
+const fetchData = async () => {
+	await rwnctx(userUtil.whoami)
+	await rwnctx(fetchGH)
+	await Promise.all([
+		rwnctx(fetchPins),
+		rwnctx(fetchPerms),
+		rwnctx(fetchSensors),
+		rwnctx(fetchOutputs),
+	])
+}
+
+onBeforeMount(fetchData)
+onServerPrefetch(fetchData)
 
 //
 
