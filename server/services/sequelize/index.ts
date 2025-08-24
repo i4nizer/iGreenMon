@@ -9,6 +9,7 @@ import { Pin, pinAttributes, pinOptions } from "~~/server/models/pin";
 import { Sensor, sensorAttributes, sensorOptions } from "~~/server/models/sensor";
 import { Output, outputAttributes, outputOptions } from "~~/server/models/output";
 import { Actuator, actuatorAttributes, actuatorOptions } from "~~/server/models/actuator";
+import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
 import { Sequelize } from "sequelize";
 
 //
@@ -27,6 +28,7 @@ const initModels = (sequelize: Sequelize) => {
 	Sensor.init(sensorAttributes, sensorOptions(sequelize))
 	Output.init(outputAttributes, outputOptions(sequelize))
 	Actuator.init(actuatorAttributes, actuatorOptions(sequelize))
+	Input.init(inputAttributes, inputOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -63,6 +65,7 @@ const initModelRelationships = () => {
 	
 	Pin.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 	Pin.hasMany(Output, { foreignKey: "outputId", onDelete: "CASCADE" })
+	Pin.hasMany(Input, { foreignKey: "inputId", onDelete: "CASCADE" })
 	
 	Sensor.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 	Sensor.hasMany(Output, { foreignKey: "sensorId", onDelete: "CASCADE" })
@@ -71,6 +74,10 @@ const initModelRelationships = () => {
 	Output.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
 	
 	Actuator.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
+	Actuator.hasMany(Pin, { as: "actuator", foreignKey: "actuatorId" })
+
+	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
+	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
 }
 
 //
