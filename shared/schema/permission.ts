@@ -12,7 +12,7 @@ const PermissionResource = [
 	"Reading",
 	"Actuator",
 	"Input",
-	"Esp32-Cam",
+	"Esp32Cam",
 	"Action",
 	"Condition",
 	"Schedule",
