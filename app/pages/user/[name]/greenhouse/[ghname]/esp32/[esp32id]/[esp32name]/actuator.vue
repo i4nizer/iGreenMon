@@ -44,6 +44,30 @@
 					/>
 				</template>
 			</v-dialog>
+			<!-- Input Create Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="inputCreateDialog">
+				<template #default>
+					<input-create-form
+						class="bg-white rounded"
+						:pins
+						:actuator-id="inputCreateActuatorId"
+						@error="(e) => toastUtil.error(e)"
+						@success="onCreateInputSuccess"
+					/>
+				</template>
+			</v-dialog>
+			<!-- Input Update Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="inputUpdateDialog">
+				<template #default>
+					<input-update-form
+						class="bg-white rounded"
+						:pins
+						:input="(inputUpdateData as Input)"
+						@error="(e) => toastUtil.error(e)"
+						@success="onUpdateInputSuccess"
+					/>
+				</template>
+			</v-dialog>
 			<!-- Actuator List -->
 			<v-col 
                 v-for="actuator in actuators" 
@@ -71,6 +95,40 @@
 							@delete="onDelete"
 						></actuator-card-menu>
 					</template>
+					<template #input>
+						<v-list>
+							<v-list-subheader class="d-flex justify-end">
+								<v-btn 
+									v-if="isOwnGH || canCreateInput"
+									text="Add Input"
+									color="white"
+									class="border"
+									elevation="0"
+									@click="onCreateInput(actuator)"
+								></v-btn>
+							</v-list-subheader>
+							<v-list-item 
+								v-if="isOwnGH || canAccessInput"
+								v-for="input in inputs.filter((i) => i.actuatorId == actuator.id)"
+								:key="input.id"
+							>
+								<input-card
+									:key="input.id"
+									:input="input"
+									:hide-edit="!isOwnGH && !canModifyInput"
+									:hide-delete="!isOwnGH && !canDeleteInput"
+									@edit="onEditInput"
+									@delete="onDeleteInput"
+								/>
+							</v-list-item>
+							<v-list-item 
+								v-if="!inputs.some((i) => i.actuatorId == actuator.id)" 
+								class="text-center"
+							>
+								<span class="text-grey">No Inputs Yet</span>
+							</v-list-item>
+						</v-list>
+					</template>
 				</actuator-card>
             </v-col>
 
@@ -90,7 +148,7 @@
 import type { Actuator } from "~~/shared/schema/actuator"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
 import type { Permission } from "~~/shared/schema/permission"
-import type { Output } from "~~/shared/schema/output"
+import type { Input } from "~~/shared/schema/input"
 
 //
 
@@ -209,6 +267,65 @@ const onDeleteActuatorSuccess = (actuator: Actuator) => {
 	toastUtil.success("Actuator deleted successfully.")
 }
 
+// --- Inputs
+const inputUtil = useInput()
+const inputStore = useInputStore()
+const { inputs } = inputStore
+
+const canAccessInput = computed(() => canAccess("Input", permissions))
+const canCreateInput = computed(() => canCreate("Input", permissions))
+const canModifyInput = computed(() => canModify("Input", permissions))
+const canDeleteInput = computed(() => canDelete("Input", permissions))
+
+const fetchInputs = async () => {
+	if (inputs.length > 0) return;
+	const esp32Id = parseInt(esp32id)
+	const req = async () => await inputUtil.retrieveAllByEsp32(esp32Id)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((o) => inputStore.append(o))
+}
+
+// --- Input CRUD
+const inputCreateDialog = ref(false)
+const inputCreateActuatorId = ref<number>(-1)
+const inputUpdateData = ref<Input>()
+const inputUpdateDialog = ref(false)
+
+const onCreateInput = (actuator: Actuator) => {
+	inputCreateActuatorId.value = actuator.id
+	inputCreateDialog.value = true
+}
+
+const onEditInput = async (input: Input, opts: { loading: Ref<boolean> }) => {
+	inputUpdateData.value = input
+	inputUpdateDialog.value = true
+}
+
+const onDeleteInput = async (input: Input, opts: { loading: Ref<boolean> }) => {
+	opts.loading.value = true
+	const res = await inputUtil.destroy(input.id)
+	opts.loading.value = false
+
+	if (!res.success) return toastUtil.error(res.error)
+	else onDeleteInputSuccess(input)
+}
+
+const onCreateInputSuccess = (input: Input) => {
+	inputStore.append(input)
+	toastUtil.success("Input created successfully.")
+}
+
+const onUpdateInputSuccess = (input: Input) => {
+	inputStore.change(input)
+	toastUtil.success("Input updated successfully.")
+}
+
+const onDeleteInputSuccess = (input: Input) => {
+	inputStore.remove(input.id)
+	toastUtil.success("Input deleted successfully.")
+}
+
 // --- Sequential data fetching on life cycle hooks
 const fetchData = async () => {
 	await rwnctx(userUtil.whoami)
@@ -217,6 +334,7 @@ const fetchData = async () => {
 		rwnctx(fetchPins),
 		rwnctx(fetchPerms),
 		rwnctx(fetchActuators),
+		rwnctx(fetchInputs),
 	])
 }
 
