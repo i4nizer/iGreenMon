@@ -16,6 +16,7 @@
 		<VeeField name="name" #="{ field, errorMessage }">
 			<v-text-field
 				label="Name"
+				class="mt-6"
 				aria-autocomplete="both"
 				v-model="field.value"
 				:="field"
