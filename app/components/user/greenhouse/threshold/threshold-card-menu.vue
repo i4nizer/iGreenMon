@@ -12,18 +12,21 @@
         <template #default>
             <v-list>
                 <v-list-item 
+                    v-if="!hideEdit"
                     link 
                     rounded 
                     title="Edit"
                     @click="onClickEdit"
                 ></v-list-item>
                 <v-list-item 
+                    v-if="!hideDelete"
                     link 
                     rounded 
                     title="Delete"
                     @click="onClickDelete"
                 ></v-list-item>
                 <v-list-item 
+                    v-if="!hideToggle"
                     link 
                     rounded 
                     :title="threshold.disabled ? 'Enable':'Disable'"
@@ -46,7 +49,12 @@ const emit = defineEmits<{
     delete: [threshold: Threshold]
 }>()
 
-const props = defineProps<{ threshold: Threshold }>()
+const props = defineProps<{
+    threshold: Threshold
+    hideEdit?: boolean
+    hideDelete?: boolean
+    hideToggle?: boolean
+}>()
 
 // --- Actions
 const onClickEdit = () => emit("edit", props.threshold)
