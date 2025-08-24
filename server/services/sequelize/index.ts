@@ -10,6 +10,7 @@ import { Sensor, sensorAttributes, sensorOptions } from "~~/server/models/sensor
 import { Output, outputAttributes, outputOptions } from "~~/server/models/output";
 import { Actuator, actuatorAttributes, actuatorOptions } from "~~/server/models/actuator";
 import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
+import { Esp32Cam, esp32CamAttributes, esp32CamOptions } from "~~/server/models/esp32-cam";
 import { Sequelize } from "sequelize";
 
 //
@@ -29,6 +30,7 @@ const initModels = (sequelize: Sequelize) => {
 	Output.init(outputAttributes, outputOptions(sequelize))
 	Actuator.init(actuatorAttributes, actuatorOptions(sequelize))
 	Input.init(inputAttributes, inputOptions(sequelize))
+	Esp32Cam.init(esp32CamAttributes, esp32CamOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -78,6 +80,9 @@ const initModelRelationships = () => {
 
 	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
+
+	Esp32.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
+	Esp32.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
