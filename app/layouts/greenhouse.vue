@@ -30,6 +30,13 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32`"
 					></v-list-item>
 					<v-list-item
+						v-if="isOwnGH || canAccess(`Threshold`, permissions)"
+						link
+						title="Automation"
+						prepend-icon="mdi-auto-fix"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/automation`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH"
 						link
 						title="Crew"
@@ -74,52 +81,58 @@
 <script setup lang="ts">
 import { useDisplay } from "vuetify"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
-import type { Permission } from "~~/shared/schema/permission"
 
 //
 
-// --- Get utils
+// --- Preserve nuxt context between awaits
+const nctx = useNuxtApp()
+const rwnctx = nctx.runWithContext
+
+// --- User
+const userUtil = useUser()
+const { user } = userUtil
+
+// --- Notif
+const toastUtil = useToast()
+
+// --- Route data
 const route = useRoute()
-const toast = useToast()
+const ghname = route.params.ghname as string
+
+// --- Greenhouse
 const ghUtil = useGreenhouse()
-const permUtil = usePermission()
-const { canAccess } = permUtil
-const { user, whoami } = useUser({ hydrate: false })
+const gh = useState<Greenhouse | undefined>(`greenhouse`)
 
-// --- Get params
-const ghname = route.params?.ghname as string
-
-// --- Get greenhouse & permissions
-const gh = useState<Greenhouse | undefined>(
-	"layout-greenhouse",
-	() => undefined
-)
 const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
-const permissions = useState<Permission[]>("layout-permissions", () => [])
 
-const fetchGHPerms = async () => {
-	const nctx = useNuxtApp()
-	const rwnctx = nctx.runWithContext
-
-	if (!user.value) await rwnctx(whoami)
-
-	if (!gh.value) {
-		const req = async () => await ghUtil.retrieve(ghname)
-		const res = await rwnctx(req)
-		if (res.success) gh.value = res.data
-		else toast.error(res.error)
-	}
-
-	if (!isOwnGH.value && permissions.value.length <= 0) {
-		const req = async () => await permUtil.retrieveAll(ghname)
-		const res = await rwnctx(req)
-		if (res.success) permissions.value = res.data
-		else toast.error(res.error)
-	}
+const fetchGH = async () => {
+	if (gh.value) return;
+	const res = await ghUtil.retrieve(ghname)
+	if (!res.success) return toastUtil.error(res.error)
+	gh.value = res.data
 }
 
-onBeforeMount(async () => await fetchGHPerms())
-onServerPrefetch(async () => await fetchGHPerms())
+// --- Permissions
+const permUtil = usePermission()
+const permStore = usePermissionStore()
+const { permissions } = permStore
+const { canAccess } = permUtil
+
+const fetchPerms = async () => {
+	if (isOwnGH.value || permissions.length > 0) return
+	const res = await permUtil.retrieveAll(ghname)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((p) => permStore.append(p))
+}
+
+// --- Fetch All Data
+const fetchData = async () => {
+	await rwnctx(fetchGH)
+	await rwnctx(fetchPerms)
+}
+
+onBeforeMount(fetchData)
+onServerPrefetch(fetchData)
 
 // --- Responsive
 const { mdAndDown, smAndDown } = useDisplay()
@@ -136,12 +149,13 @@ const onClickSignOut = async () => {
 	const signOutResult = await auth.signOut()
 	isSigningOut.value = false
 
-	if (!signOutResult.success) return toast.error(signOutResult.error)
-	toast.success("User signed out successfully.")
+	if (!signOutResult.success) return toastUtil.error(signOutResult.error)
+	toastUtil.success("User signed out successfully.")
 	await navigateTo("/")
 }
 
 //
+
 </script>
 
 <style scoped>
