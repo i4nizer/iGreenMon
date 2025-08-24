@@ -10,6 +10,7 @@ import { Sensor, sensorAttributes, sensorOptions } from "~~/server/models/sensor
 import { Output, outputAttributes, outputOptions } from "~~/server/models/output";
 import { Actuator, actuatorAttributes, actuatorOptions } from "~~/server/models/actuator";
 import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
+import { Threshold, thresholdAttributes, thresholdOptions } from "~~/server/models/threshold";
 import { Sequelize } from "sequelize";
 
 //
@@ -29,6 +30,7 @@ const initModels = (sequelize: Sequelize) => {
 	Output.init(outputAttributes, outputOptions(sequelize))
 	Actuator.init(actuatorAttributes, actuatorOptions(sequelize))
 	Input.init(inputAttributes, inputOptions(sequelize))
+	Threshold.init(thresholdAttributes, thresholdOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -45,6 +47,7 @@ const initModelRelationships = () => {
 	Greenhouse.hasMany(Invitation, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Crew, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Permission, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Greenhouse.hasMany(Threshold, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Invitation.belongsTo(User, { as: "inviter", foreignKey: "inviterId" })
 	Invitation.belongsTo(User, { as: "invitee", foreignKey: "inviteeId" })
@@ -78,6 +81,8 @@ const initModelRelationships = () => {
 
 	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
+	
+	Threshold.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
