@@ -61,6 +61,18 @@ export const useOutput = () => {
         }
     }
     
+    const retrieveAllByGH = async (ghname: string): Promise<SafeResult<Output[]>> => {
+        try {
+            const reqFetch = useRequestFetch()
+            const url = `/api/user/greenhouse/output?ghname=${ghname}`
+            const res = await reqFetch<Output[]>(url)
+            return { success: true, data: res }
+        } catch (error) {
+            const msg = (error as any)?.statusMessage ?? "Something went wrong."
+            return { success: false, error: msg }
+        }
+    }
+    
     const update = async (
         output: OutputUpdate
     ): Promise<SafeResult<Output>> => {
@@ -96,6 +108,7 @@ export const useOutput = () => {
         retrieve,
         retrieveAll,
         retrieveAllByEsp32,
+        retrieveAllByGH,
         update,
         destroy,
     }
