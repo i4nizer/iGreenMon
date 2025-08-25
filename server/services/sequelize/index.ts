@@ -90,17 +90,17 @@ const initModelRelationships = () => {
 
 	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
-	Input.hasMany(Action, { foreignKey: "actuatorId", onDelete: "CASCADE" })
+	Input.hasMany(Action, { foreignKey: "inputId", onDelete: "CASCADE" })
 	
 	Threshold.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
-	Threshold.hasMany(Condition, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
-	Threshold.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Threshold.hasMany(Condition, { foreignKey: "thresholdId", onDelete: "CASCADE" })
+	Threshold.hasMany(Action, { foreignKey: "thresholdId", onDelete: "CASCADE" })
 
 	Condition.belongsTo(Output, { as: "output", foreignKey: "outputId" })
 	Condition.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
 
 	Schedule.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
-	Schedule.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Schedule.hasMany(Action, { foreignKey: "scheduleId", onDelete: "CASCADE" })
 
 	Action.belongsTo(Input, { as: "input", foreignKey: "inputId" })
 	Action.belongsTo(Schedule, { as: "schedule", foreignKey: "scheduleId" })
