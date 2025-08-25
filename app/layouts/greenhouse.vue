@@ -37,6 +37,13 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/automation`"
 					></v-list-item>
 					<v-list-item
+						v-if="isOwnGH || canAccess(`Schedule`, permissions)"
+						link
+						title="Schedule"
+						prepend-icon="mdi-calendar-clock"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/schedule`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH"
 						link
 						title="Crew"
