@@ -112,6 +112,7 @@
                                 :key="condition.id"
                             >
                                 <condition-card 
+                                    v-if="outputs.some((o) => o.id == condition.outputId)"
                                     :output="(outputs.find((o) => o.id == condition.outputId) as Output)"
                                     :condition="condition"
                                     :hide-edit="!isOwnGH && !canModifyCondition"
