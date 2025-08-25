@@ -12,6 +12,7 @@ import { Actuator, actuatorAttributes, actuatorOptions } from "~~/server/models/
 import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
 import { Threshold, thresholdAttributes, thresholdOptions } from "~~/server/models/threshold";
 import { Condition, conditionAttributes, conditionOptions } from "~~/server/models/condition";
+import { Schedule, scheduleAttributes, scheduleOptions } from "~~/server/models/schedule";
 import { Sequelize } from "sequelize";
 
 //
@@ -33,6 +34,7 @@ const initModels = (sequelize: Sequelize) => {
 	Input.init(inputAttributes, inputOptions(sequelize))
 	Threshold.init(thresholdAttributes, thresholdOptions(sequelize))
 	Condition.init(conditionAttributes, conditionOptions(sequelize))
+	Schedule.init(scheduleAttributes, scheduleOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -50,6 +52,7 @@ const initModelRelationships = () => {
 	Greenhouse.hasMany(Crew, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Permission, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Threshold, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Greenhouse.hasMany(Schedule, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Invitation.belongsTo(User, { as: "inviter", foreignKey: "inviterId" })
 	Invitation.belongsTo(User, { as: "invitee", foreignKey: "inviteeId" })
@@ -90,6 +93,8 @@ const initModelRelationships = () => {
 
 	Condition.belongsTo(Output, { as: "output", foreignKey: "outputId" })
 	Condition.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
+
+	Schedule.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
