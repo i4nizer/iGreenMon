@@ -68,6 +68,36 @@
 					/>
 				</template>
 			</v-dialog>
+            <!-- Action Create Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="actionCreateDialog">
+				<template #default>
+					<action-create-form
+                        v-if="gh"
+                        hide-schedule
+                        hide-threshold
+						class="bg-white rounded overflow-auto"
+						:inputs
+						:threshold-id="actionCreateThresholdId"
+                        :greenhouse-id="gh.id"
+						@error="(e) => toastUtil.error(e)"
+						@success="onCreateActionSuccess"
+					/>
+				</template>
+			</v-dialog>
+			<!-- Action Update Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="actionUpdateDialog">
+				<template #default>
+					<action-update-form
+                        hide-schedule
+                        hide-threshold
+                        class="bg-white rounded overflow-auto"
+						:inputs
+						:action="(actionUpdateData as Action)"
+						@error="(e) => toastUtil.error(e)"
+						@success="onUpdateActionSuccess"
+					/>
+				</template>
+			</v-dialog>
             <!-- Threshold Lists -->
             <v-col 
                 v-if="isOwnGH || canAccessThreshold"
@@ -129,6 +159,39 @@
                             </v-list-item>
                         </v-list>
                     </template>
+                    <template #action>
+                        <v-list>
+                            <v-list-subheader class="d-flex justify-end">
+                                <v-btn 
+                                    v-if="isOwnGH || canCreateAction"
+                                    text="Add Action"
+                                    class="border"
+                                    @click="onCreateAction(threshold)"
+                                ></v-btn>
+                            </v-list-subheader>
+                            <v-list-item 
+                                v-if="isOwnGH || canAccessAction"
+                                v-for="action in actions.filter((a) => a.thresholdId == threshold.id)"
+                                :key="action.id"
+                            >
+                                <action-card 
+                                    v-if="inputs.some((i) => i.id == action.inputId)"
+                                    :input="(inputs.find((i) => i.id == action.inputId) as Input)"
+                                    :action="action"
+                                    :hide-edit="!isOwnGH && !canModifyAction"
+                                    :hide-delete="!isOwnGH && !canDeleteAction"
+                                    @edit="onEditAction"
+                                    @delete="onDeleteAction"
+                                />
+                            </v-list-item>
+                            <v-list-item 
+                                v-if="!actions.some((c) => c.thresholdId == threshold.id)" 
+                                class="text-center"
+                            >
+                                <span class="text-grey">No Action Yet</span>
+                            </v-list-item>
+                        </v-list>
+                    </template>
                 </threshold-card>
             </v-col>
             <!-- Fallback/emptystate when no threshold -->
@@ -148,6 +211,8 @@ import type { Threshold } from '~~/shared/schema/threshold'
 import type { Greenhouse } from '~~/shared/schema/greenhouse'
 import type { Condition } from '~~/shared/schema/condition'
 import type { Output } from '~~/shared/schema/output'
+import type { Action } from '~~/shared/schema/action'
+import type { Input } from '~~/shared/schema/input'
 
 //
 
@@ -342,6 +407,87 @@ const onDeleteConditionSuccess = (condition: Condition) => {
     toastUtil.success("Condition deleted successfully.")
 }
 
+// --- Inputs
+const inputUtil = useInput()
+const inputStore = useInputStore()
+const { inputs } = inputStore
+
+const canAccessInput = computed(() => canAccess("Input", permissions))
+
+const fetchInputs = async () => {
+    if (!isOwnGH && !canAccessInput.value) return;
+    if (inputs.length > 0) return;
+    const res = await inputUtil.retrieveAllByGH(ghname)
+    if (!res.success) return toastUtil.error(res.error)
+    res.data.forEach((o) => inputStore.append(o))
+}
+
+// --- Actions
+const actionUtil = useAction()
+const actionStore = useActionStore()
+const { actions } = actionStore
+
+const canCreateAction = computed(() => canCreate("Action", permissions))
+const canAccessAction = computed(() => canAccess("Action", permissions))
+const canModifyAction = computed(() => canModify("Action", permissions))
+const canDeleteAction = computed(() => canDelete("Action", permissions))
+
+const fetchActions = async () => { 
+    if (!isOwnGH && !canAccessAction.value) return
+    if (!gh.value || actions.length > 0) return;
+    const res = await actionUtil.retrieveAll(gh.value.id)
+    if (!res.success) return toastUtil.error(res.error)
+    res.data.forEach((c) => actionStore.append(c))
+}
+
+// --- Action CRUD
+const actionCreateDialog = ref(false)
+const actionCreateThresholdId = ref(-1)
+const actionUpdateData = ref<Action>()
+const actionUpdateDialog = ref(false)
+
+const onCreateAction = async (threshold: Threshold) => {
+    actionCreateThresholdId.value = threshold.id
+    actionCreateDialog.value = true
+}
+
+const onEditAction = async (
+    action: Action,
+    opts: { loading: Ref<boolean> }
+) => {
+    actionUpdateData.value = action
+    actionUpdateDialog.value = true
+}
+
+const onDeleteAction = async (
+    action: Action,
+    opts: { loading: Ref<boolean> }
+) => {
+    opts.loading.value = true
+    const res = await actionUtil.destroy(action.id)
+    opts.loading.value = false
+
+    if (!res.success) toastUtil.error(res.error)
+    else onDeleteActionSuccess(action)
+}
+
+const onCreateActionSuccess = (action: Action) => {
+    actionStore.append(action)
+    toastUtil.success("Action created successfully.")
+}
+
+const onUpdateActionSuccess = (action: Action) => {
+    actionStore.change(action)
+    toastUtil.success("Action updated successfully.")
+    actionUpdateDialog.value = false
+    actionUpdateData.value = undefined
+}
+
+const onDeleteActionSuccess = (action: Action) => {
+    actionStore.remove(action.id)
+    toastUtil.success("Action deleted successfully.")
+}
+
 // --- Fetch Data
 const fetchData = async () => {
     await rwnctx(fetchGH)
@@ -350,6 +496,8 @@ const fetchData = async () => {
         rwnctx(fetchOutputs),
         rwnctx(fetchThresholds),
         rwnctx(fetchConditions),
+        rwnctx(fetchInputs),
+        rwnctx(fetchActions),
     ])
 }
 
