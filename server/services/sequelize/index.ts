@@ -13,6 +13,7 @@ import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
 import { Threshold, thresholdAttributes, thresholdOptions } from "~~/server/models/threshold";
 import { Condition, conditionAttributes, conditionOptions } from "~~/server/models/condition";
 import { Schedule, scheduleAttributes, scheduleOptions } from "~~/server/models/schedule";
+import { Action, actionAttributes, actionOptions } from "~~/server/models/action";
 import { Sequelize } from "sequelize";
 
 //
@@ -35,6 +36,7 @@ const initModels = (sequelize: Sequelize) => {
 	Threshold.init(thresholdAttributes, thresholdOptions(sequelize))
 	Condition.init(conditionAttributes, conditionOptions(sequelize))
 	Schedule.init(scheduleAttributes, scheduleOptions(sequelize))
+	Action.init(actionAttributes, actionOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -53,6 +55,7 @@ const initModelRelationships = () => {
 	Greenhouse.hasMany(Permission, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Threshold, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Schedule, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Greenhouse.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Invitation.belongsTo(User, { as: "inviter", foreignKey: "inviterId" })
 	Invitation.belongsTo(User, { as: "invitee", foreignKey: "inviteeId" })
@@ -87,14 +90,22 @@ const initModelRelationships = () => {
 
 	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
+	Input.hasMany(Action, { foreignKey: "actuatorId", onDelete: "CASCADE" })
 	
 	Threshold.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 	Threshold.hasMany(Condition, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Threshold.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Condition.belongsTo(Output, { as: "output", foreignKey: "outputId" })
 	Condition.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
 
 	Schedule.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	Schedule.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+
+	Action.belongsTo(Input, { as: "input", foreignKey: "inputId" })
+	Action.belongsTo(Schedule, { as: "schedule", foreignKey: "scheduleId" })
+	Action.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
+	Action.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
