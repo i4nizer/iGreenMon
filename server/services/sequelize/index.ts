@@ -14,6 +14,7 @@ import { Threshold, thresholdAttributes, thresholdOptions } from "~~/server/mode
 import { Condition, conditionAttributes, conditionOptions } from "~~/server/models/condition";
 import { Schedule, scheduleAttributes, scheduleOptions } from "~~/server/models/schedule";
 import { Action, actionAttributes, actionOptions } from "~~/server/models/action";
+import { Hook, hookAttributes, hookOptions } from "~~/server/models/hook";
 import { Sequelize } from "sequelize";
 
 //
@@ -37,6 +38,7 @@ const initModels = (sequelize: Sequelize) => {
 	Condition.init(conditionAttributes, conditionOptions(sequelize))
 	Schedule.init(scheduleAttributes, scheduleOptions(sequelize))
 	Action.init(actionAttributes, actionOptions(sequelize))
+	Hook.init(hookAttributes, hookOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -80,6 +82,7 @@ const initModelRelationships = () => {
 	
 	Sensor.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 	Sensor.hasMany(Output, { foreignKey: "sensorId", onDelete: "CASCADE" })
+	Sensor.hasMany(Hook, { foreignKey: "sensorId", onDelete: "CASCADE" })
 	
 	Output.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Output.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
@@ -106,6 +109,10 @@ const initModelRelationships = () => {
 	Action.belongsTo(Schedule, { as: "schedule", foreignKey: "scheduleId" })
 	Action.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
 	Action.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	Action.hasMany(Hook, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	
+	Hook.belongsTo(Action, { as: "action", foreignKey: "actionId" })
+	Hook.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
 }
 
 //
