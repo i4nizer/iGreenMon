@@ -30,6 +30,13 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32`"
 					></v-list-item>
 					<v-list-item
+						v-if="isOwnGH || canAccess(`Esp32Cam`, permissions)"
+						link
+						title="Esp32Cam"
+						prepend-icon="mdi-camera"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32-cam`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH || canAccess(`Action`, permissions)"
 						link
 						title="Action"
