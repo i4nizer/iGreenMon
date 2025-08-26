@@ -58,8 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { UserSchema, UserUpdateSchema } from "~~/shared/schema/user"
-import { toTypedSchema } from "@vee-validate/zod"
+import {
+	UserSchema,
+	UserUpdateSchema,
+	type UserSafe,
+	type UserUpdate,
+} from "~~/shared/schema/user"
 
 //
 
@@ -72,6 +76,7 @@ const emit = defineEmits<{
 	submit: [user: UserUpdate]
 	success: [user: UserSafe]
 }>()
+
 const props = defineProps<{
 	user: UserSafe,
 	handler?: (values: UserUpdate, event: any) => any
