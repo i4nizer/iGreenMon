@@ -53,6 +53,8 @@ const initModelRelationships = () => {
 	User.hasMany(Crew, { foreignKey: "userId", onDelete: "CASCADE" })
 	
 	Token.belongsTo(User, { as: "user", foreignKey: "userId" })
+	Token.hasMany(Esp32, { foreignKey: "tokenId", onDelete: "CASCADE" })
+	Token.hasMany(Esp32Cam, { foreignKey: "tokenId", onDelete: "CASCADE" })
 	
 	Greenhouse.belongsTo(User, { as: "user", foreignKey: "userId" })
 	Greenhouse.hasMany(Invitation, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
@@ -116,9 +118,9 @@ const initModelRelationships = () => {
 	
 	Hook.belongsTo(Action, { as: "action", foreignKey: "actionId" })
 	Hook.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
-
-	Esp32.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
-	Esp32.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	
+	Esp32Cam.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
+	Esp32Cam.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
