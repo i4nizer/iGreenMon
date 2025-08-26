@@ -15,6 +15,7 @@ import { Condition, conditionAttributes, conditionOptions } from "~~/server/mode
 import { Schedule, scheduleAttributes, scheduleOptions } from "~~/server/models/schedule";
 import { Action, actionAttributes, actionOptions } from "~~/server/models/action";
 import { Hook, hookAttributes, hookOptions } from "~~/server/models/hook";
+import { Esp32Cam, esp32CamAttributes, esp32CamOptions } from "~~/server/models/esp32-cam";
 import { Sequelize } from "sequelize";
 
 //
@@ -39,6 +40,7 @@ const initModels = (sequelize: Sequelize) => {
 	Schedule.init(scheduleAttributes, scheduleOptions(sequelize))
 	Action.init(actionAttributes, actionOptions(sequelize))
 	Hook.init(hookAttributes, hookOptions(sequelize))
+	Esp32Cam.init(esp32CamAttributes, esp32CamOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -114,6 +116,9 @@ const initModelRelationships = () => {
 	
 	Hook.belongsTo(Action, { as: "action", foreignKey: "actionId" })
 	Hook.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
+
+	Esp32.belongsTo(Token, { as: "token", foreignKey: "tokenId" })
+	Esp32.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
 }
 
 //
