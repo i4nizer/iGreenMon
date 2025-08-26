@@ -58,6 +58,13 @@
 						prepend-icon="mdi-fan"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/actuator`"
 					></v-list-item>
+					<v-list-item 
+						v-if="isOwnGH || canModifyEsp32"
+						link 
+						title="Settings" 
+						prepend-icon="mdi-cog"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32/${esp32?.id}/${esp32?.name}/settings`"
+					></v-list-item>
 				</v-list>
 				<template #append>
 					<v-divider></v-divider>
@@ -98,65 +105,79 @@ import { useDisplay } from "vuetify"
 import { useEsp32 } from "~/composables/use-esp32"
 import type { Esp32 } from "~~/shared/schema/esp32"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
-import type { Permission } from "~~/shared/schema/permission"
 
 //
 
-// --- Get utilities
-const toast = useToast()
-const route = useRoute()
-const userUtil = useUser({ hydrate: false })
+// --- Nuxt CTX
+const nctx = useNuxtApp()
+const rwnctx = nctx.runWithContext
+
+// --- User
+const userUtil = useUser()
 const { user } = userUtil
+
+// --- Notif
+const toastUtil = useToast()
+
+// --- Route Data
+const routeUtil = useRoute()
+const ghname = routeUtil.params?.ghname as string
+const esp32id = routeUtil.params?.esp32id as string
+
+// --- Greenhouse
 const ghUtil = useGreenhouse()
-const permUtil = usePermission()
-const { canAccess } = permUtil
-const esp32Util = useEsp32()
-
-// --- Get params
-const ghname = route.params?.ghname as string
-const esp32id = route.params?.esp32id as string
-
-// --- Get greenhouse, permissions, esp32
-const gh = useState<Greenhouse | undefined>("layout-greenhouse")
-const esp32 = useState<Esp32 | undefined>("layout-esp32", () => undefined)
-
+const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
 const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
-const permissions = useState<Permission[]>("layout-permissions", () => [])
 
-const canAccessPin = computed(() => canAccess("Pin", permissions.value))
-const canAccessSensor = computed(() => canAccess("Sensor", permissions.value))
-const canAccessActuator = computed(() => canAccess("Actuator", permissions.value))
-
-const fetchData = async () => {
-	// --- Preserve nuxt context between awaits
-	const nctx = useNuxtApp()
-	const rwnctx = nctx.runWithContext
-	if (!user.value) await rwnctx(userUtil.whoami)
-
-	if (!gh.value) {
-		const req = async () => await ghUtil.retrieve(ghname)
-		const res = await rwnctx(req)
-		if (res.success) gh.value = res.data
-		else toast.error(res.error)
-	}
-
-	if (!esp32.value) {
-		const req = async () => await esp32Util.retrieve(parseInt(esp32id))
-		const res = await rwnctx(req)
-		if (!res.success) toast.error(res.error)
-		else esp32.value = res.data
-	}
-
-	if (!isOwnGH.value && permissions.value.length <= 0) {
-		const req = async () => await permUtil.retrieveAll(ghname)
-		const res = await rwnctx(req)
-		if (res.success) permissions.value = res.data
-		else toast.error(res.error)
-	}
+const fetchGH = async () => {
+	if (gh.value) return;
+	const res = await ghUtil.retrieve(ghname)
+	if (!res.success) return toastUtil.error(res.error)
+	gh.value = res.data
 }
 
-onBeforeMount(async () => await fetchData())
-onServerPrefetch(async () => await fetchData())
+// --- Permissions
+const permUtil = usePermission()
+const permStore = usePermissionStore()
+const { canAccess, canModify } = permUtil
+const { permissions } = permStore
+
+const canAccessPin = computed(() => canAccess("Pin", permissions))
+const canAccessSensor = computed(() => canAccess("Sensor", permissions))
+const canAccessActuator = computed(() => canAccess("Actuator", permissions))
+
+const fetchPerms = async () => {
+	if (isOwnGH.value || permissions.length > 0) return
+	const res = await permUtil.retrieveAll(ghname)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((p) => permStore.append(p))
+}
+
+// --- Esp32
+const esp32Util = useEsp32()
+const esp32 = useState<Esp32 | undefined>(`${esp32id}-esp32`)
+
+const canAccessEsp32 = computed(() => canAccess("Esp32", permissions))
+const canModifyEsp32 = computed(() => canModify("Esp32", permissions))
+
+const fetchEsp32 = async () => {
+	if (!isOwnGH.value && !canAccessEsp32.value) return;
+	if (esp32.value) return;
+	const esp32Id = parseInt(esp32id)
+	const res = await esp32Util.retrieve(esp32Id)
+	if (!res.success) return toastUtil.error(res.error)
+	esp32.value = res.data
+}
+
+// --- Data Fetching
+const fetchData = async () => {
+	await rwnctx(fetchGH)
+	await rwnctx(fetchPerms)
+	await rwnctx(fetchEsp32)
+}
+
+onBeforeMount(fetchData)
+onServerPrefetch(fetchData)
 
 // --- Responsive
 const { mdAndDown, smAndDown } = useDisplay()
@@ -173,12 +194,13 @@ const onClickSignOut = async () => {
 	const signOutResult = await auth.signOut()
 	isSigningOut.value = false
 
-	if (!signOutResult.success) return toast.error(signOutResult.error)
-	toast.success("User signed out successfully.")
+	if (!signOutResult.success) return toastUtil.error(signOutResult.error)
+	toastUtil.success("User signed out successfully.")
 	await navigateTo("/")
 }
 
 //
+
 </script>
 
 <style scoped>
