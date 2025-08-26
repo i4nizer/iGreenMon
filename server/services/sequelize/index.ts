@@ -8,6 +8,7 @@ import { Esp32, esp32Attributes, esp32Options } from "~~/server/models/esp32";
 import { Pin, pinAttributes, pinOptions } from "~~/server/models/pin";
 import { Sensor, sensorAttributes, sensorOptions } from "~~/server/models/sensor";
 import { Output, outputAttributes, outputOptions } from "~~/server/models/output";
+import { Reading, readingAttributes, readingOptions } from "~~/server/models/reading";
 import { Actuator, actuatorAttributes, actuatorOptions } from "~~/server/models/actuator";
 import { Input, inputAttributes, inputOptions } from "~~/server/models/input";
 import { Threshold, thresholdAttributes, thresholdOptions } from "~~/server/models/threshold";
@@ -33,6 +34,7 @@ const initModels = (sequelize: Sequelize) => {
 	Pin.init(pinAttributes, pinOptions(sequelize))
 	Sensor.init(sensorAttributes, sensorOptions(sequelize))
 	Output.init(outputAttributes, outputOptions(sequelize))
+	Reading.init(readingAttributes, readingOptions(sequelize))
 	Actuator.init(actuatorAttributes, actuatorOptions(sequelize))
 	Input.init(inputAttributes, inputOptions(sequelize))
 	Threshold.init(thresholdAttributes, thresholdOptions(sequelize))
@@ -92,6 +94,9 @@ const initModelRelationships = () => {
 	Output.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Output.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })
 	Output.hasMany(Condition, { foreignKey: "outputId", onDelete: "CASCADE" })
+	Output.hasMany(Reading, { foreignKey: "outputId", onDelete: "CASCADE" })
+	
+	Reading.belongsTo(Output, { as: "output", foreignKey: "outputId" })
 	
 	Actuator.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 	Actuator.hasMany(Pin, { foreignKey: "actuatorId", onDelete: "CASCADE" })
