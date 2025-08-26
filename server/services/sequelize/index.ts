@@ -46,7 +46,8 @@ const initModelRelationships = () => {
 	// --- Model relationships
 	User.hasMany(Token, { foreignKey: "userId", onDelete: "CASCADE" })
 	User.hasMany(Greenhouse, { foreignKey: "userId", onDelete: "CASCADE" })
-	User.hasMany(Invitation, { foreignKey: "userId", onDelete: "CASCADE" })
+	User.hasMany(Invitation, { foreignKey: "inviterId", onDelete: "CASCADE" })
+	User.hasMany(Invitation, { foreignKey: "inviteeId", onDelete: "CASCADE" })
 	User.hasMany(Crew, { foreignKey: "userId", onDelete: "CASCADE" })
 	
 	Token.belongsTo(User, { as: "user", foreignKey: "userId" })
@@ -77,8 +78,8 @@ const initModelRelationships = () => {
 	Esp32.hasMany(Actuator, { foreignKey: "esp32Id", onDelete: "CASCADE" })
 	
 	Pin.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
-	Pin.hasMany(Output, { foreignKey: "outputId", onDelete: "CASCADE" })
-	Pin.hasMany(Input, { foreignKey: "inputId", onDelete: "CASCADE" })
+	Pin.hasMany(Output, { foreignKey: "pinId", onDelete: "CASCADE" })
+	Pin.hasMany(Input, { foreignKey: "pinId", onDelete: "CASCADE" })
 	
 	Sensor.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
 	Sensor.hasMany(Output, { foreignKey: "sensorId", onDelete: "CASCADE" })
@@ -89,7 +90,7 @@ const initModelRelationships = () => {
 	Output.hasMany(Condition, { foreignKey: "outputId", onDelete: "CASCADE" })
 	
 	Actuator.belongsTo(Esp32, { as: "esp32", foreignKey: "esp32Id" })
-	Actuator.hasMany(Pin, { as: "actuator", foreignKey: "actuatorId" })
+	Actuator.hasMany(Pin, { foreignKey: "actuatorId", onDelete: "CASCADE" })
 
 	Input.belongsTo(Pin, { as: "pin", foreignKey: "pinId" })
 	Input.belongsTo(Actuator, { as: "actuator", foreignKey: "actuatorId" })
@@ -109,7 +110,7 @@ const initModelRelationships = () => {
 	Action.belongsTo(Schedule, { as: "schedule", foreignKey: "scheduleId" })
 	Action.belongsTo(Threshold, { as: "threshold", foreignKey: "thresholdId" })
 	Action.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
-	Action.hasMany(Hook, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Action.hasMany(Hook, { foreignKey: "actionId", onDelete: "CASCADE" })
 	
 	Hook.belongsTo(Action, { as: "action", foreignKey: "actionId" })
 	Hook.belongsTo(Sensor, { as: "sensor", foreignKey: "sensorId" })

@@ -38,13 +38,13 @@ const hookAttributes: ModelAttributes<Hook, InferAttributes<Hook>> = {
 	actionId: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
-		references: { model: "sensors", key: "id" },
+		references: { model: "actions", key: "id" },
 		onDelete: "CASCADE",
 	},
 	sensorId: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
-		references: { model: "actions", key: "id" },
+		references: { model: "sensors", key: "id" },
 		onDelete: "CASCADE",
 	},
 	createdAt: {
@@ -63,7 +63,7 @@ const hookAttributes: ModelAttributes<Hook, InferAttributes<Hook>> = {
 
 const hookOptions = (sequelize: Sequelize): InitOptions<Hook> => ({
 	sequelize,
-	tableName: "actions",
+	tableName: "hooks",
 	timestamps: true,
 })
 

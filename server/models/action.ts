@@ -93,7 +93,7 @@ const actionAttributes: ModelAttributes<Action, InferAttributes<Action>> = {
 		type: DataTypes.INTEGER,
 		allowNull: true,
 		references: { model: "greenhouses", key: "id" },
-		onDelete: "SET NULL",
+		onDelete: "CASCADE",
 	},
 	createdAt: {
 		type: DataTypes.DATE,
