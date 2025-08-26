@@ -30,6 +30,13 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32`"
 					></v-list-item>
 					<v-list-item
+						v-if="isOwnGH || canAccess(`Action`, permissions)"
+						link
+						title="Action"
+						prepend-icon="mdi-rocket"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/action`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH || canAccess(`Threshold`, permissions)"
 						link
 						title="Automation"
