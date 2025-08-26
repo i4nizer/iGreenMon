@@ -57,6 +57,13 @@
 						prepend-icon="mdi-account-group"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/crew`"
 					></v-list-item>
+					<v-list-item
+						v-if="isOwnGH"
+						link
+						title="Settings"
+						prepend-icon="mdi-cog"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/settings`"
+					></v-list-item>
 				</v-list>
 				<template #append>
 					<v-divider></v-divider>
