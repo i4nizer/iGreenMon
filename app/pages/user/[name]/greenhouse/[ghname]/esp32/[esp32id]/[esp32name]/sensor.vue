@@ -68,6 +68,30 @@
 					/>
 				</template>
 			</v-dialog>
+			<!-- Hook Create Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="hookCreateDialog">
+				<template #default>
+					<hook-create-form
+						class="bg-white rounded"
+						:actions
+						:sensor-id="hookCreateSensorId"
+						@error="(e) => toastUtil.error(e)"
+						@success="onCreateHookSuccess"
+					/>
+				</template>
+			</v-dialog>
+			<!-- Hook Update Dialog -->
+			<v-dialog class="w-100 w-md-50" v-model="hookUpdateDialog">
+				<template #default>
+					<hook-update-form
+						class="bg-white rounded"
+						:actions
+						:hook="(hookUpdateData as Hook)"
+						@error="(e) => toastUtil.error(e)"
+						@success="onUpdateHookSuccess"
+					/>
+				</template>
+			</v-dialog>
 			<!-- Sensor List -->
 			<v-col 
                 v-for="sensor in sensors" 
@@ -129,6 +153,42 @@
 							</v-list-item>
 						</v-list>
 					</template>
+					<template #hook>
+						<v-list>
+							<v-list-subheader class="d-flex justify-end">
+								<v-btn 
+									v-if="isOwnGH || canCreateHook"
+									text="Add Hook"
+									color="white"
+									class="border"
+									elevation="0"
+									@click="onCreateHook(sensor)"
+								></v-btn>
+							</v-list-subheader>
+							<v-list-item 
+								v-if="isOwnGH || canAccessHook"
+								v-for="hook in hooks.filter((h) => h.sensorId == sensor.id)"
+								:key="hook.id"
+							>
+								<hook-card
+									v-if="actions.some((a) => a.id == hook.actionId)"
+									:key="hook.id"
+									:hook="hook"
+									:action="(actions.find((a) => a.id == hook.actionId) as Action)"
+									:hide-edit="!isOwnGH && !canModifyHook"
+									:hide-delete="!isOwnGH && !canDeleteHook"
+									@edit="onEditHook"
+									@delete="onDeleteHook"
+								/>
+							</v-list-item>
+							<v-list-item 
+								v-if="!hooks.some((o) => o.sensorId == sensor.id)" 
+								class="text-center"
+							>
+								<span class="text-grey">No Hooks Yet</span>
+							</v-list-item>
+						</v-list>
+					</template>
 				</sensor-card>
             </v-col>
 
@@ -147,8 +207,9 @@
 <script setup lang="ts">
 import type { Sensor } from "~~/shared/schema/sensor"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
-import type { Permission } from "~~/shared/schema/permission"
 import type { Output } from "~~/shared/schema/output"
+import type { Hook } from "~~/shared/schema/hook"
+import type { Action } from "~~/shared/schema/action"
 
 //
 
@@ -174,8 +235,7 @@ const gh = useState<Greenhouse | undefined>(`greenhouse`)
 const isOwnGH = computed(() => gh.value?.userId == userUtil.user.value?.id)
 
 const fetchGH = async () => {
-	const req = async () => await ghUtil.retrieve(ghname)
-	const res = await rwnctx(req)
+	const res = await ghUtil.retrieve(ghname)
 	if (!res.success) return toastUtil.error(res.error)
 	gh.value = res.data
 }
@@ -188,8 +248,7 @@ const { canCreate, canAccess, canModify, canDelete } = permUtil
 
 const fetchPerms = async () => {
 	if (isOwnGH.value || permissions.length > 0) return;
-	const req = async () => await permUtil.retrieveAll(ghname)
-	const res = await rwnctx(req)
+	const res = await permUtil.retrieveAll(ghname)
 	if (!res.success) return toastUtil.error(res.error)
 	res.data.forEach((p) => permStore.append(p))
 }
@@ -199,11 +258,13 @@ const pinUtil = usePin()
 const pinStore = usePinStore()
 const { pins } = pinStore
 
+const canAccessPin = computed(() => canAccess("Pin", permissions))
+
 const fetchPins = async () => {
+	if (!isOwnGH && !canAccessPin.value) return
 	if (pins.length > 0) return;
 	const esp32Id = parseInt(esp32id)
-	const req = () => pinUtil.retrieveAll(esp32Id)
-	const res = await rwnctx(req)
+	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
 	res.data.forEach((p) => pinStore.append(p))
 }
@@ -213,13 +274,14 @@ const sensorUtil = useSensor()
 const sensorStore = useSensorStore()
 const { sensors } = sensorStore
 
+const canAccessSensor = computed(() => canAccess("Sensor", permissions))
 const canModifySensor = computed(() => canModify("Sensor", permissions))
 const canDeleteSensor = computed(() => canDelete("Sensor", permissions))
 
 const fetchSensors = async () => {
+	if (!isOwnGH && !canAccessSensor.value) return
 	if (sensors.length > 0) return;
-	const req = async () => sensorUtil.retrieveAll(parseInt(esp32id))
-	const res = await rwnctx(req)
+	const res = await sensorUtil.retrieveAll(parseInt(esp32id))
 	if (!res.success) return toastUtil.error(res.error)
 	res.data.forEach((s) => sensorStore.append(s))
 }
@@ -278,10 +340,10 @@ const canModifyOutput = computed(() => canModify("Output", permissions))
 const canDeleteOutput = computed(() => canDelete("Output", permissions))
 
 const fetchOutputs = async () => {
+	if (!isOwnGH && !canAccessOutput.value) return
 	if (outputs.length > 0) return;
 	const esp32Id = parseInt(esp32id)
-	const req = async () => await outputUtil.retrieveAllByEsp32(esp32Id)
-	const res = await rwnctx(req)
+	const res = await outputUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
 	res.data.forEach((o) => outputStore.append(o))
 }
@@ -326,6 +388,80 @@ const onDeleteOutputSuccess = (output: Output) => {
 	toastUtil.success("Output deleted successfully.")
 }
 
+// --- Actions
+const actionUtil = useAction()
+const actionStore = useActionStore()
+const { actions } = actionStore
+
+const canAccessAction = computed(() => canAccess("Action", permissions))
+
+const fetchActions = async () => {
+	if (!isOwnGH && !canAccessAction.value) return
+	if (!gh.value || actions.length > 0) return;
+	const res = await actionUtil.retrieveAll(gh.value.id)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((a) => actionStore.append(a))
+}
+
+// --- Hooks
+const hookUtil = useHook()
+const hookStore = useHookStore()
+const { hooks } = hookStore
+
+const canAccessHook = computed(() => canAccess("Hook", permissions))
+const canCreateHook = computed(() => canCreate("Hook", permissions))
+const canModifyHook = computed(() => canModify("Hook", permissions))
+const canDeleteHook = computed(() => canDelete("Hook", permissions))
+
+const fetchHooks = async () => {
+	if (!isOwnGH && !canAccessHook.value) return;
+	if (hooks.length > 0) return;
+	const esp32Id = parseInt(esp32id)
+	const res = await hookUtil.retrieveAllByEsp32(esp32Id)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((o) => hookStore.append(o))
+}
+
+// --- Hook CRUD
+const hookCreateDialog = ref(false)
+const hookCreateSensorId = ref<number>(-1)
+const hookUpdateData = ref<Hook>()
+const hookUpdateDialog = ref(false)
+
+const onCreateHook = (sensor: Sensor) => {
+	hookCreateSensorId.value = sensor.id
+	hookCreateDialog.value = true
+}
+
+const onEditHook = async (hook: Hook, opts: { loading: Ref<boolean> }) => {
+	hookUpdateData.value = hook
+	hookUpdateDialog.value = true
+}
+
+const onDeleteHook = async (hook: Hook, opts: { loading: Ref<boolean> }) => {
+	opts.loading.value = true
+	const res = await hookUtil.destroy(hook.id)
+	opts.loading.value = false
+
+	if (!res.success) return toastUtil.error(res.error)
+	else onDeleteHookSuccess(hook)
+}
+
+const onCreateHookSuccess = (hook: Hook) => {
+	hookStore.append(hook)
+	toastUtil.success("Hook created successfully.")
+}
+
+const onUpdateHookSuccess = (hook: Hook) => {
+	hookStore.change(hook)
+	toastUtil.success("Hook updated successfully.")
+}
+
+const onDeleteHookSuccess = (hook: Hook) => {
+	hookStore.remove(hook.id)
+	toastUtil.success("Hook deleted successfully.")
+}
+
 // --- Sequential data fetching on life cycle hooks
 const fetchData = async () => {
 	await rwnctx(userUtil.whoami)
@@ -335,6 +471,8 @@ const fetchData = async () => {
 		rwnctx(fetchPerms),
 		rwnctx(fetchSensors),
 		rwnctx(fetchOutputs),
+		rwnctx(fetchActions),
+		rwnctx(fetchHooks),
 	])
 }
 
