@@ -23,6 +23,12 @@
 				<v-divider></v-divider>
 				<v-list density="compact" nav>
 					<v-list-item
+						link
+						title="Dashboard"
+						prepend-icon="mdi-view-dashboard"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/dashboard`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH || canAccess(`Esp32`, permissions)"
 						link
 						title="Esp32"
