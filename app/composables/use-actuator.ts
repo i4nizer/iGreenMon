@@ -49,6 +49,20 @@ export const useActuator = () => {
         }
     }
     
+    const retrieveAllByGH = async (
+        ghname: string
+    ): Promise<SafeResult<Actuator[]>> => {
+        try {
+            const reqFetch = useRequestFetch()
+            const url = `/api/user/greenhouse/actuator?ghname=${ghname}`
+            const res = await reqFetch<Actuator[]>(url)
+            return { success: true, data: res }
+        } catch (error) {
+            const msg = (error as any)?.statusMessage ?? "Something went wrong."
+            return { success: false, error: msg }
+        }
+    }
+    
     const update = async (
         actuator: ActuatorUpdate
     ): Promise<SafeResult<Actuator>> => {
@@ -83,6 +97,7 @@ export const useActuator = () => {
         create,
         retrieve,
         retrieveAll,
+        retrieveAllByGH,
         update,
         destroy,
     }

@@ -49,6 +49,20 @@ export const useSensor = () => {
         }
     }
     
+    const retrieveAllByGH = async (
+        ghname: string
+    ): Promise<SafeResult<Sensor[]>> => {
+        try {
+            const reqFetch = useRequestFetch()
+            const url = `/api/user/greenhouse/sensor?ghname=${ghname}`
+            const res = await reqFetch<Sensor[]>(url)
+            return { success: true, data: res }
+        } catch (error) {
+            const msg = (error as any)?.statusMessage ?? "Something went wrong."
+            return { success: false, error: msg }
+        }
+    }
+    
     const update = async (
         sensor: SensorUpdate
     ): Promise<SafeResult<Sensor>> => {
@@ -83,6 +97,7 @@ export const useSensor = () => {
         create,
         retrieve,
         retrieveAll,
+        retrieveAllByGH,
         update,
         destroy,
     }
