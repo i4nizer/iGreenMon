@@ -17,6 +17,10 @@ const PermissionResource = [
 	"Condition",
 	"Schedule",
 	"Threshold",
+	"Log",
+	"Capture",
+	"Detection",
+	"Evaluation",
 ] as const
 
 const PermissionKey = PermissionResource.map((pr) =>
