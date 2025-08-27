@@ -40,12 +40,40 @@
                     </template>
                 </sensor-dashboard-card>
             </v-col>
+            <v-col 
+                v-for="actuator in actuators"
+                cols="12"
+                xs="12"
+                sm="6"
+                md="4"
+                xl="3"
+                :key="actuator.id"
+            >
+                <actuator-dashboard-card 
+                    :actuator
+                    :hide-view="!isOwnGH && !canAccessActuator"
+                    @view="onViewActuator"
+                >
+                    <template #input>
+                        <input-dashboard-card
+                            v-for="input in getInputs(actuator.id)"
+                            class="border"
+                            elevation="0"
+                            :input
+                            :hide-input="!isOwnGH && !canModifyInput"
+                            @update="onUpdateInput"
+                        ></input-dashboard-card>
+                    </template>
+                </actuator-dashboard-card>
+            </v-col>
         </v-row>
     </v-container>
 </template>
 
 <script setup lang="ts">
+import type { Actuator } from '~~/shared/schema/actuator'
 import type { Greenhouse } from '~~/shared/schema/greenhouse'
+import type { Input } from '~~/shared/schema/input'
 import type { Output } from '~~/shared/schema/output'
 import type { Sensor } from '~~/shared/schema/sensor'
 
@@ -187,6 +215,70 @@ const getLastReading = (outputId: number) => {
     return reading ? reading.value : undefined
 }
 
+// --- Actuators
+const actuatorUtil = useActuator()
+const actuatorStore = useActuatorStore()
+const { actuators } = actuatorStore
+
+const canAccessActuator = computed(() => canAccess("Actuator", permissions))
+
+const fetchActuators = async () => {
+    if (!isOwnGH.value && !canAccessActuator.value) return
+    if (actuators.length > 0) return
+    const esp32Id = parseInt(esp32id)
+    const res = await actuatorUtil.retrieveAll(esp32Id)
+    if (!res.success) return toastUtil.error(res.error)
+    res.data.forEach((a) => actuatorStore.append(a))
+}
+
+// --- Actuator Util
+const onViewActuator = async (
+    actuator: Actuator,
+    opts: { loading: Ref<boolean> }
+) => {
+    const ghUrl = `/user/greenhouse/${ghname}`
+    const esp32Url = `/esp32/${esp32id}/${esp32name}/actuator#${actuator.id}`
+
+    opts.loading.value = true
+    await navigateTo(ghUrl + esp32Url)
+    opts.loading.value = false
+}
+
+// --- Inputs
+const inputUtil = useInput()
+const inputStore = useInputStore()
+const { inputs } = inputStore
+
+const canAccessInput = computed(() => canAccess("Input", permissions))
+const canModifyInput = computed(() => canModify("Input", permissions))
+
+const fetchInputs = async () => {
+    if (!isOwnGH.value && !canAccessInput.value) return
+    if (inputs.length > 0) return
+    const esp32Id = parseInt(esp32id)
+    const res = await inputUtil.retrieveAllByEsp32(esp32Id)
+    if (!res.success) return toastUtil.error(res.error)
+    res.data.forEach((a) => inputStore.append(a))
+}
+
+// --- Input Util
+const getInputs = (actuatorId: number) => {
+    return inputs.filter((i) => i.actuatorId == actuatorId)
+}
+
+const onUpdateInput = async (
+    input: Input,
+    opts: { loading: Ref<boolean> }
+) => {
+    opts.loading.value = true
+    const res = await inputUtil.update(input)
+    opts.loading.value = false
+
+    if (!res.success) return toastUtil.error(res.error)
+    inputStore.change(res.data)
+    toastUtil.success("Input updated successfully.")
+}
+
 // --- Data Fetching
 const fetchData = async () => {
     await rwnctx(fetchGH)
@@ -195,6 +287,8 @@ const fetchData = async () => {
         rwnctx(fetchSensors),
         rwnctx(fetchOutputs),
         rwnctx(fetchReadings),
+        rwnctx(fetchActuators),
+        rwnctx(fetchInputs),
     ])
 }
 
