@@ -148,7 +148,7 @@ const onViewEsp32Cam = async (
     const { name } = routeUtil.params
     opts.loading.value = true
     const ghUrl = `/user/${name}/greenhouse/${gh.value?.name}`
-    const esp32CamUrl = `/esp32Cam/${esp32Cam.id}/${esp32Cam.name}/dashboard`
+    const esp32CamUrl = `/esp32-cam/${esp32Cam.id}/${esp32Cam.name}/dashboard`
     await navigateTo(ghUrl + esp32CamUrl)
     opts.loading.value = false
 }
