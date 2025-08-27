@@ -10,6 +10,9 @@
 		<span class="text-grey">
 			Please provide the input details.
 		</span>
+		<VeeField name="flag" #="{ field }">
+			<input type="hidden" :value="field.value" :="field">
+		</VeeField>
 		<VeeField name="name" #="{ field, errorMessage }">
 			<v-text-field
 				label="Name"
@@ -76,7 +79,7 @@
 			text="Update"
 			color="green"
 			class="w-100 mt-3"
-			:disabled="!meta.valid"
+			:disabled="!meta.valid || !meta.dirty"
 			:loading="isSubmitting"
 		></v-btn>
 	</VeeForm>

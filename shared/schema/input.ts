@@ -33,6 +33,7 @@ const InputUpdateSchema = InputSchema.pick({
     name: true,
     icon: true,
     type: true,
+    flag: true,
     pinId: true,
 })
 

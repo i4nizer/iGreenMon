@@ -102,8 +102,8 @@ const updateInput = async (
         }
         
         // --- Update and return input
-        const { name, icon, type, pinId } = data
-        await input.update({ name, icon, type, pinId })
+        const { name, icon, type, flag, pinId } = data
+        await input.update({ name, icon, type, flag, pinId })
         return { success: true, data: input }
 	} catch (error) {
         console.error(error)
