@@ -37,6 +37,12 @@
 						prepend-icon="mdi-view-dashboard"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32-cam/${esp32camid}/${esp32camname}/dashboard`"
 					></v-list-item>
+					<v-list-item
+						link
+						title="Capture"
+						prepend-icon="mdi-image"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/esp32-cam/${esp32camid}/${esp32camname}/capture`"
+					></v-list-item>
 					<v-list-item 
 						v-if="isOwnGH || canModifyEsp32Cam"
 						link 
