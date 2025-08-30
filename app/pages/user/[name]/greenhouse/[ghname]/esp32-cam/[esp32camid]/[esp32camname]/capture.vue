@@ -90,7 +90,6 @@
 <script setup lang="ts">
 import type { Capture } from '~~/shared/schema/capture'
 import type { Greenhouse } from '~~/shared/schema/greenhouse'
-import { NPKModelClass } from "~~/shared/types/model/npk"
 
 //
 
