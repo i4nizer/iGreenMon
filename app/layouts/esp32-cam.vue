@@ -87,7 +87,6 @@
 
 <script setup lang="ts">
 import { useDisplay } from "vuetify"
-import { useEsp32Cam } from "~/composables/use-esp32-cam"
 import type { Esp32Cam } from "~~/shared/schema/esp32-cam"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
 

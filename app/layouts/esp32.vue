@@ -102,7 +102,6 @@
 
 <script setup lang="ts">
 import { useDisplay } from "vuetify"
-import { useEsp32 } from "~/composables/use-esp32"
 import type { Esp32 } from "~~/shared/schema/esp32"
 import type { Greenhouse } from "~~/shared/schema/greenhouse"
 
