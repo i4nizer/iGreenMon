@@ -1,7 +1,15 @@
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: false },
-	modules: ["vuetify-nuxt-module", "@vee-validate/nuxt", "@pinia/nuxt"],
+	nitro: {
+		preset: "node-server",
+		experimental: { websocket: true },
+	},
+	modules: [
+		"vuetify-nuxt-module",
+		"@vee-validate/nuxt",
+		"@pinia/nuxt"
+	],
 	components: [
 		{
 			path: "~/components",
