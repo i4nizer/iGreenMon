@@ -18,6 +18,7 @@ import { Action, actionAttributes, actionOptions } from "~~/server/models/action
 import { Hook, hookAttributes, hookOptions } from "~~/server/models/hook";
 import { Esp32Cam, esp32CamAttributes, esp32CamOptions } from "~~/server/models/esp32-cam";
 import { Capture, captureAttributes, captureOptions } from "~~/server/models/capture";
+import { Detection, detectionAttributes, detectionOptions } from "~~/server/models/detection";
 import { Sequelize } from "sequelize";
 
 //
@@ -45,6 +46,7 @@ const initModels = (sequelize: Sequelize) => {
 	Hook.init(hookAttributes, hookOptions(sequelize))
 	Esp32Cam.init(esp32CamAttributes, esp32CamOptions(sequelize))
 	Capture.init(captureAttributes, captureOptions(sequelize))
+	Detection.init(detectionAttributes, detectionOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -131,6 +133,9 @@ const initModelRelationships = () => {
 	Esp32Cam.hasMany(Capture, { foreignKey: "esp32CamId", onDelete: "CASCADE" })
 
 	Capture.belongsTo(Esp32Cam, { as: "esp32Cam", foreignKey: "esp32CamId" })
+	Capture.hasMany(Detection, { foreignKey: "captureId", onDelete: "CASCADE" })
+
+	Detection.belongsTo(Capture, { as: "capture", foreignKey: "captureId" })
 }
 
 //
