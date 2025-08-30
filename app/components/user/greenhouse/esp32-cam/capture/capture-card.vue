@@ -102,20 +102,32 @@ const onClickView = () => {
 const image = ref<HTMLImageElement>()
 const canvas = ref<HTMLCanvasElement>()
 
-const onImageLoad = (el: HTMLImageElement) => {
-    image.value = el
-    emit("load", props.capture, el, { loading })
+const onImageLoad = (
+    img: HTMLImageElement,
+    cvs: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+) => {
+    image.value = img
+    emit("load", props.capture, img, { loading })
 }
 
-const onImageDraw = (el: HTMLCanvasElement) => {
-    canvas.value = el
+const onImageDraw = (
+    img: HTMLImageElement,
+    cvs: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+) => {
+    canvas.value = cvs
     loading.value = false
-    emit("draw", props.capture, el, { loading })
+    emit("draw", props.capture, cvs, { loading })
 }
 
-const onImageClick = (el: HTMLCanvasElement) => {
-    canvas.value = el
-    emit("view", props.capture, el, { loading })
+const onImageClick = (
+    img: HTMLImageElement,
+    cvs: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+) => {
+    canvas.value = cvs
+    emit("view", props.capture, cvs, { loading })
 }
 
 //

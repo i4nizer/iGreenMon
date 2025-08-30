@@ -6,7 +6,7 @@
             v-tooltip="`Click to View`"
             :width="canvasSize.width"
             :height="canvasSize.height"
-            @click="emit(`click`, canvasRef as HTMLCanvasElement)"
+            @click="onClickCanvas"
         ></canvas>
     </div>
 </template>
@@ -17,9 +17,21 @@
 
 // --- Data Binding
 const emit = defineEmits<{
-    "load": [image: HTMLImageElement]
-    "draw": [canvas: HTMLCanvasElement]
-    "click": [canvas: HTMLCanvasElement]
+    "load": [
+        image: HTMLImageElement,
+        canvas: HTMLCanvasElement,
+        context: CanvasRenderingContext2D,
+    ]
+    "draw": [
+        image: HTMLImageElement,
+        canvas: HTMLCanvasElement,
+        context: CanvasRenderingContext2D,
+    ]
+    "click": [
+        image: HTMLImageElement,
+        canvas: HTMLCanvasElement,
+        context: CanvasRenderingContext2D,
+    ]
 }>()
 
 const props = defineProps<{ src: string }>()
@@ -66,16 +78,27 @@ const render = () => {
     // --- Draw image first
     const { width, height } = canvasRef.value
     canvasCtx.value.imageSmoothingEnabled = false
-    canvasCtx.value.drawImage(imageRef.value, sideX, sideY, side, side, 0, 0, width, height)
+    canvasCtx.value.drawImage(
+        imageRef.value,
+        sideX, 
+        sideY, 
+        side, 
+        side, 
+        0, 
+        0, 
+        width, 
+        height
+    )
 
     // --- Emit drawn image in canvas
-    emit("draw", canvasRef.value)
+    emit("draw", imageRef.value, canvasRef.value, canvasCtx.value)
     state.painted = true
 }
 
 // --- Event Handling
 const onImageLoad = (event: Event) => {
-    emit("load", event.target as HTMLImageElement)
+    if (!imageRef.value || !canvasRef.value || !canvasCtx.value) return
+    emit("load", imageRef.value, canvasRef.value, canvasCtx.value)
     state.loaded = true
     requestAnimationFrame(render)
 }
@@ -88,6 +111,11 @@ const onIntersect: IntersectionObserverCallback = (
         if (e.isIntersecting) render()
         else state.painted = false
     }
+}
+
+const onClickCanvas = () => {
+    if (!imageRef.value || !canvasRef.value || !canvasCtx.value) return
+    emit("click", imageRef.value, canvasRef.value, canvasCtx.value)
 }
 
 const onResizeCanvas = (el: HTMLElement, w: number, h: number) => {
