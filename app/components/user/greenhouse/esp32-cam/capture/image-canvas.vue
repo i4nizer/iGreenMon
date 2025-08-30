@@ -32,6 +32,7 @@ const canvasSize = reactive({ width: 4000, height: 4000 })
 
 // --- Resizing & Visibility Observing
 const state = reactive({
+    loaded: false,
     visible: true,
     painted: false,
     resizing: false,
@@ -52,7 +53,8 @@ watch(
 // --- Image Rendering
 const render = () => {
     // --- Check states & existence
-    if (state.painted || state.resizing || !state.visible) return
+    const { loaded, visible, painted, resizing } = state
+    if (!loaded || painted || resizing || !visible) return
     if (!imageRef.value || !canvasRef.value || !canvasCtx.value) return
 
     // --- Calc aspect ratio to center image
@@ -74,7 +76,7 @@ const render = () => {
 // --- Event Handling
 const onImageLoad = (event: Event) => {
     emit("load", event.target as HTMLImageElement)
-    state.visible = true
+    state.loaded = true
     requestAnimationFrame(render)
 }
 
