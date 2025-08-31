@@ -2,8 +2,7 @@
     <div class="text-center text-wrap overflow-wrap">
         <canvas
             ref="canvasRef"
-            class="cursor-pointer w-100 aspect-ratio-1"
-            v-tooltip="`Click to View`"
+            class="w-100 aspect-ratio-1"
             :width="canvasSize.width"
             :height="canvasSize.height"
             @click="onClickCanvas"
