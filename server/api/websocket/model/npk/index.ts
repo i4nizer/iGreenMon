@@ -5,7 +5,8 @@ import { NPKModel } from "~~/server/services/model"
 export default defineWebSocketHandler({
     message: async (peer, message) => {
         // --- Do inference
-        const buffer = message.arrayBuffer()
+        const blob = message.blob()
+        const buffer = await blob.arrayBuffer()
         const result = await NPKModel.predict(buffer)
         
         // --- Send stringified version

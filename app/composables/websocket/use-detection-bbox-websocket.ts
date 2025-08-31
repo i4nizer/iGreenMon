@@ -31,7 +31,8 @@ export const useDetectionBBoxWebSocket = (
     }
 
     const send = (image: ArrayBufferLike | Blob | ArrayBufferView) => {
-		if (!websocket.value) return
+        if (!websocket.value) return
+        websocket.value.binaryType = "blob"
 		websocket.value.send(image)
     }
     
@@ -48,11 +49,12 @@ export const useDetectionBBoxWebSocket = (
 		opts?.onOpen(websocket.value)
     }
 
-    const onMessageCallback = (e: MessageEvent<DetectionBBox[]>) => {
+    const onMessageCallback = (e: MessageEvent<string>) => {
         if (!opts?.onMessage || !websocket.value) return
-		detections.splice(0, detections.length)
-		detections.push(...e.data)
-		opts.onMessage(websocket.value, e.data)
+        detections.splice(0, detections.length)
+        const bboxes = JSON.parse(e.data) as DetectionBBox[]
+		detections.push(...bboxes)
+		opts.onMessage(websocket.value, bboxes)
     }
 
     const onErrorCallback = (e: Event) => {
