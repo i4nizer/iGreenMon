@@ -136,24 +136,39 @@
 			</v-col>
 			<v-col cols="12" sm="12" md="6">
 				<v-file-upload
-					v-if="imageUploads.length <= 0"
+					v-if="!imageUpload"
 					clearable
+					type="file"
+					class="h-100"
 					title="Drag and Drop Lettce Image Here"
-					v-model="imageUploads"
-					:density="'compact'"
-					@update:model-value="onUploadImage"
+					accept="image/*"
+					:multiple="false"
+					@update:model-value="(onUploadImage as any)"
 				></v-file-upload>
-				<div v-if="imageUrls.length > 0">
+				<div v-else>
 					<image-canvas
-						:src="(imageUrls.at(0) as string)"
+						v-if="imageIsDetected"
+						:src="imageIsDetected ? imageDataUrl : ``"
 						@draw="onDrawImage"
 					></image-canvas>
+					<v-card
+						v-else
+						loading
+						disabled
+						class="w-100 border text-center"
+						style="aspect-ratio: 1;"
+						elevation="0"
+					>
+						<v-card-text 
+							class="w-100 h-100 d-flex justify-center align-center"
+						>Detecting...</v-card-text>
+					</v-card>
 					<v-btn
 						color="white"
 						class="mt-3 w-100 border"
 						elevation="0"
 						:text="'Reset'"
-						@click="imageUrls.splice(0, imageUrls.length)"
+						@click="imageUpload = undefined"
 					></v-btn>
 				</div>
 			</v-col>
@@ -165,6 +180,7 @@
 </template>
 
 <script setup lang="ts">
+import imageCompression from 'browser-image-compression'
 import type { DetectionBBox } from '~~/shared/schema/detection'
 
 //
@@ -175,9 +191,8 @@ const toastUtil = useToast()
 // --- Detection WebSocket
 const websocketUrl = "/api/websocket/model/npk"
 const detectionBBoxWebSocket = useDetectionBBoxWebSocket(websocketUrl, {
-	onOpen: () => console.log(`WebSocket opened.`),
 	onError: (ws, event) => toastUtil.error(`Something went wrong.`),
-	onMessage: (ws, bboxes) => onReceiveDetectionBBoxes(ws, bboxes)
+	onMessage: (ws, bboxes) => onReceiveDetectionBBoxes(ws, bboxes),
 })
 
 const {
@@ -190,20 +205,7 @@ const onReceiveDetectionBBoxes = async (
 	ws: WebSocket,
 	bboxes: DetectionBBox[]
 ) => {
-	imageUrls.splice(0, imageUrls.length)
-
-	const onLoadReader = (e: ProgressEvent<FileReader>) => {
-		if (!e.target?.result) return
-		imageUrls.push(e.target.result as string)
-	}
-
-	for (const file of imageUploads) {
-		const reader = new FileReader()
-		reader.onload = onLoadReader
-		reader.readAsDataURL(file)
-	}
-
-	console.log(`Received ${bboxes.length} from websocket.`)
+	imageIsDetected.value = true
 }
 
 // --- Detection Rendering
@@ -215,6 +217,7 @@ const onDrawImage = (
 	canvas: HTMLCanvasElement,
 	context: CanvasRenderingContext2D
 ) => {
+	// --- Overlay bounding boxes
 	drawDetectionBBoxes(
 		context,
 		canvas.width,
@@ -222,19 +225,41 @@ const onDrawImage = (
 		detections,
 		NPKModelClassColor as any
 	)
-
-	console.log(`Drawn ${detections.length} on canvas.`)
 }
 
 // --- Image Uploading
-const imageUrls = reactive<string[]>([])
-const imageUploads = reactive<File[]>([])
+const imageUpload = ref<File>()
+const imageDataUrl = ref<string>(``)
+const imageIsDetected = ref(false)
 
-const onUploadImage = async (files: File[]) => {
-	for (const file of files) {
-		sendDetectionWebSocket(await file.arrayBuffer())
-		console.log(`Sent image on websocket.`, file)
+const onUploadImage = async (file: File) => {
+	// --- Retrieve only valid image file
+	if (!file) return toastUtil.error("No image file uploaded.")
+	const valid = file.type.startsWith("image/")
+	if (!valid) return toastUtil.error("Invalid image file uploaded.")
+
+	// --- Compress image file
+	const image = await imageCompression(file, {
+		maxWidthOrHeight: NPKModelInputSize[0],
+		maxSizeMB: 5,
+		useWebWorker: true,
+	})
+
+	// --- Send compressed to server
+	sendDetectionWebSocket(image)
+	imageIsDetected.value = false
+
+	// --- Helper
+	const onLoadReader = (e: ProgressEvent<FileReader>) => {
+		if (!e.target?.result) return
+		imageDataUrl.value = e.target.result as string
 	}
+
+	// --- Save original
+	const reader = new FileReader()
+	reader.onload = onLoadReader
+	reader.readAsDataURL(file)
+	imageUpload.value = file
 }
 
 // --- LifeCycle Hooks
