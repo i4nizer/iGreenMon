@@ -9,4 +9,7 @@ export default defineNitroPlugin(async () => {
 	
     await NPKModel.load()
 	if (!isProd) console.info("NPK detection model loaded.")
+		
+	await NPKModel.predict(`${process.cwd()}/storage/image/lettuce.jpg`)
+	if (!isProd) console.info("NPK detection model warmed up.")
 })
