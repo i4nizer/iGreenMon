@@ -62,18 +62,23 @@ export const useDetectionBBoxRenderer = () => {
 		const { x, y, w, h } = box
 		const { x: padX, y: padY } = padding
 
+		// --- Set meta before measure
+		ctx.font = font
+		ctx.textAlign = "left"
+		ctx.textBaseline = "top"
+
 		// --- Measure text for padding
 		const {
 			width: textWidth,
 			actualBoundingBoxAscent,
 			actualBoundingBoxDescent,
 		} = ctx.measureText(text)
-		const textHeight = actualBoundingBoxAscent - actualBoundingBoxDescent
+		const textHeight = actualBoundingBoxAscent + actualBoundingBoxDescent
 
 		// --- Apply padding to the text
 		const textRect = {
 			x: x + padX,
-			y: y - textHeight,
+			y: y - padY - textHeight,
 			w: textWidth,
 			h: textHeight,
 		}
@@ -92,7 +97,6 @@ export const useDetectionBBoxRenderer = () => {
 
 		// --- Overlay with the text
 		ctx.fillStyle = color
-		ctx.font = font
 		ctx.fillText(text, textRect.x, textRect.y)
 	}
 
@@ -115,20 +119,23 @@ export const useDetectionBBoxRenderer = () => {
 		const dbox = denormalize(width, height, box)
 
 		// --- Apply options with fallback
-		const font = options?.font ?? "normal normal 12px Roboto"
+		const size = Math.max(12, Math.round(height / 40))
+		const font = options?.font ?? `bold ${size}px Roboto`
 		const text = `${detectionBBox.class} ${confidence.toFixed(2)}`
-		const color = options?.color ?? "white"
+		const color = options?.color ?? "green"
 
+		const pad = Math.max(12, Math.round(width / 160))
 		const padding = {
-			x: options?.padding ? options?.padding.x : 6,
-			y: options?.padding ? options?.padding.y : 6,
+			x: options?.padding ? options?.padding.x : pad,
+			y: options?.padding ? options?.padding.y : pad,
 		}
 
-		const background = options?.background ?? "brown"
+		const thickness = Math.max(2, Math.round(width / 320))
+		const background = options?.background ?? "white"
 
 		// --- Draw bounding box then label
-		drawBox(ctx, dbox, background, 2)
-		drawLabel(ctx, dbox, font, text, background, padding, color)
+		drawBox(ctx, dbox, color, thickness)
+		drawLabel(ctx, dbox, font, text, color, padding, background)
 	}
 
 	const drawDetectionBBoxes = (
@@ -136,10 +143,11 @@ export const useDetectionBBoxRenderer = () => {
 		width: number,
 		height: number,
 		detectionBBoxes: DetectionBBox[],
-		classColorOptions: ({
+		classColorOptions: (DetectionBBoxRendererOptions & {
 			class: string
 			color: string
-		} & DetectionBBoxRendererOptions)[]
+			background: string
+		})[]
 	) => {
 		for (const bbox of detectionBBoxes) {
 			const cco = classColorOptions.find((c) => c.class == bbox.class)
