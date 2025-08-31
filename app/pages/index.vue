@@ -126,49 +126,103 @@
 						</div>
 					</v-list-item>
 				</v-list>
-				<v-btn
-					text="Use Device Camera"
-					class="mt-2 mb-5 border"
-					color="green"
-					elevation="0"
-					append-icon="mdi-camera"
-				></v-btn>
 			</v-col>
 			<v-col cols="12" sm="12" md="6">
-				<v-file-upload
-					v-if="!imageUpload"
-					clearable
-					type="file"
-					class="h-100"
-					title="Drag and Drop Lettce Image Here"
-					accept="image/*"
-					:multiple="false"
-					@update:model-value="(onUploadImage as any)"
-				></v-file-upload>
+				<div class="d-flex align-center ga-1">
+					<v-select
+						hide-details
+						label="Media Source"
+						class="mt-2 mb-5 w-50"
+						elevation="0"
+						prepend-inner-icon="mdi-image"
+						v-model="mediaSource"
+						:items="MediaSource"
+						@update:model-value="onSwitchMediaSource"
+					></v-select>
+					<v-select
+						v-if="mediaSource == MediaSource[1]"
+						clearable
+						hide-details
+						label="Camera"
+						class="mt-2 mb-5 w-50"
+						elevation="0"
+						prepend-inner-icon="mdi-camera"
+						v-model="mediaVideoSource"
+						:items="mediaVideoSources"
+						:item-title="(m) => m.label"
+						:item-value="(m) => m"
+						@click:clear="onClearMediaVideoSource"
+						@update:model-value="onSelectMediaVideoSource"
+					></v-select>
+				</div>
+				<div v-if="mediaSource == `Image`">
+					<v-file-upload
+						v-if="!imageUpload"
+						clearable
+						type="file"
+						class="h-100"
+						title="Drag and Drop Lettuce Image Here"
+						accept="image/*"
+						:multiple="false"
+						@update:model-value="(onUploadImage as any)"
+					></v-file-upload>
+					<div v-else>
+						<image-canvas
+							v-if="imageIsDetected"
+							:src="imageIsDetected ? imageDataUrl : ``"
+							@draw="onDrawImage"
+						></image-canvas>
+						<v-card
+							v-else
+							loading
+							disabled
+							class="w-100 border text-center"
+							style="aspect-ratio: 1;"
+							elevation="0"
+						>
+							<v-card-text 
+								class="w-100 h-100 d-flex justify-center align-center"
+							>Detecting...</v-card-text>
+						</v-card>
+						<v-btn
+							color="white"
+							class="mt-3 w-100 border"
+							elevation="0"
+							:text="'Reset'"
+							@click="imageUpload = undefined"
+						></v-btn>
+					</div>
+				</div>
 				<div v-else>
-					<image-canvas
-						v-if="imageIsDetected"
-						:src="imageIsDetected ? imageDataUrl : ``"
-						@draw="onDrawImage"
-					></image-canvas>
+					<video-canvas
+						v-if="mediaVideoStream"
+						flip
+						class="border pa-0"
+						:src-object="mediaVideoStream"
+						@draw="onDrawFrame"
+					></video-canvas>
 					<v-card
 						v-else
-						loading
 						disabled
 						class="w-100 border text-center"
 						style="aspect-ratio: 1;"
 						elevation="0"
+						:loading="!!mediaVideoSource"
 					>
 						<v-card-text 
 							class="w-100 h-100 d-flex justify-center align-center"
-						>Detecting...</v-card-text>
+						>
+							<span v-if="!mediaVideoSource">Pick Camera</span>
+							<span v-else>Starting...</span>
+						</v-card-text>
 					</v-card>
 					<v-btn
+						v-if="!!mediaVideoStream"
 						color="white"
 						class="mt-3 w-100 border"
 						elevation="0"
-						:text="'Reset'"
-						@click="imageUpload = undefined"
+						:text="'Stop'"
+						@click="onClearMediaVideoSource"
 					></v-btn>
 				</div>
 			</v-col>
@@ -205,7 +259,20 @@ const onReceiveDetectionBBoxes = async (
 	ws: WebSocket,
 	bboxes: DetectionBBox[]
 ) => {
+	// --- For image
 	imageIsDetected.value = true
+
+	// --- For video
+	if (!mediaVideoStream.value) return
+	if (!videoCtx.value || !videoCanvasEl.value) return
+
+	drawDetectionBBoxes(
+		videoCtx.value,
+		videoCanvasEl.value.width,
+		videoCanvasEl.value.height,
+		bboxes,
+		NPKModelClassColor as any
+	)
 }
 
 // --- Detection Rendering
@@ -227,6 +294,53 @@ const onDrawImage = (
 	)
 }
 
+// --- Image/Video Switching
+const MediaSource = ["Image", "Camera"] as const
+type MediaSource = (typeof MediaSource)[number]
+
+const mediaUtil = useUserMedia()
+const mediaSource = ref<MediaSource>(MediaSource[0])
+const mediaVideoSource = ref<MediaDeviceInfo>()
+const mediaVideoStream = ref<MediaStream>()
+const mediaVideoSources = reactive<MediaDeviceInfo[]>([])
+const mediaVideoPermitted = ref(false)
+
+const onSwitchMediaSource = async (src: MediaSource) => {
+	if (src == MediaSource[0]) {
+		mediaVideoStream.value
+			?.getTracks()
+			.forEach((t) => t.stop())
+		mediaVideoStream.value = undefined
+		return mediaVideoSource.value = undefined;
+	}
+
+	const res = await mediaUtil.requestVideo()
+	if (!res.success) return toastUtil.error(res.error)
+
+	mediaVideoPermitted.value = true
+	mediaVideoSources.splice(0, mediaVideoSources.length)
+	mediaVideoSources.push(...res.data)
+}
+
+const onClearMediaVideoSource = () => {
+	if (!mediaVideoStream.value) return
+	const stream = mediaVideoStream.value
+	mediaVideoStream.value = undefined
+	stream.getTracks().forEach((t) => t.stop())
+	mediaVideoSource.value = undefined
+}
+
+const onSelectMediaVideoSource = async (media: MediaDeviceInfo) => {
+	if (!media) return
+	mediaVideoStream.value = await navigator.mediaDevices.getUserMedia({
+		video: {
+			deviceId: { exact: media.deviceId },
+			aspectRatio: { ideal: 1 },
+			frameRate: { max: 30 },
+		},
+	})
+}
+
 // --- Image Uploading
 const imageUpload = ref<File>()
 const imageDataUrl = ref<string>(``)
@@ -238,7 +352,7 @@ const onUploadImage = async (file: File) => {
 	const valid = file.type.startsWith("image/")
 	if (!valid) return toastUtil.error("Invalid image file uploaded.")
 
-	// --- Compress image file
+	// --- Compress image file for server
 	const image = await imageCompression(file, {
 		maxWidthOrHeight: NPKModelInputSize[0],
 		maxSizeMB: 5,
@@ -260,6 +374,51 @@ const onUploadImage = async (file: File) => {
 	reader.onload = onLoadReader
 	reader.readAsDataURL(file)
 	imageUpload.value = file
+}
+
+// --- WebCam Streaming
+const videoCtx = ref<CanvasRenderingContext2D>()
+const videoCanvasEl = ref<HTMLCanvasElement>()
+const videoFrameAge = ref(Date.now())
+const videoFrameDelay = 1000
+
+const onDrawFrame = async (
+	video: HTMLVideoElement,
+	canvas: HTMLCanvasElement,
+	context: CanvasRenderingContext2D
+) => {
+	// --- Catch canvas and its ctx
+	videoCtx.value ??= context
+	videoCanvasEl.value ??= canvas
+
+	// --- Draw current bboxes on each frame
+	drawDetectionBBoxes(
+		videoCtx.value,
+		videoCanvasEl.value.width,
+		videoCanvasEl.value.height,
+		detections,
+		NPKModelClassColor as any
+	)
+
+	// --- Throttle sending frame to server
+	if (Date.now() - videoFrameAge.value < videoFrameDelay) return;
+	videoFrameAge.value = Date.now()
+	
+	// --- Convert to Blob and send to server
+	canvas.toBlob(async (blob) => {
+		if (!blob) return
+
+		const filename = `${Date.now()}.jpg`
+		const file = new File([blob], filename, { type: "image/jpeg" })
+
+		const image = await imageCompression(file, {
+			maxWidthOrHeight: NPKModelInputSize[0],
+			maxSizeMB: 5,
+			useWebWorker: true,
+		})
+
+		sendDetectionWebSocket(image)
+	}, "image/jpeg", 100)
 }
 
 // --- LifeCycle Hooks
