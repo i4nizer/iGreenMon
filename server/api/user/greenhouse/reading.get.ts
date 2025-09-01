@@ -49,12 +49,21 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// --- Check permission
-	const permResult = await hasPermission("Retrieve", "Reading", userId, gh.id)
+	const permResult = await hasPermission(
+		"Retrieve",
+		"Reading",
+		userId,
+		gh.id
+	)
 
-	if (!permResult.success) {
+	// --- An error or not permitted
+	if (!permResult.success || !permResult.data) {
+		const error = permResult.success
+			? "User doesn't have permission."
+			: permResult.error
 		throw createError({
 			statusCode: 400,
-			statusMessage: permResult.error,
+			statusMessage: error,
 		})
 	}
 
