@@ -29,6 +29,13 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/dashboard`"
 					></v-list-item>
 					<v-list-item
+						v-if="isOwnGH || canAccess(`Log`, permissions)"
+						link
+						title="Logs/Alerts"
+						prepend-icon="mdi-alert"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/log`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH || canAccess(`Esp32`, permissions)"
 						link
 						title="Esp32"
