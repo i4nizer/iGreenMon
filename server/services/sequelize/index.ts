@@ -19,6 +19,7 @@ import { Hook, hookAttributes, hookOptions } from "~~/server/models/hook";
 import { Esp32Cam, esp32CamAttributes, esp32CamOptions } from "~~/server/models/esp32-cam";
 import { Capture, captureAttributes, captureOptions } from "~~/server/models/capture";
 import { Detection, detectionAttributes, detectionOptions } from "~~/server/models/detection";
+import { Log, logAttributes, logOptions } from "~~/server/models/log";
 import { Sequelize } from "sequelize";
 
 //
@@ -47,6 +48,7 @@ const initModels = (sequelize: Sequelize) => {
 	Esp32Cam.init(esp32CamAttributes, esp32CamOptions(sequelize))
 	Capture.init(captureAttributes, captureOptions(sequelize))
 	Detection.init(detectionAttributes, detectionOptions(sequelize))
+	Log.init(logAttributes, logOptions(sequelize))
 }
 
 /** Binds model relationships. (hasMany, belongsTo) */
@@ -57,6 +59,7 @@ const initModelRelationships = () => {
 	User.hasMany(Invitation, { foreignKey: "inviterId", onDelete: "CASCADE" })
 	User.hasMany(Invitation, { foreignKey: "inviteeId", onDelete: "CASCADE" })
 	User.hasMany(Crew, { foreignKey: "userId", onDelete: "CASCADE" })
+	User.hasMany(Log, { foreignKey: "userId", onDelete: "CASCADE" })
 	
 	Token.belongsTo(User, { as: "user", foreignKey: "userId" })
 	Token.hasMany(Esp32, { foreignKey: "tokenId", onDelete: "CASCADE" })
@@ -69,6 +72,7 @@ const initModelRelationships = () => {
 	Greenhouse.hasMany(Threshold, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Schedule, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 	Greenhouse.hasMany(Action, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+	Greenhouse.hasMany(Log, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
 
 	Invitation.belongsTo(User, { as: "inviter", foreignKey: "inviterId" })
 	Invitation.belongsTo(User, { as: "invitee", foreignKey: "inviteeId" })
@@ -136,6 +140,9 @@ const initModelRelationships = () => {
 	Capture.hasMany(Detection, { foreignKey: "captureId", onDelete: "CASCADE" })
 
 	Detection.belongsTo(Capture, { as: "capture", foreignKey: "captureId" })
+	
+	Log.belongsTo(Greenhouse, { as: "greenhouse", foreignKey: "greenhouseId" })
+	Log.belongsTo(User, { as: "user", foreignKey: "userId" })
 }
 
 //
