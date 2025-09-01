@@ -72,21 +72,19 @@ export default defineEventHandler(async (event) => {
 
 	// --- Provide all of the greenhouse's logs
 	const logs = await Log.findAll({
-		where: {
-			...filter,
-			order: [["createdAt", "DESC"]],
-			limit,
-			offset,
-		},
+		where: { ...filter },
 		include: [
 			{
 				model: Greenhouse,
 				as: "greenhouse",
-				where: { greenhouseId: gh.id },
+				where: { id: gh.id },
 				required: true,
 				attributes: ["id"],
 			},
 		],
+		order: [["createdAt", "DESC"]],
+		limit,
+		offset,
 	})
 
 	return logs.map((g) => LogSchema.parse(g.dataValues))

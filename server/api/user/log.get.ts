@@ -73,12 +73,7 @@ export default defineEventHandler(async (event) => {
 
 	// --- Provide all of the user's logs
 	const logs = await Log.findAll({
-		where: {
-			...filter,
-			order: [["createdAt", "DESC"]],
-			limit,
-			offset,
-		},
+		where: { ...filter },
 		include: [
 			{
 				model: User,
@@ -88,6 +83,9 @@ export default defineEventHandler(async (event) => {
 				attributes: ["id"],
 			},
 		],
+		order: [["createdAt", "DESC"]],
+		limit,
+		offset,
 	})
 
 	return logs.map((g) => LogSchema.parse(g.dataValues))
