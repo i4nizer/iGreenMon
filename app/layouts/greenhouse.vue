@@ -29,6 +29,12 @@
 						:to="`/user/${user?.name}/greenhouse/${ghname}/dashboard`"
 					></v-list-item>
 					<v-list-item
+						link
+						title="Statistics"
+						prepend-icon="mdi-chart-line"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/statistics`"
+					></v-list-item>
+					<v-list-item
 						v-if="isOwnGH || canAccess(`Log`, permissions)"
 						link
 						title="Logs/Alerts"
