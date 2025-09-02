@@ -30,6 +30,12 @@
 					></v-list-item>
 					<v-list-item
 						link
+						title="Reports"
+						prepend-icon="mdi-file-document"
+						:to="`/user/${user?.name}/greenhouse/${ghname}/reports`"
+					></v-list-item>
+					<v-list-item
+						link
 						title="Statistics"
 						prepend-icon="mdi-chart-line"
 						:to="`/user/${user?.name}/greenhouse/${ghname}/statistics`"
