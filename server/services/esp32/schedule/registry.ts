@@ -17,8 +17,14 @@ const register = async (pid: string, schedule: any) => {
     if (!sres.success) return
 
     // --- Set schedule
-    const sitem = schedules.get(pid)
-    if (sitem) sitem.add(sres.data)
+    const sset = schedules.get(pid)
+    if (sset) {
+        for (const s of sset) {
+            if (s.id != sres.data.id) continue
+            sset.delete(s)
+        }
+        sset.add(sres.data)
+    }
     else schedules.set(pid, new Set([sres.data]))
     
     pool.queue(sres.data)

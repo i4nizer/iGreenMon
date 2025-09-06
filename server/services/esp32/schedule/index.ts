@@ -40,4 +40,4 @@ const loop = () => {
 
 //
 
-export default { loop, registry, event, schema }
+export default { loop, registry, event, schema, pool }
