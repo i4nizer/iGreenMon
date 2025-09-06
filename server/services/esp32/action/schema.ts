@@ -1,11 +1,12 @@
 import z from "zod";
-import { ActionSchema, ActionStatus } from "~~/shared/schema/action";
+import { ActionSchema } from "~~/shared/schema/action";
 
 //
 
 const ActionItemSchema = ActionSchema.pick({
     id: true,
     name: true,
+    value: true,
     delay: true,
     timeout: true,
     duration: true,
