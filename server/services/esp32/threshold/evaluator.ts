@@ -28,20 +28,21 @@ const evalcond = (reading: ReadingCreate) => {
 
 // --- Finds threshold conditions and evals to the thresholds rubriks
 const evalthresh = (tid: number) => {
-    for (const [pid, set] of registry.thresholds) {
-        for (const threshold of set) {
+    for (const [pid, tset] of registry.thresholds) {
+        for (const threshold of tset) {
             if (threshold.id != tid) continue
             
             const { operator, activated } = threshold
             const all = operator == "All"
             let satisfied = false
             
-            for (const [tid, set] of registry.conditions) {
+            for (const [tid, cset] of registry.conditions) {
                 if (satisfied) break
 
-                const cb = (c: any) => c.satisfied
-                const arr = set.values()
-                satisfied = all ? arr.every(cb) : arr.some(cb)
+                for (const condition of cset) {
+                    if (all) satisfied = satisfied && condition.satisfied
+                    else satisfied = satisfied || condition.satisfied
+                }
             }
 
             const changed = activated != satisfied
