@@ -43,10 +43,10 @@ const sensorAttributes: ModelAttributes<Sensor, InferAttributes<Sensor>> = {
 	interval: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
-		defaultValue: 15 * 60,
+		defaultValue: 15 * 60000,
 	},
 	lastread: {
-		type: DataTypes.INTEGER,
+		type: DataTypes.BIGINT,
 		allowNull: false,
 		defaultValue: 0,
 	},
