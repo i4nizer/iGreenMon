@@ -1,6 +1,7 @@
 import { Input } from "~~/server/models/input";
 import { InputCreate, InputUpdate } from "~~/shared/schema/input";
 import { hasInputPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -99,11 +100,17 @@ const updateInput = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
+		
+		// --- Save changed stat
+		const changed = data.flag != input.flag
         
         // --- Update and return input
         const { name, icon, type, flag, pinId } = data
         await input.update({ name, icon, type, flag, pinId })
+		
+		// --- Update websocket too
+		if (changed) await esp32.input.update(data)
         return { success: true, data: input }
 	} catch (error) {
         console.error(error)
