@@ -24,14 +24,14 @@ const invoke = (action: ActionItem, force = false): ActionStatus => {
 
         // --- Interupt it
         interrupts++
-        console.info(`Action::Action ${a.id} got interrupted.`)
+        console.info(`Action ${a.name} got interrupted.`)
         pool.dequeue(a.id)
         event.invoke("Interrupted", a)
     }
 
     // --- Can't interrupt anyone
     if (matches > 0 && interrupts <= 0) {
-        console.info(`Action::Action ${action.id} got discarded.`)
+        console.info(`Action ${action.name} got discarded.`)
         event.invoke("Discarded", action)
         return ActionStatus[3]
     }

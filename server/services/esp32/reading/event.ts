@@ -20,7 +20,7 @@ const listen = (
 	const value = listeners.get(readphase)
     if (value) value.push(listener)
     else listeners.set(readphase, [listener])
-    console.info(`Reading::Listening to sensor ${readphase} change.`)
+    console.info(`Reading listening to sensor ${readphase} change.`)
 }
 
 const unlisten = (
@@ -33,7 +33,7 @@ const unlisten = (
 	const idx = value.findIndex((l) => l === listener)
     if (idx != -1) value.splice(idx, 1)
 
-    console.info(`Reading::Stopped listening to sensor ${readphase} change.`)
+    console.info(`Reading stopped listening to sensor ${readphase} change.`)
 }
 
 const invoke = (
@@ -43,7 +43,7 @@ const invoke = (
 ) => {
 	const value = listeners.get(readphase)
     if (!value) return
-    console.info(`Reading::Sensor ${sensor.name} invoked ${readphase} change.`)
+    console.info(`Reading sensor ${sensor.name} invoked ${readphase} change.`)
     
     for (const listener of value) {
         Promise.resolve()

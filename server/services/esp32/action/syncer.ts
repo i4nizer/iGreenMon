@@ -23,7 +23,7 @@ const init = () => {
     event.listen("Interrupted", onUpdateAction)
     event.listen("Timeout", onUpdateAction)
 
-    console.info(`Action::Syncer initialized.`)
+    console.info(`Action syncer initialized.`)
 }
 
 //

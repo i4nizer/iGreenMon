@@ -64,7 +64,7 @@ const init = () => {
 	reading.event.listen("During", onUpdateReadingPhaseDuring)
 	action.event.listen("Active", onUpdateActionStatus)
 	action.event.listen("Timeout", onUpdateActionStatus)
-	console.info("Esp32::Emitter listening on readingphase during change.")
+	console.info("Emitter listening on readingphase during change.")
 }
 
 //

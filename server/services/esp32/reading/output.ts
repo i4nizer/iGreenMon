@@ -13,7 +13,7 @@ const queue = (sid: number, oid: number) => {
     if (output) output.add(oid)
     else outputs.set(sid, new Set([oid]))
 
-    console.info(`Reading::Queued sensor ${sid} output ${oid}.`)
+    console.info(`Reading queued sensor ${sid} output ${oid}.`)
     timer.set(oid, Date.now())
     invoke("Queue", sid, oid)
 }
@@ -23,7 +23,7 @@ const dequeue = (oid: number) => {
         set.delete(oid)
         timer.delete(oid)
 
-        console.info(`Reading::Dequeued sensor ${sid} output ${oid}.`)
+        console.info(`Reading dequeued sensor ${sid} output ${oid}.`)
         if (set.size <= 0) outputs.delete(sid)
         invoke("Dequeue", sid, oid)
     }
@@ -34,7 +34,7 @@ const timeout = (oid: number) => {
         set.delete(oid)
         timer.delete(oid)
 
-        console.info(`Reading::Timedout sensor ${sid} output ${oid}.`)
+        console.info(`Reading timedout sensor ${sid} output ${oid}.`)
         if (set.size <= 0) outputs.delete(sid)
         invoke("Timeout", sid, oid)
     }
@@ -58,19 +58,19 @@ const listen = (
     const item = listeners.get(event)
     if (item) item.add(listener)
     else listeners.set(event, new Set([listener]))
-    console.info(`Reading::Listening to hook ${event} event.`)
+    console.info(`Reading listening to hook ${event} event.`)
 }
 
 const unlisten = (listener: schema.OutputEventListener) => {
     for (const [event, set] of listeners) {
         set.delete(listener)
-        console.info(`Reading::Stopped listening to hook ${event} event.`)
+        console.info(`Reading stopped listening to hook ${event} event.`)
     }
 }
 
 const invoke = (event: schema.OutputEventName, sid: number, oid: number) => {
     const item = listeners.get(event)
-    console.info(`Reading::Sensor ${sid} called ${event} output ${oid}.`)
+    console.info(`Reading sensor ${sid} called ${event} output ${oid}.`)
     if (!item) return
     
     for (const listener of item) {

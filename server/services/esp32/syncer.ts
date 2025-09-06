@@ -52,7 +52,7 @@ const init = () => {
     ]
 
     listeners.forEach((l) => event.listen(l))
-    console.info(`Esp32::Syncer event listeners initialized.`)
+    console.info(`Esp32 syncer event listeners initialized.`)
 }
 
 //

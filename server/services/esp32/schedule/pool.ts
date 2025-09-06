@@ -30,12 +30,12 @@ const queue = (schedule: ScheduleItem) => {
 	}
 
     schedules.set(schedule.id, unixs)
-    console.info(`Schedule::Schedule ${schedule.id} queued.`)
+    console.info(`Schedule schedule ${schedule.id} queued.`)
 }
 
 const dequeue = (sid: number) => {
     const res = schedules.delete(sid)
-    if (res) console.info(`Schedule::Schedule ${sid} dequeued.`)
+    if (res) console.info(`Schedule schedule ${sid} dequeued.`)
 }
 
 //

@@ -21,7 +21,7 @@ const listen = (
 	const item = listeners.get(event)
 	if (item) item.add(listener)
 	else listeners.set(event, new Set([listener]))
-	console.info(`Condition::Listening to condition ${event} change.`)
+	console.info(`Condition listening to condition ${event} change.`)
 }
 
 const unlisten = (
@@ -31,7 +31,7 @@ const unlisten = (
 	const item = listeners.get(event)
 	if (!item) return
 	item.delete(listener)
-	console.info(`Condition::Stopped listening to condition ${event} change.`)
+	console.info(`Condition stopped listening to condition ${event} change.`)
 }
 
 const invoke = (
@@ -42,9 +42,7 @@ const invoke = (
 	const item = listeners.get(event)
 	if (!item) return
 	condition.satisfied = event === "Satisfied"
-	console.info(
-		`Condition::Condition ${condition.id} invoked ${event} change.`
-	)
+	console.info(`Condition ${condition.id} invoked ${event} change.`)
 
 	for (const listener of item) {
 		Promise.resolve()

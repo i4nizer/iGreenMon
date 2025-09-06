@@ -21,7 +21,7 @@ const invoke = (peer: Peer, wse: WebSocketEvent) => {
         
 		const esp32 = registry.esp32s.get(peer)
         if (!esp32) {
-            console.warn(`Esp32::Event ${wse.event} received without esp32.`)
+            console.warn(`Esp32 event ${wse.event} received without esp32.`)
             continue
         }
 		

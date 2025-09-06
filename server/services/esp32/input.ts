@@ -10,7 +10,7 @@ const update = async (input: InputUpdate) => {
         where: { id: input.pinId },
         attributes: ["esp32Id"],
     })
-    if (!pin) return console.warn(`Esp32::Esp32 input updated, esp32 not connected.`)
+    if (!pin) return console.warn(`Esp32 input updated, esp32 not connected.`)
 
     for (const [peer, esp32] of registry.esp32s) {
         if (esp32.id != pin.esp32Id) continue

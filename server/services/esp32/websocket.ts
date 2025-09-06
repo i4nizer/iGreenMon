@@ -17,10 +17,10 @@ const hear = (peer: Peer, message: Message) => {
 
 	const msg = message.json<WebSocketEvent>()
 	const res = WebSocketEventSchema.safeParse(msg)
-	if (!res.success) return console.warn(`Esp32::Received invalid message.`)
+	if (!res.success) return console.warn(`Esp32 websocket received invalid message.`, msg)
 
     const e = res.data
-	console.info(`Esp32::Received ${e.query}:${e.event} from ws ${peer.id}.`)
+	console.info(`Esp32 websocket received ${e.query}:${e.event} from ws ${peer.id}.`)
 	event.invoke(peer, e)
 }
 
@@ -35,7 +35,7 @@ const talk = (
 	for (const [p, e] of registry.esp32s) {
 		if (p.id != pid) continue
 		p.send(payload)
-		console.info(`Esp32::Sent ${query}:${event} to ${e.name}.`)
+		console.info(`Esp32 websocket sent ${query}:${event} to ${e.name}.`)
 	}
 }
 

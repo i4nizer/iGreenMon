@@ -24,7 +24,7 @@ const init = () => {
     event.listen("During", onUpdateSensor("During"))
     event.listen("After", onUpdateSensor("After"))
 
-    console.info(`Reading::Syncer initialized.`)
+    console.info(`Reading syncer initialized.`)
 }
 
 //

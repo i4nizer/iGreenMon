@@ -21,7 +21,7 @@ const listen = (
 	const item = listeners.get(event)
 	if (item) item.add(listener)
 	else listeners.set(event, new Set([listener]))
-	console.info(`Threshold::Listening to threshold ${event} change.`)
+	console.info(`Threshold listening to threshold ${event} change.`)
 }
 
 const unlisten = (
@@ -31,7 +31,7 @@ const unlisten = (
 	const item = listeners.get(event)
 	if (!item) return
 	item.delete(listener)
-	console.info(`Threshold::Stopped listening to threshold ${event} change.`)
+	console.info(`Threshold stopped listening to threshold ${event} change.`)
 }
 
 const invoke = (
@@ -43,7 +43,7 @@ const invoke = (
 	const item = listeners.get(event)
 	if (!item) return
 	threshold.activated = event === "Activate"
-	console.info(`Threshold::Threshold ${threshold.name} invoked ${event} change.`)
+	console.info(`Threshold ${threshold.name} invoked ${event} change.`)
 
 	for (const listener of item) {
 		Promise.resolve()

@@ -23,7 +23,7 @@ const prep = (id: string, sensor: SensorItem) => {
     const isReadTime = Date.now() - sensor.lastread > sensor.interval
 	if (!isReadTime) return
 
-    console.info(`Reading::Sensor ${sensor.name} is now in Before readphase.`)
+    console.info(`Reading sensor ${sensor.name} is now in Before readphase.`)
     fish(sensor.id, "Before")
 	sensor.readphase = "Before"
 	event.invoke(id, sensor, "Before")
@@ -33,7 +33,7 @@ const read = (id: string, sensor: SensorItem) => {
     const set = hook.hooks.has(sensor.id)
     if (set) return
 
-    console.info(`Reading::Sensor ${sensor.name} is now in During readphase.`)
+    console.info(`Reading sensor ${sensor.name} is now in During readphase.`)
     fish(sensor.id, "During")
     const outputs = registry.outputs.get(sensor.id)
     if (outputs) outputs.forEach((oid) => output.queue(sensor.id, oid))
@@ -47,7 +47,7 @@ const pack = (id: string, sensor: SensorItem) => {
     const oset = output.outputs.has(sensor.id)
 	if (hset || oset) return
 
-    console.info(`Reading::Sensor ${sensor.name} is now in After readphase.`)
+    console.info(`Reading sensor ${sensor.name} is now in After readphase.`)
 	fish(sensor.id, "After")
     sensor.lastread = Date.now()
     sensor.readphase = "After"
@@ -60,7 +60,7 @@ const stop = (id: string, sensor: SensorItem) => {
 
 	sensor.readphase = "Off"
     event.invoke(id, sensor, "Off")
-    console.info(`Reading::Sensor ${sensor.name} is now in Off readphase.`)
+    console.info(`Reading sensor ${sensor.name} is now in Off readphase.`)
 }
 
 //

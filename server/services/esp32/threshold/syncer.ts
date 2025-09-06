@@ -34,7 +34,7 @@ const init = () => {
     event.listen("Deactivate", onEvalThreshold)
     condition.listen("Satisfied", onEvalCondition)
     condition.listen("Desatisfied", onEvalCondition)
-    console.info(`Threshold::Syncer initialized.`)
+    console.info(`Threshold syncer initialized.`)
 }
 
 //

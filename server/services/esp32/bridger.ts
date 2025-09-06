@@ -53,7 +53,7 @@ const init = () => {
 	]
 
 	listeners.forEach((l) => event.listen(l))
-	console.info(`Esp32::Bridger event listeners initialized.`)
+	console.info(`Bridger event listeners initialized.`)
 }
 
 //

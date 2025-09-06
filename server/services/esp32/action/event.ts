@@ -22,13 +22,13 @@ const listen = (
 	const item = listeners.get(status)
 	if (item) item.add(listener)
 	else listeners.set(status, new Set([listener]))
-	console.info(`Action::Listening to action ${status} status.`)
+	console.info(`Action listening to action ${status} status.`)
 }
 
 const unlisten = (listener: schema.ActionEventListener) => {
 	for (const [event, set] of listeners) {
 		set.delete(listener)
-		console.info(`Action::Stopped listening to action ${event} event.`)
+		console.info(`Action stopped listening to action ${event} event.`)
 	}
 }
 
@@ -37,7 +37,7 @@ const unlisten = (listener: schema.ActionEventListener) => {
 const invoke = (status: ActionStatus, action: schema.ActionItem) => {
 	const item = listeners.get(status)
 	action.status = status
-	console.info(`Action::Action ${action.name} moved to ${status}.`)
+	console.info(`Action ${action.name} moved to ${status}.`)
 	if (!item) return
 
 	for (const listener of item) {

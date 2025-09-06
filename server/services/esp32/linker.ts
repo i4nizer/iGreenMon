@@ -75,7 +75,7 @@ const init = () => {
 	
 	schedule.event.listen(onTriggerSchedule)
 
-	console.info(`Esp32::Linker event listeners initialized.`)
+	console.info(`Esp32 linker event listeners initialized.`)
 }
 
 //

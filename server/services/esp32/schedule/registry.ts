@@ -22,14 +22,14 @@ const register = async (pid: string, schedule: any) => {
     else schedules.set(pid, new Set([sres.data]))
     
     pool.queue(sres.data)
-    console.info(`Schedule::Schedule ${schedule.name} registered.`)
+    console.info(`Schedule schedule ${schedule.name} registered.`)
 }
 
 const unregister = (pid: string) => {
     const sitem = schedules.get(pid)
     if (sitem) sitem.forEach((s) => pool.dequeue(s.id))
     schedules.delete(pid)
-    if (sitem) console.info(`Schedule::Esp32 unregistered ${sitem.size} schedules.`)
+    if (sitem) console.info(`Schedule esp32 unregistered ${sitem.size} schedules.`)
 }
 
 //

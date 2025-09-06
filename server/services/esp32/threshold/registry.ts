@@ -20,7 +20,7 @@ const register = async (pid: string, threshold: any) => {
     const tset = thresholds.get(pid)
     if (tset) tset.add(threshold)
     else thresholds.set(pid, new Set([tres.data]))
-    console.info(`Threshold::Threshold ${threshold.name} registered.`)
+    console.info(`Threshold threshold ${threshold.name} registered.`)
     
     const cres = await ConditionModel.findAll({
         where: { thresholdId: tres.data.id },
@@ -37,14 +37,14 @@ const register = async (pid: string, threshold: any) => {
     const cset = conditions.get(tres.data.id)
     if (cset) cres.forEach((c) => cset.add(c.dataValues))
     else conditions.set(tres.data.id, new Set(cres.map((c) => c.dataValues)))
-    console.info(`Threshold::Condition ${cres.length} registered.`)
+    console.info(`Threshold condition ${cres.length} registered.`)
 }
 
 const unregister = (pid: string) => {
 	const titem = thresholds.get(pid)
 	if (titem) titem.forEach((s) => conditions.delete(s.id))
 	thresholds.delete(pid)
-	if (titem) console.info(`Threshold::Threshold unregistered ${titem.size} thresholds.`)
+	if (titem) console.info(`Threshold unregistered ${titem.size} thresholds.`)
 }
 
 //

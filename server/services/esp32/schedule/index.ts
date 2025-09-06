@@ -19,7 +19,7 @@ const loop = () => {
 
             for (const unix of unixes) {
                 if (now.getTime() < unix) continue
-                console.log(`Schedule::Schedule ${schedule.name} triggered.`)
+                console.log(`Schedule schedule ${schedule.name} triggered.`)
                 unixes.delete(unix)
                 event.invoke(pid, schedule)
             }
@@ -35,7 +35,7 @@ const loop = () => {
             pool.queue(schedule)
 		}
     }
-    console.log(`Schedule::Schedules refreshed.`)
+    console.log(`Schedule schedules refreshed.`)
 }
 
 //

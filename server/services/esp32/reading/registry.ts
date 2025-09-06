@@ -51,14 +51,14 @@ const register = async (id: string, sensor: any) => {
 	if (hitem) hdata.forEach((h) => hitem.add(h))
     else hooks.set(sres.data.id, new Set(hdata))
     
-    console.info(`Reading::Sensor ${sensor.name} registered.`)
+    console.info(`Reading sensor ${sensor.name} registered.`)
 }
 
 const unregister = (id: string) => {
 	const sitem = sensors.get(id)
 	if (sitem) sitem.forEach((s) => outputs.delete(s.id))
     sensors.delete(id)
-    if (sitem) console.info(`Reading::Esp32 unregistered ${sitem.size} sensors.`)
+    if (sitem) console.info(`Reading esp32 unregistered ${sitem.size} sensors.`)
 }
 
 //

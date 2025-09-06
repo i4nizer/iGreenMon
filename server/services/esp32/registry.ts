@@ -29,7 +29,7 @@ const register = async (peer: Peer, esp32: Esp32) => {
 
     // --- Keep esp32 new
     esp32s.set(peer, esp32)
-    console.info(`Esp32::Registered ${esp32.name} esp32.`)
+    console.info(`Esp32 registered ${esp32.name} esp32.`)
     
     // --- Register sensors
     const promises: Promise<any>[] = []
@@ -95,7 +95,7 @@ const register = async (peer: Peer, esp32: Esp32) => {
 }
 
 const unregister = (peer: Peer) => {
-    console.info(`Esp32::Unregistered ${esp32s.get(peer)?.name} esp32.`)
+    console.info(`Esp32 unregistered ${esp32s.get(peer)?.name} esp32.`)
     esp32s.delete(peer)
     reading.registry.unregister(peer.id)
     threshold.registry.unregister(peer.id)

@@ -11,12 +11,12 @@ const listeners = new Set<ScheduleEventListener>([])
 
 const listen = (listener: ScheduleEventListener) => {
     listeners.add(listener)
-    console.info(`Schedule::Listening to schedule event.`)
+    console.info(`Schedule listening to schedule event.`)
 }
 
 const unlisten = (listener: ScheduleEventListener) => {
     listeners.delete(listener)
-    console.info(`Schedule::Stopped listening to schedule event.`)
+    console.info(`Schedule stopped listening to schedule event.`)
 }
 
 //
