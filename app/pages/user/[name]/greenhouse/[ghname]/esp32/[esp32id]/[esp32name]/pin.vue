@@ -23,7 +23,7 @@
 					</template>
 					<template #default>
 						<pin-create-form
-							:esp32-id="gh?.id ?? -1"
+							:esp32-id="parseInt(esp32id)"
 							class="bg-white rounded"
 							@error="(e) => toast.error(e)"
 							@success="onCreatePinSuccess"
