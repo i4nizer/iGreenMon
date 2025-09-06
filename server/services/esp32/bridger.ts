@@ -21,6 +21,7 @@ const onCreateReading: WebSocketEventHandler<ReadingCreate> = async (
 		const res = ReadingCreateSchema.safeParse(r)
 		if (!res.success) continue
 		reading.output.dequeue(res.data.outputId)
+		threshold.evaluator.evalcond(res.data)
 	}
 }
 
