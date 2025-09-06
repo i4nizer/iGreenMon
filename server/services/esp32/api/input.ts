@@ -31,7 +31,7 @@ const update = async (input: Input) => {
 	}
 }
 
-const destroy = async (input: Input) => {
+const destroy = async (input: Pick<Input, "id" | "pinId">) => {
 	const pin = await PinModel.findOne({
 		where: { id: input.pinId },
 		attributes: ["esp32Id"],
