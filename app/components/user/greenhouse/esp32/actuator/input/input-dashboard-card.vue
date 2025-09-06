@@ -24,9 +24,9 @@
                 hide-details
                 class="w-50"
                 density="compact"
-                v-model="input.flag"
                 :label="input.flag ? 'Turn Off' : 'Turn On'"
                 :loading="loading"
+                :model-value="input.flag > 0"
                 @update:model-value="(v) => onUpdate(Number(v))"
             ></v-switch>
             <!-- Numerical Input -->
@@ -65,13 +65,10 @@ const emit = defineEmits<{
 }>()
 
 const loading = ref(false)
-const timer = ref<ReturnType<typeof setTimeout>>()
 
 const onUpdate = (v: number) => {
-    clearTimeout(timer.value)
     const input = { ...props.input, flag: v ?? 0 }
-    const cb = () => emit("update", input, { loading })
-    timer.value = setTimeout(cb, 500)
+    emit("update", input, { loading })
 }
 
 //
