@@ -1,9 +1,6 @@
+import esp32Service from "~~/server/services/esp32"
 import { Esp32Create, Esp32Update } from "#shared/schema/esp32"
-import { Op } from "sequelize"
-import { Crew } from "~~/server/models/crew"
 import { Esp32 } from "~~/server/models/esp32"
-import { Greenhouse } from "~~/server/models/greenhouse"
-import { Permission } from "~~/server/models/permission"
 import { Token } from "~~/server/models/token"
 import { createToken } from "~~/server/services/token"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
@@ -175,6 +172,10 @@ const deleteEsp32 = async (id: number, userId: number): Promise<SafeResult> => {
 
 		// --- passed, delete it
 		await esp32.destroy()
+
+		// --- Send to websocket
+		esp32Service.api.esp32.destroy(esp32)
+
 		return { success: true, data: undefined }
 	} catch (error) {
 		console.error(error)

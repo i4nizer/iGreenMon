@@ -1,6 +1,7 @@
 import { Sensor } from "~~/server/models/sensor";
 import { SensorCreate, SensorUpdate } from "~~/shared/schema/sensor";
 import { hasSensorPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createSensor = async (
         }
         
         // --- Create and return the sensor
-        const sensor = await Sensor.create({ ...data })
+		const sensor = await Sensor.create({ ...data })
+		
+		// --- Send to websocket
+		esp32.api.sensor.create(sensor)
+
         return { success: true, data: sensor }
     } catch (error) {
         console.error(error)
@@ -99,12 +104,16 @@ const updateSensor = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- Update and return sensor
-        const { name, description, interval, disabled } = data
-        await sensor.update({ name, description, interval, disabled })
-        return { success: true, data: sensor }
+		}
+
+		// --- Update and return sensor
+		const { name, description, interval, disabled } = data
+		await sensor.update({ name, description, interval, disabled })
+
+		// --- Send to websocket
+		esp32.api.sensor.update(sensor)
+
+		return { success: true, data: sensor }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -117,11 +126,11 @@ const updateSensor = async (
  */
 const deleteSensor = async (id: number, userId: number): Promise<SafeResult> => {
     try {
-        // --- Find sensor
-        const sensor = await Sensor.findOne({
-            where: { id },
-            attributes: ["id", "esp32Id"],
-        })
+		// --- Find sensor
+		const sensor = await Sensor.findOne({
+			where: { id },
+			attributes: ["id", "esp32Id"],
+		})
 		if (!sensor) return { success: false, error: "Sensor not found." }
 
 		// --- Check permission
@@ -137,12 +146,16 @@ const deleteSensor = async (id: number, userId: number): Promise<SafeResult> => 
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
 
-        // --- delete and return
-        await sensor.destroy()
-        return { success: true, data: undefined }
-    } catch (error) {
+		// --- delete and return
+		await sensor.destroy()
+
+		// --- Send to websocket
+		esp32.api.sensor.destroy(sensor)
+
+		return { success: true, data: undefined }
+	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
     }

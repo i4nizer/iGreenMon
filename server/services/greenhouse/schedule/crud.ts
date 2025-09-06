@@ -1,3 +1,4 @@
+import esp32 from "~~/server/services/esp32"
 import { ScheduleCreate, ScheduleUpdate } from "#shared/schema/schedule"
 import { Schedule } from "~~/server/models/schedule"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
@@ -107,6 +108,10 @@ const updateSchedule = async (
 		// passed, update and return it
 		const { name, days, times, disabled } = data
 		await schedule.update({ name, days, times, disabled })
+
+		// --- Send to websocket
+		esp32.api.schedule.update(schedule)
+
 		return { success: true, data: schedule }
 	} catch (error) {
 		console.error(error)
@@ -134,7 +139,7 @@ const deleteSchedule = async (id: number, userId: number): Promise<SafeResult> =
 			userId,
 			schedule.greenhouseId
 		)
-		
+
 		if (!permResult.success) return permResult
 		if (!permResult.data) {
 			return {
@@ -145,6 +150,10 @@ const deleteSchedule = async (id: number, userId: number): Promise<SafeResult> =
 
 		// --- passed, delete it
 		await schedule.destroy()
+
+		// --- Send to websocket
+		esp32.api.schedule.destroy(schedule)
+
 		return { success: true, data: undefined }
 	} catch (error) {
 		console.error(error)

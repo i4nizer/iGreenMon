@@ -1,6 +1,7 @@
 import { Output } from "~~/server/models/output";
 import { OutputCreate, OutputUpdate } from "~~/shared/schema/output";
 import { hasOutputPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createOutput = async (
         }
         
         // --- Create and return the output
-        const output = await Output.create({ ...data })
+		const output = await Output.create({ ...data })
+		
+		// --- Send to websocket
+		esp32.api.output.create(output)
+
         return { success: true, data: output }
     } catch (error) {
         console.error(error)
@@ -99,12 +104,16 @@ const updateOutput = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- Update and return output
-        const { name, icon, unit, pinId } = data
-        await output.update({ name, icon, unit, pinId })
-        return { success: true, data: output }
+		}
+
+		// --- Update and return output
+		const { name, icon, unit, pinId } = data
+		await output.update({ name, icon, unit, pinId })
+
+		// --- Send to websocket
+		esp32.api.output.update(output)
+
+		return { success: true, data: output }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -117,11 +126,11 @@ const updateOutput = async (
  */
 const deleteOutput = async (id: number, userId: number): Promise<SafeResult> => {
     try {
-        // --- Find output
-        const output = await Output.findOne({
-            where: { id },
-            attributes: ["id", "sensorId"],
-        })
+		// --- Find output
+		const output = await Output.findOne({
+			where: { id },
+			attributes: ["id", "sensorId"],
+		})
 		if (!output) return { success: false, error: "Output not found." }
 
 		// --- Check permission
@@ -137,12 +146,16 @@ const deleteOutput = async (id: number, userId: number): Promise<SafeResult> => 
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
 
-        // --- delete and return
-        await output.destroy()
-        return { success: true, data: undefined }
-    } catch (error) {
+		// --- delete and return
+		await output.destroy()
+
+		// --- Send to websocket
+		esp32.api.output.destroy(output)
+
+		return { success: true, data: undefined }
+	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
     }

@@ -1,6 +1,7 @@
 import { Hook } from "~~/server/models/hook";
 import { HookCreate, HookUpdate } from "~~/shared/schema/hook";
 import { hasHookPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createHook = async (
         }
         
         // --- Create and return the hook
-        const hook = await Hook.create({ ...data })
+		const hook = await Hook.create({ ...data })
+		
+		// --- Send to websocket
+		esp32.api.hook.create(hook)
+
         return { success: true, data: hook }
     } catch (error) {
         console.error(error)
@@ -99,12 +104,16 @@ const updateHook = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- Update and return hook
-        const { type, actionId } = data
-        await hook.update({ type, actionId })
-        return { success: true, data: hook }
+		}
+
+		// --- Update and return hook
+		const { type, actionId } = data
+		await hook.update({ type, actionId })
+
+		// --- Send to websocket
+		esp32.api.hook.update(hook)
+
+		return { success: true, data: hook }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -117,11 +126,11 @@ const updateHook = async (
  */
 const deleteHook = async (id: number, userId: number): Promise<SafeResult> => {
     try {
-        // --- Find hook
-        const hook = await Hook.findOne({
-            where: { id },
-            attributes: ["id", "sensorId"],
-        })
+		// --- Find hook
+		const hook = await Hook.findOne({
+			where: { id },
+			attributes: ["id", "sensorId"],
+		})
 		if (!hook) return { success: false, error: "Hook not found." }
 
 		// --- Check permission
@@ -137,12 +146,16 @@ const deleteHook = async (id: number, userId: number): Promise<SafeResult> => {
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
 
-        // --- delete and return
-        await hook.destroy()
-        return { success: true, data: undefined }
-    } catch (error) {
+		// --- delete and return
+		await hook.destroy()
+
+		// --- Send to websocket
+		esp32.api.hook.destroy(hook)
+
+		return { success: true, data: undefined }
+	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
     }

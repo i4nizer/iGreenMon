@@ -1,3 +1,4 @@
+import esp32 from "~~/server/services/esp32"
 import { ActionCreate, ActionUpdate } from "#shared/schema/action"
 import { Action } from "~~/server/models/action"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
@@ -31,6 +32,10 @@ const createAction = async (
 
 		// --- Create and return the action
 		const action = await Action.create({ ...data })
+
+		// --- Send to websocket
+		esp32.api.action.create(action)
+
 		return { success: true, data: action }
 	} catch (error) {
 		console.error(error)
@@ -106,6 +111,10 @@ const updateAction = async (
 
 		// passed, update and return it
 		await action.update(data)
+
+		// --- Send to websocket
+		esp32.api.action.update(action)
+
 		return { success: true, data: action }
 	} catch (error) {
 		console.error(error)
@@ -144,6 +153,10 @@ const deleteAction = async (id: number, userId: number): Promise<SafeResult> => 
 
 		// --- passed, delete it
 		await action.destroy()
+
+		// --- Send to websocket
+		esp32.api.action.destroy(action)
+
 		return { success: true, data: undefined }
 	} catch (error) {
 		console.error(error)

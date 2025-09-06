@@ -1,6 +1,7 @@
-import { ThresholdCreate, ThresholdUpdate } from "#shared/schema/threshold"
+import esp32 from "~~/server/services/esp32"
 import { Threshold } from "~~/server/models/threshold"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
+import { ThresholdCreate, ThresholdUpdate } from "#shared/schema/threshold"
 
 //
 
@@ -107,6 +108,10 @@ const updateThreshold = async (
 		// passed, update and return it
 		const { name, operator, disabled } = data
 		await threshold.update({ name, operator, disabled })
+
+		// --- Send to websocket
+		esp32.api.threshold.update(threshold)
+
 		return { success: true, data: threshold }
 	} catch (error) {
 		console.error(error)
@@ -134,7 +139,7 @@ const deleteThreshold = async (id: number, userId: number): Promise<SafeResult> 
 			userId,
 			threshold.greenhouseId
 		)
-		
+
 		if (!permResult.success) return permResult
 		if (!permResult.data) {
 			return {
@@ -145,6 +150,10 @@ const deleteThreshold = async (id: number, userId: number): Promise<SafeResult> 
 
 		// --- passed, delete it
 		await threshold.destroy()
+
+		// --- Send to websocket
+		esp32.api.threshold.destroy(threshold)
+
 		return { success: true, data: undefined }
 	} catch (error) {
 		console.error(error)

@@ -1,6 +1,7 @@
 import { Actuator } from "~~/server/models/actuator";
 import { ActuatorCreate, ActuatorUpdate } from "~~/shared/schema/actuator";
 import { hasActuatorPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createActuator = async (
         }
         
         // --- Create and return the actuator
-        const actuator = await Actuator.create({ ...data })
+		const actuator = await Actuator.create({ ...data })
+		
+		// --- Send to websocket too
+		esp32.api.actuator.create(actuator)
+
         return { success: true, data: actuator }
     } catch (error) {
         console.error(error)
@@ -103,7 +108,11 @@ const updateActuator = async (
         
         // --- Update and return actuator
         const { name, description, disabled } = data
-        await actuator.update({ name, description, disabled })
+		await actuator.update({ name, description, disabled })
+		
+		// --- Send to websocket too
+		esp32.api.actuator.update(actuator)
+
         return { success: true, data: actuator }
 	} catch (error) {
         console.error(error)
@@ -140,7 +149,11 @@ const deleteActuator = async (id: number, userId: number): Promise<SafeResult> =
         }
 
         // --- delete and return
-        await actuator.destroy()
+		await actuator.destroy()
+		
+		// --- Send to websocket
+		esp32.api.actuator.destroy(actuator)
+
         return { success: true, data: undefined }
     } catch (error) {
         console.error(error)

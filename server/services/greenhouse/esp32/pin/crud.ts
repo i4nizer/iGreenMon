@@ -1,6 +1,7 @@
 import { Pin } from "~~/server/models/pin";
 import { PinCreate, PinUpdate } from "~~/shared/schema/pin";
 import { hasPinPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createPin = async (
         }
         
         // --- Create and return the pin
-        const pin = await Pin.create({ ...data })
+		const pin = await Pin.create({ ...data })
+		
+		// --- Send to websocket
+		esp32.api.pin.create(pin)
+
         return { success: true, data: pin }
     } catch (error) {
         console.error(error)
@@ -87,11 +92,7 @@ const updatePin = async (
 		if (!pin) return { success: false, error: "Pin not found." }
 
 		// --- Check permission
-		const permResult = await hasPinPermission(
-			"Update",
-			pin.esp32Id,
-			userId
-		)
+		const permResult = await hasPinPermission("Update", pin.esp32Id, userId)
 
 		if (!permResult.success) return permResult
 		if (!permResult.data) {
@@ -99,12 +100,16 @@ const updatePin = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- Update and return pin
-        const { type, mode, number } = data
-        await pin.update({ type, mode, number })
-        return { success: true, data: pin }
+		}
+
+		// --- Update and return pin
+		const { type, mode, number } = data
+		await pin.update({ type, mode, number })
+
+		// --- Send to websocket
+		esp32.api.pin.update(pin)
+
+		return { success: true, data: pin }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -140,7 +145,11 @@ const deletePin = async (id: number, userId: number): Promise<SafeResult> => {
         }
 
         // --- delete and return
-        await pin.destroy()
+		await pin.destroy()
+		
+		// --- Send to websocket
+		esp32.api.pin.destroy(pin)
+
         return { success: true, data: undefined }
     } catch (error) {
         console.error(error)

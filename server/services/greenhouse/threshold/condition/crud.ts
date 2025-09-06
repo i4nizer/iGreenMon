@@ -1,6 +1,7 @@
 import { Condition } from "~~/server/models/condition";
 import { ConditionCreate, ConditionUpdate } from "~~/shared/schema/condition";
 import { hasConditionPermission } from "./util";
+import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -29,7 +30,11 @@ const createCondition = async (
         }
         
         // --- Create and return the condition
-        const condition = await Condition.create({ ...data })
+		const condition = await Condition.create({ ...data })
+		
+		// --- Send to websocket
+		esp32.api.condition.create(condition)
+
         return { success: true, data: condition }
     } catch (error) {
         console.error(error)
@@ -99,12 +104,16 @@ const updateCondition = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- Update and return condition
-        const { type, value, outputId } = data
-        await condition.update({ type, value, outputId })
-        return { success: true, data: condition }
+		}
+
+		// --- Update and return condition
+		const { type, value, outputId } = data
+		await condition.update({ type, value, outputId })
+
+		// --- Send to websocket
+		esp32.api.condition.update(condition)
+
+		return { success: true, data: condition }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -117,11 +126,11 @@ const updateCondition = async (
  */
 const deleteCondition = async (id: number, userId: number): Promise<SafeResult> => {
     try {
-        // --- Find condition
-        const condition = await Condition.findOne({
-            where: { id },
-            attributes: ["id", "thresholdId"],
-        })
+		// --- Find condition
+		const condition = await Condition.findOne({
+			where: { id },
+			attributes: ["id", "thresholdId"],
+		})
 		if (!condition) return { success: false, error: "Condition not found." }
 
 		// --- Check permission
@@ -137,12 +146,16 @@ const deleteCondition = async (id: number, userId: number): Promise<SafeResult> 
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
 
-        // --- delete and return
-        await condition.destroy()
-        return { success: true, data: undefined }
-    } catch (error) {
+		// --- delete and return
+		await condition.destroy()
+
+		// --- Send to websocket
+		esp32.api.condition.destroy(condition)
+
+		return { success: true, data: undefined }
+	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
     }

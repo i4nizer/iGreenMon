@@ -64,10 +64,13 @@ const retrieveInput = async (
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
-        
-        // --- return input
-        return { success: true, data: input }
+		}
+
+		// --- Send to websocket
+		await esp32.api.input.create(input)
+
+		// --- return input
+		return { success: true, data: input }
 	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
@@ -124,11 +127,11 @@ const updateInput = async (
  */
 const deleteInput = async (id: number, userId: number): Promise<SafeResult> => {
     try {
-        // --- Find input
-        const input = await Input.findOne({
-            where: { id },
-            attributes: ["id", "actuatorId"],
-        })
+		// --- Find input
+		const input = await Input.findOne({
+			where: { id },
+			attributes: ["id", "actuatorId"],
+		})
 		if (!input) return { success: false, error: "Input not found." }
 
 		// --- Check permission
@@ -144,12 +147,16 @@ const deleteInput = async (id: number, userId: number): Promise<SafeResult> => {
 				success: false,
 				error: "User doesn't have permission.",
 			}
-        }
+		}
 
-        // --- delete and return
-        await input.destroy()
-        return { success: true, data: undefined }
-    } catch (error) {
+		// --- delete and return
+		await input.destroy()
+
+		// --- Send to websocket
+		await esp32.api.input.destroy(input)
+
+		return { success: true, data: undefined }
+	} catch (error) {
         console.error(error)
 		return { success: false, error: "Something went wrong." }
     }
