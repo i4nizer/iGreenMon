@@ -7,6 +7,28 @@ import { Input as InputModel } from "~~/server/models/input";
 
 //
 
+const create = async (action: Action) => {
+    const input = await InputModel.findOne({
+		where: { id: action.inputId },
+		attributes: ["id"],
+		include: [
+			{
+				model: PinModel,
+				as: "pin",
+				required: true,
+				attributes: ["esp32Id"],
+			},
+		],
+	})
+	if (!input) return console.warn(`Esp32 api action input not found.`)
+
+	const esp32Id = (input as any).pin.esp32Id as number
+	for (const [peer, esp32] of registry.esp32s) {
+		if (esp32.id != esp32Id) continue
+		websocket.talk(peer.id, [action], "action", "Create")
+	}
+}
+
 const update = async (action: Action) => {
     for (const [aid, act] of actionService.pool.actions) {
         if (act.id != action.id) continue
@@ -69,4 +91,4 @@ const destroy = async (action: Pick<Action, "id" | "inputId">) => {
 
 //
 
-export default { update, destroy }
+export default { create, update, destroy }
