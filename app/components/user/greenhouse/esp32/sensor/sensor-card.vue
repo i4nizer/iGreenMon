@@ -12,7 +12,7 @@
         </v-card-subtitle>
         <v-card-text>
             <span class="w-100 text-wrap">
-                Read Interval: Every {{ sensor.interval }} seconds
+                Read Interval: Every {{ sensor.interval }}ms
             </span>
             <slot name="output" :="{ sensor }" />
             <slot name="hook" :="{ sensor }" />
