@@ -1,7 +1,7 @@
+import esp32 from "~~/server/services/esp32";
 import { Input } from "~~/server/models/input";
 import { InputCreate, InputUpdate } from "~~/shared/schema/input";
 import { hasInputPermission } from "./util";
-import esp32 from "~~/server/services/esp32";
 
 //
 
@@ -110,7 +110,7 @@ const updateInput = async (
         await input.update({ name, icon, type, flag, pinId })
 		
 		// --- Update websocket too
-		if (changed) await esp32.input.update(data)
+		if (changed) await esp32.api.input.update(input)
         return { success: true, data: input }
 	} catch (error) {
         console.error(error)
