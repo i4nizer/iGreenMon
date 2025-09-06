@@ -1,6 +1,9 @@
 import registry from "./registry"
 import { Peer } from "crossws"
-import { WebSocketEvent, WebSocketEventListener } from "./schema"
+import {
+	WebSocketEvent,
+	WebSocketEventListener,
+} from "#shared/schema/websocket-event"
 
 //
 
@@ -17,17 +20,17 @@ const unlisten = (listener: WebSocketEventListener) => {
 const invoke = (peer: Peer, wse: WebSocketEvent) => {
 	for (const l of listeners) {
 		const match = l.event == wse.event && l.query == wse.query
-        if (!match) continue
-        
+		if (!match) continue
+
 		const esp32 = registry.esp32s.get(peer)
-        if (!esp32) {
-            console.warn(`Esp32 event ${wse.event} received without esp32.`)
-            continue
-        }
-		
-        Promise.resolve()
-            .then(() => l.handler(peer, wse.data, esp32))
-            .catch(console.error)
+		if (!esp32) {
+			console.warn(`Esp32 event ${wse.event} received without esp32.`)
+			continue
+		}
+
+		Promise.resolve()
+			.then(() => l.handler(peer, wse.data, esp32))
+			.catch(console.error)
 	}
 }
 

@@ -4,7 +4,10 @@ import reading from "./reading"
 import threshold from "./threshold"
 import { Input, InputSchema } from "~~/shared/schema/input"
 import { ReadingCreate, ReadingCreateSchema } from "~~/shared/schema/reading"
-import { WebSocketEventHandler, WebSocketEventListener } from "./schema"
+import {
+	WebSocketEventHandler,
+	WebSocketEventListener,
+} from "#shared/schema/websocket-event"
 
 //
 

@@ -1,6 +1,9 @@
 import event from "./event"
 import websocket from "./websocket"
-import type { WebSocketEventHandler, WebSocketEventListener } from "./schema"
+import type {
+	WebSocketEventHandler,
+	WebSocketEventListener,
+} from "#shared/schema/websocket-event"
 import { Pin } from "~~/server/models/pin"
 import { Sensor } from "~~/server/models/sensor"
 import { Output } from "~~/server/models/output"
@@ -15,12 +18,22 @@ import { Action } from "~~/server/models/action"
 // --- Retrieve Requests
 const onRetrievePin: WebSocketEventHandler = async (peer, data, esp32) => {
 	const pins = await Pin.findAll({ where: { esp32Id: esp32.id } })
-	websocket.talk(peer.id, pins.map((p) => p.dataValues), "pin", "Create")
+	websocket.talk(
+		peer.id,
+		pins.map((p) => p.dataValues),
+		"pin",
+		"Create"
+	)
 }
 
 const onRetrieveSensor: WebSocketEventHandler = async (peer, data, esp32) => {
 	const sensors = await Sensor.findAll({ where: { esp32Id: esp32.id } })
-	websocket.talk(peer.id, sensors.map((s) => s.dataValues), "sensor", "Create")
+	websocket.talk(
+		peer.id,
+		sensors.map((s) => s.dataValues),
+		"sensor",
+		"Create"
+	)
 }
 
 const onRetrieveOutput: WebSocketEventHandler = async (peer, data, esp32) => {
@@ -80,10 +93,10 @@ const onRetrieveAction: WebSocketEventHandler = async (peer, data, esp32) => {
 						attributes: ["id"],
 					},
 				],
-			}
+			},
 		],
 	})
-	
+
 	const amap = actions.map((a) => a.dataValues)
 	websocket.talk(peer.id, amap, "action", "Create")
 }

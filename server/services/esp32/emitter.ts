@@ -2,7 +2,10 @@ import reading from "./reading"
 import websocket from "./websocket"
 import type { ActionEventListener } from "./action/schema"
 import type { ReadingEventListener } from "./reading/schema"
-import type { WebSocketEventName, WebSocketEventQuery } from "./schema"
+import type {
+	WebSocketEventName,
+	WebSocketEventQuery,
+} from "#shared/schema/websocket-event"
 import { Action as ActionModel } from "~~/server/models/action"
 import { Input as InputModel } from "~~/server/models/input"
 import { Actuator as ActuatorModel } from "~~/server/models/actuator"
@@ -49,7 +52,7 @@ const onUpdateActionStatus: ActionEventListener = async (action) => {
 	const data = [{ id, status }]
 	const event: WebSocketEventName = "action"
 	const query: WebSocketEventQuery = "Update"
-	
+
 	// --- Send to the responsible esp32 websocket
 	const esp32Id = (ares as any).input.actuator.esp32Id as number
 	for (const [p, e] of registry.esp32s) {
