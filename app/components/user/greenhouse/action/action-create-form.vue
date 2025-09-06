@@ -63,7 +63,7 @@
 		<VeeField name="timeout" #="{ field, errorMessage }">
 			<v-number-input
                 type="number"
-				label="Delay"
+				label="Timeout"
                 prefix="ms"
 				aria-autocomplete="both"
 				v-model="field.value"
