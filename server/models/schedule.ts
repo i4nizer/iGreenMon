@@ -6,6 +6,7 @@ import type {
 	CreationOptional,
 	InferCreationAttributes,
 } from "sequelize"
+import { ScheduleTime } from "~~/shared/schema/schedule"
 
 //
 
@@ -16,7 +17,7 @@ class Schedule extends Model<
 	declare id: CreationOptional<number>
 	declare name: string
 	declare days: CreationOptional<number[]>
-	declare times: CreationOptional<number[]>
+	declare times: CreationOptional<ScheduleTime[]>
 	declare disabled: CreationOptional<boolean>
 	declare activated: CreationOptional<boolean>
 	declare greenhouseId: ForeignKey<number>
