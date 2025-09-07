@@ -78,11 +78,25 @@ export const useEsp32 = () => {
         }
     }
 
+    // --- Api Key
+    const retrieveKey = async (id: number): Promise<SafeResult<string>> => {
+        try {
+            const reqFetch = useRequestFetch()
+            const url = `/api/user/greenhouse/esp32/key?esp32id=${id}`
+            const res = await $fetch<string>(url)
+            return { success: true, data: res }
+        } catch (error) {
+            const msg = (error as any)?.statusMessage ?? "Something went wrong."
+			return { success: false, error: msg }
+        }
+    }
+
     // --- Expose
     return {
         create,
         retrieve,
         retrieveAll,
+        retrieveKey,
         update,
         destroy,
     }
