@@ -83,7 +83,7 @@ export const useEsp32 = () => {
         try {
             const reqFetch = useRequestFetch()
             const url = `/api/user/greenhouse/esp32/key?esp32id=${id}`
-            const res = await $fetch<string>(url)
+            const res = await reqFetch<string>(url)
             return { success: true, data: res }
         } catch (error) {
             const msg = (error as any)?.statusMessage ?? "Something went wrong."
