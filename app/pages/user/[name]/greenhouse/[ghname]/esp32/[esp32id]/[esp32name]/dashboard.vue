@@ -71,10 +71,12 @@
 </template>
 
 <script setup lang="ts">
+import type { WebSocketEventHandler } from '~/schema/websocket'
 import type { Actuator } from '~~/shared/schema/actuator'
 import type { Greenhouse } from '~~/shared/schema/greenhouse'
 import type { Input } from '~~/shared/schema/input'
 import type { Output } from '~~/shared/schema/output'
+import type { Reading } from '~~/shared/schema/reading'
 import type { Sensor } from '~~/shared/schema/sensor'
 
 //
@@ -278,6 +280,40 @@ const onUpdateInput = async (
     inputStore.change(res.data)
     toastUtil.success("Input updated successfully.")
 }
+
+// --- WebSocket Syncing
+const dataWebSocket = useDataWebSocket("/api/user/websocket/data", {
+    onError: (ws, e) => toastUtil.error(`Something went wrong.`),
+})
+
+const onWSCreateReading: WebSocketEventHandler<Reading> = (ws, data) => {
+    if (!isOwnGH.value && !canAccessReading.value) return
+    for (const r of data) {
+        const included = outputs.some((o) => o.id == r.outputId)
+        if (!included) continue
+        readings.shift()
+        readings.push(r)
+    }
+}
+
+const onWSUpdateInput: WebSocketEventHandler<Input> = (ws, data) => {
+    if (!isOwnGH.value && !canAccessInput.value) return
+    for (const i of data) {
+        const included = actuators.some((a) => a.id == i.actuatorId)
+        if (!included) continue
+        inputs.shift()
+        inputs.push(i)
+    }
+}
+
+const openDataWebSocket = () => {
+    dataWebSocket.listen("reading", "Create", onWSCreateReading)
+    dataWebSocket.listen("input", "Update", onWSUpdateInput)
+    dataWebSocket.open()
+}
+
+onBeforeMount(openDataWebSocket)
+onBeforeUnmount(() => dataWebSocket.close())
 
 // --- Data Fetching
 const fetchData = async () => {
