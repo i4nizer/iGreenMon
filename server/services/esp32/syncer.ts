@@ -1,3 +1,4 @@
+import hook from "./hook"
 import event from "./event"
 import action from "./action"
 import reading from "./reading"
@@ -22,10 +23,10 @@ import { ConditionEventListener, ThresholdEventListener } from "./threshold/sche
 const onUpdateSensor = (readphase: SensorReadPhase) => {
     return async (id: string, sensor: Readonly<SensorItem>) => {
         const { id: sid, lastread } = sensor
-        await SensorModel.update(
-            { lastread, readphase },
-            { where: { id: sid } },
-        )
+        const res = await SensorModel.findByPk(sid)
+        if (!res) return
+        res.update({ lastread, readphase })
+        hook.sensor.update(res.dataValues)
     }
 }
 
@@ -41,34 +42,38 @@ const onCreateReading: WebSocketEventHandler<ReadingCreate> = async (
 		if (!res.success) continue
 		readings.push(res.data)
     }
-    await ReadingModel.bulkCreate(readings)
+    const res = await ReadingModel.bulkCreate(readings)
+    res.forEach((r) => hook.reading.create(r.dataValues))
 }
 
 // --- Updates inputs
 const onUpdateInput: WebSocketEventHandler<
 	Pick<Input, "id" | "flag" | "status">
 > = async (peer, data, esp32) => {
-	const schema = InputSchema.pick({ id: true, flag: true, status: true })
+    const schema = InputSchema.pick({ id: true, flag: true, status: true })
     const promises = []
 	
     for (const i of data) {
 		const res = schema.safeParse(i)
 		if (!res.success) continue
-        
-        const promise = InputModel.update(
-            { status: res.data.status },
-            { where: { id: res.data.id } },
-        )
+        const promise = InputModel
+            .findByPk(i.id)
+            .then(async (i) => await i?.update({ status: res.data.status }))
+            .then((i) => { if (i) hook.input.update(i.dataValues) })
+            .catch(console.error)
         promises.push(promise)
     }
-    
-    await Promise.all(promises)
+
+    await Promise.all(promises).catch(console.error)
 }
 
 // --- Updates action
 const onUpdateAction = async (action: Readonly<ActionItem>) => {
-	const { id, status } = action
-	await ActionModel.update({ status }, { where: { id } })
+    const { id, status } = action
+    const res = await ActionModel.findByPk(id)
+    if (!res) return
+    await res.update({ status })
+    hook.action.update(res.dataValues)
 }
 
 // --- Updates condition state in db
@@ -78,7 +83,10 @@ const onEvalCondition: ConditionEventListener = async (
 ) => {
     if (!changed) return
     const { id, satisfied } = condition
-    await ConditionModel.update({ satisfied }, { where: { id } })
+    const res = await ConditionModel.findByPk(id)
+    if (!res) return
+    await res.update({ satisfied })
+    hook.condition.update(res.dataValues)
 }
 
 // --- Updates threshold state in db
@@ -89,7 +97,10 @@ const onEvalThreshold: ThresholdEventListener = async (
 ) => {
     if (!changed) return
     const { id, activated } = threshold
-    await ThresholdModel.update({ activated }, { where: { id } })
+    const res = await ThresholdModel.findByPk(id)
+    if (!res) return
+    await res.update({ activated })
+    hook.threshold.update(res.dataValues)
 }
 
 //

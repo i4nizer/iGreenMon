@@ -11,6 +11,7 @@ import threshold from "./threshold"
 import schedule from "./schedule"
 import input from "./api/input"
 import api from "./api"
+import hook from "./hook"
 
 //
 
@@ -40,4 +41,4 @@ const loop = () => {
 
 //
 
-export default { init, loop, registry, websocket, api }
+export default { init, loop, registry, websocket, api, hook }
