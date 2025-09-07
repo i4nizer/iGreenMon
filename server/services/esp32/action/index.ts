@@ -2,13 +2,8 @@ import pool from "./pool"
 import event from "./event"
 import invoker from "./invoker"
 import * as schema from "./schema"
-import syncer from "./syncer"
 
 //
-
-const init = () => {
-	syncer.init()
-}
 
 /**
  * Concerns:
@@ -40,4 +35,4 @@ const loop = () => {
 
 //
 
-export default { init, loop, pool, event, schema, syncer, invoker }
+export default { loop, pool, event, schema, invoker }

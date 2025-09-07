@@ -4,13 +4,8 @@ import output from "./output"
 import * as schema from "./schema"
 import reader from "./reader"
 import registry from "./registry"
-import syncer from "./syncer"
 
 //
-
-const init = () => {
-    syncer.init()
-}
 
 const loop = () => {
     hook.loop()
@@ -20,4 +15,4 @@ const loop = () => {
 
 //
 
-export default { init, loop, hook, event, output, schema, reader, registry }
+export default { loop, hook, event, output, schema, reader, registry }

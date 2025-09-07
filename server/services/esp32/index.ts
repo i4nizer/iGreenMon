@@ -7,9 +7,7 @@ import syncer from "./syncer"
 import websocket from "./websocket"
 import action from "./action"
 import linker from "./linker"
-import threshold from "./threshold"
 import schedule from "./schedule"
-import input from "./api/input"
 import api from "./api"
 import hook from "./hook"
 
@@ -20,14 +18,11 @@ let busy = false
 //
 
 const init = () => {
-	action.init()
-	reading.init()
 	bridger.init()
 	emitter.init()
 	handler.init()
 	linker.init()
 	syncer.init()
-	threshold.init()
 }
 
 const loop = () => {
