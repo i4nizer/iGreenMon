@@ -6,6 +6,21 @@
             </v-col>
         </v-row>
         <v-row>
+            <v-col cols="12">
+                <v-card>
+                    <v-card-text>
+                        <v-text-field
+                            readonly
+                            hide-details
+                            label="Api Key"
+                            append-icon="mdi-clipboard-outline"
+                            prepend-inner-icon="mdi-key-outline"
+                            v-model="apiKey"
+                            @click:append="onClickCopyApiKey"
+                        ></v-text-field>
+                    </v-card-text>
+                </v-card>
+            </v-col>
             <v-col cols="12" md="6" lg="4" xl="3">
                 <v-card class="pa-5">
                     <esp32-cam-settings-form
@@ -53,8 +68,28 @@ const onEsp32CamUpdateSuccess = (e: Esp32Cam) => {
     toastUtil.success("Esp32Cam updated successfully.")
 }
 
+// --- Esp32 Api Key
+const apiKey = useState<string>(`esp32-cam-${esp32camid}-api-key`, () => "")
+
+const onClickCopyApiKey = async () => {
+    await navigator.clipboard.writeText(apiKey.value)
+        .then(() => toastUtil.success(`Api key copied to clipboard.`))
+        .catch((e) => toastUtil.error(e))
+}
+
+const fetchApiKey = async () => {
+    if (apiKey.value) return
+    const esp32CamId = parseInt(esp32camid)
+    const res = await esp32CamUtil.retrieveKey(esp32CamId)
+    if (!res.success) return toastUtil.error(res.error)
+    apiKey.value = res.data
+}
+
 // --- Data Fetching
-const fetchData = async () => await rwnctx(fetchEsp32Cam)
+const fetchData = async () => {
+    await rwnctx(fetchEsp32Cam)
+    await rwnctx(fetchApiKey)
+}
 
 onBeforeMount(fetchData)
 onServerPrefetch(fetchData)
