@@ -18,7 +18,8 @@ const evalcond = (reading: ReadingCreate) => {
             
             const changed = satisfied != con.satisfied
             const event = satisfied ? "Satisfied" : "Desatisfied"
-
+            console.info(`Condition eval ${reading.value} ${con.type} ${con.value} ${event}.`)
+            
             con.satisfied = satisfied
             condition.invoke(event, con, changed)
 			evalthresh(tid)
@@ -36,14 +37,14 @@ const evalthresh = (tid: number) => {
             const all = operator == "All"
             let satisfied = false
             
-            for (const [tid, cset] of registry.conditions) {
-                if (satisfied) break
+            const cset = registry.conditions.get(tid)
+            if (!cset) continue
 
-                for (const condition of cset) {
-                    if (all) satisfied = satisfied && condition.satisfied
-                    else satisfied = satisfied || condition.satisfied
-                }
-            }
+            for (const condition of cset) {
+                if (satisfied) break
+                if (all) satisfied = satisfied && condition.satisfied
+                else satisfied = satisfied || condition.satisfied
+            }               
 
             const changed = activated != satisfied
             const evn = satisfied ? "Activate" : "Deactivate"
