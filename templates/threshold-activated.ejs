@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Threshold Activated - iGreenMon</title>
+	</head>
+
+	<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+		<h2>Threshold Activated</h2>
+		<p>Hi <%= user %>,</p>
+		<p>
+			One of your thresholds in greenhouse 
+			<strong><%= greenhouse %></strong> has been activated.
+		</p>
+		<p>
+			<strong><%= threshold %></strong> was triggered because the following 
+			condition(s) were reached:
+		</p>
+		<ul style="color: #555">
+			<% conditions.forEach((condition) => { %>
+				<li><%= condition.output %> <%= condition.type %> <%= condition.value %></li>
+			<% }) %>
+		</ul>
+		<p style="margin: 2rem 0; color: #555">
+			Please sign in to your iGreenMon account for more details and to manage this threshold.
+		</p>
+		<p style="margin-top: 2rem">
+			Stay safe,<br />
+			The iGreenMon Team
+		</p>
+	</body>
+</html>

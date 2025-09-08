@@ -35,6 +35,18 @@ type Template =
 			owner: string;
 			greenhouse: string;
 		}
+	} | {
+		type: "Threshold-Activated"
+		data: {
+			user: string
+			threshold: string
+			greenhouse: string
+			conditions: {
+				type: "Above" | "Equal" | "Below"
+				value: number
+				output: string
+			}[]
+		}
 	}
 
 //
