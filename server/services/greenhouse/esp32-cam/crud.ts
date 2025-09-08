@@ -1,3 +1,4 @@
+import esp32CamService from "~~/server/services/esp32-cam"
 import { Esp32CamCreate, Esp32CamUpdate } from "#shared/schema/esp32-cam"
 import { Esp32Cam } from "~~/server/models/esp32-cam"
 import { Token } from "~~/server/models/token"
@@ -133,6 +134,10 @@ const updateEsp32Cam = async (
 		// passed, update and return it
 		const { name, description } = data
 		await esp32Cam.update({ name, description })
+
+		// --- Send to websocket
+		esp32CamService.api.esp32Cam.update(esp32Cam)
+
 		return { success: true, data: esp32Cam }
 	} catch (error) {
 		console.error(error)
