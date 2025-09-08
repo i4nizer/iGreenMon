@@ -94,6 +94,7 @@ const generateDataset = () => {
         tension: props.tension ?? 0.1,
         borderColor: props.color ?? color,
         backgroundColor: props.color ?? color,
+        spanGaps: true,
     }
 
     props.readings.forEach((r) => dataset.data.push({
