@@ -88,7 +88,9 @@
 </template>
 
 <script setup lang="ts">
+import type { WebSocketEventHandler } from '~/schema/websocket'
 import type { Capture } from '~~/shared/schema/capture'
+import type { Detection } from '~~/shared/schema/detection'
 import type { Greenhouse } from '~~/shared/schema/greenhouse'
 
 //
@@ -156,6 +158,8 @@ const captureUrl = `/api/user/greenhouse/esp32-cam/capture`
 const onCaptureRaw = (
     capture: Capture,
     image: HTMLImageElement,
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
     opts: { loading: Ref<boolean> }
 ) => {
     opts.loading.value = true
@@ -168,7 +172,9 @@ const onCaptureRaw = (
 
 const onCaptureSave = (
     capture: Capture,
+    image: HTMLImageElement,
     canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
     opts: { loading: Ref<boolean> }
 ) => {
     opts.loading.value = true
@@ -188,7 +194,9 @@ const onCaptureSave = (
 
 const onCaptureView = (
     capture: Capture,
+    image: HTMLImageElement,
     canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
     opts: { loading: Ref<boolean> }
 ) => {
     
@@ -197,6 +205,8 @@ const onCaptureView = (
 const onCaptureLoad = (
     capture: Capture,
     image: HTMLImageElement,
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
     opts: { loading: Ref<boolean> }
 ) => {
 
@@ -204,10 +214,34 @@ const onCaptureLoad = (
 
 const onCaptureDraw = (
     capture: Capture,
+    image: HTMLImageElement,
     canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
     opts: { loading: Ref<boolean> }
 ) => {
-    
+    const bboxes = detections.filter((d) => d.captureId == capture.id)
+    if (bboxes.length <= 0) return
+    const { width, height } = canvas
+    const options = NPKModelClassColor as any
+    drawDetectionBBoxes(context, width, height, bboxes, options)
+}
+
+// --- Detection
+const detectionUtil = useDetection()
+const detectionStore = useDetectionStore()
+const detectionBBoxRenderer = useDetectionBBoxRenderer()
+const { detections } = detectionStore
+const { drawDetectionBBoxes } = detectionBBoxRenderer
+
+const canAccessDetection = computed(() => canAccess("Detection", permissions))
+
+const fetchDetections = async () => {
+    if (!isOwnGH.value && !canAccessDetection.value) return;
+    if (detections.length > 0) return
+    const esp32CamId = parseInt(esp32camid)
+    const res = await detectionUtil.retrieveAllByEsp32Cam(esp32CamId)
+    if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((c) => detectionStore.append(c))
 }
 
 // --- Pagination
@@ -242,11 +276,64 @@ const onPaginateCallback = async () => {
     res.data.forEach((c) => captureStore.append(c))
 }
 
+// --- WebSocket Syncing
+const dataWebSocket = useDataWebSocket("/api/user/websocket/data", {
+    onError: (ws, event) => toastUtil.error(`Something went wrong.`),
+})
+
+const onWSCreateCapture: WebSocketEventHandler<Capture> = (ws, data) => {
+    if (!isOwnGH.value && !canAccessCapture.value) return
+    if (captures.length >= pagination.limit) return
+    
+    const now = new Date()
+    const alpha = pagination.range.at(0)
+    const omega = pagination.range.at(-1)
+    const ranged =
+        (!alpha || (alpha && alpha <= now)) ||
+        (!omega || (omega && omega >= now))
+    if (!ranged) return
+
+    const esp32CamId = parseInt(esp32camid)
+    for (const c of data) {
+        if (c.esp32CamId != esp32CamId) continue
+        captures.push(c)
+    }
+}
+
+const onWSCreateDetection: WebSocketEventHandler<Detection> = (ws, data) => {
+    if (!isOwnGH.value && !canAccessCapture.value) return
+
+    const now = new Date()
+    const alpha = pagination.range.at(0)
+    const omega = pagination.range.at(-1)
+    const ranged =
+        (!alpha || (alpha && alpha <= now)) ||
+        (!omega || (omega && omega >= now))
+    if (!ranged) return
+
+    for (const d of data) {
+        const included = captures.some((c) => c.id == d.captureId)
+        if (included) detections.push(d)
+    }
+}
+
+const openWebSocket = () => {
+    dataWebSocket.listen("capture", "Create", onWSCreateCapture)
+    dataWebSocket.listen("detection", "Create", onWSCreateDetection)
+    dataWebSocket.open()
+}
+
+onBeforeMount(openWebSocket)
+onBeforeUnmount(() => dataWebSocket.close())
+
 // --- Data Fetching
 const fetchData = async () => {
     await rwnctx(fetchGH)
     await rwnctx(fetchPerms)
-    await rwnctx(fetchCaptures)
+    await Promise.all([
+        rwnctx(fetchCaptures),
+        rwnctx(fetchDetections),
+    ])
 }
 
 onBeforeMount(fetchData)
