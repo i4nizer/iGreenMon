@@ -1,5 +1,4 @@
 import z from "zod"
-import fs from "fs/promises"
 import jwt from "jsonwebtoken"
 import esp32Cam from "~~/server/services/esp32-cam"
 import { Token } from "~~/server/models/token"
@@ -80,7 +79,7 @@ export default defineWebSocketHandler({
 		const esp32CamModel = await Esp32Cam.findByPk(res.data.esp32CamId)
 		if (!esp32CamModel) return peer.close(1000, "Unregistered esp32Cam.")
 
-        // await esp32Cam.registry.register(peer, esp32CamModel.dataValues)
+        await esp32Cam.registry.register(peer, esp32CamModel.dataValues)
         peer.send(JSON.stringify({ data: [], event: "auth", query: "Create" }))
         await setTimeout(250)
         peer.send(JSON.stringify({ data: [esp32CamModel.dataValues], event: "camera", query: "Create" }))
