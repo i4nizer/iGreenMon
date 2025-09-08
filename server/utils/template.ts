@@ -47,6 +47,16 @@ type Template =
 				output: string
 			}[]
 		}
+	} | {
+		type: "NPK-Deficiency-Detected",
+		data: {
+			user: string
+			greenhouse: string
+			esp32Cam: string
+			capture: string
+			class: string
+			confidence: number
+		}
 	}
 
 //

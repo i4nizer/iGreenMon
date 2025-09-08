@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>NPK Deficiency Detected - iGreenMon</title>
+	</head>
+
+	<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+		<h2>NPK Deficiency Detected</h2>
+		<p>Hi <%= user %>,</p>
+		<p>
+			Our system has detected a possible nutrient deficiency in your greenhouse
+			<strong><%= greenhouse %></strong>.
+		</p>
+		<p>
+			The detection was made using your camera 
+			<strong><%= esp32Cam %></strong> during a capture:
+		</p>
+		<p style="margin: 1rem 0; color: #555">
+			<strong>Capture File:</strong> <%= capture %><br />
+			<strong>Detected Issue:</strong> <%= class %><br />
+			<strong>Confidence:</strong> <%= (confidence * 100).toFixed(2) %>%
+		</p>
+		<p style="margin: 2rem 0; color: #555">
+			Please sign in to your iGreenMon account to view the image and detailed
+			analysis of this detection.
+		</p>
+		<p style="margin-top: 2rem">
+			Stay healthy, <br />
+			The iGreenMon Team
+		</p>
+	</body>
+</html>
