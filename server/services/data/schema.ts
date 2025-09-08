@@ -18,6 +18,8 @@ const WebSocketEventName = [
 	"condition",
 	"schedule",
 	"threshold",
+	"capture",
+	"detection",
 	"log",
 ] as const
 type WebSocketEventName = (typeof WebSocketEventName)[number]
