@@ -1,3 +1,4 @@
+import api from "./api"
 import hook from "./hook"
 import registry from "./registry"
 import syncer from "./syncer"
@@ -11,4 +12,4 @@ const init = () => {
 
 //
 
-export default { init, registry, hook, websocket }
+export default { init, registry, hook, websocket, api }
