@@ -1,9 +1,9 @@
-import dataEsp32 from "./data-esp32";
+import esp32Data from "./esp32-data";
 
 //
 
 const init = () => {
-    dataEsp32.init()
+    esp32Data.init()
 }
 
 //
