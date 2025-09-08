@@ -73,12 +73,10 @@ export default defineEventHandler(async (event) => {
 
 	// --- Provide all of the esp32Cam's detections
 	const detections = await Detection.findAll({
-		where: {
-			...filter,
-			order: [["createdAt", "DESC"]],
-			limit,
-			offset,
-		},
+		where: filter,
+		order: [["createdAt", "DESC"]],
+		limit,
+		offset,
 		include: [
 			{
 				model: Capture,

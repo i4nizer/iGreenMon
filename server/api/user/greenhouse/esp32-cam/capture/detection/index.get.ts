@@ -82,11 +82,11 @@ export default defineEventHandler(async (event) => {
 	const detections = await Detection.findAll({
 		where: {
 			...filter,
-			order: [["createdAt", "DESC"]],
-			limit,
-			offset,
 			captureId: captureid,
 		},
+		order: [["createdAt", "DESC"]],
+		limit,
+		offset,
 	})
 
 	return detections.map((g) => g.dataValues)
