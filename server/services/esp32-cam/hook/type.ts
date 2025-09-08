@@ -1,0 +1,1 @@
+export type HookHandler<T> = (data: T) => any
