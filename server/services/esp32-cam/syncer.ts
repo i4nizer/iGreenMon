@@ -17,12 +17,13 @@ const onReceiveImage = async (
 ) => {
     // --- Save image file
     const raw = Buffer.from(image)
-    const path = `${process.cwd()}/storage/capture/${Date.now()}.jpg`
+    const file = `${Date.now()}.jpg`
+    const path = `${process.cwd()}/storage/capture/${file}`
     await fs.writeFile(path, raw)
 
     // --- Save capture
     const capture = await CaptureModel.create({
-        filename: path,
+        filename: file,
         esp32CamId: esp32Cam.id,
     })
     hook.capture.create(capture)
