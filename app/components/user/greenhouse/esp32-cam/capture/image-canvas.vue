@@ -55,7 +55,7 @@ const intersectionObserver = ref<IntersectionObserver>()
 watch(
     () => props,
     (nv, ov) => {
-        state.painted = nv.src != ov.src
+        state.painted = false
         if (imageRef.value) imageRef.value.src = nv.src
     },
     { deep: true }
