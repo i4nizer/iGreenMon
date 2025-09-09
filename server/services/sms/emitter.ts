@@ -31,7 +31,7 @@ const onTimeoutLog: LogEventListener = async (uid, lid) => {
 const init = () => {
     log.event.listen("Queue", onQueueLog)
     log.event.listen("Timeout", onTimeoutLog)
-    console.log(`Sms emitter initialized.`)
+    console.info(`Sms emitter initialized.`)
 }
 
 //
