@@ -13,12 +13,14 @@ export default defineNitroPlugin(() => {
 		jwtResetLife,
 		jwtEsp32Life,
 		jwtEsp32CamLife,
+		jwtSmsLife,
 		jwtAccessSecret,
 		jwtRefreshSecret,
 		jwtVerifySecret,
 		jwtResetSecret,
 		jwtEsp32Secret,
 		jwtEsp32CamSecret,
+		jwtSmsSecret,
 	} = config
 
 	const jwtMetas: { type: TokenType; life: number; secret: string }[] = [
@@ -51,6 +53,11 @@ export default defineNitroPlugin(() => {
 			type: "Esp32Cam",
 			life: jwtEsp32CamLife,
 			secret: jwtEsp32CamSecret,
+		},
+		{
+			type: "Sms",
+			life: jwtSmsLife,
+			secret: jwtSmsSecret,
 		},
 	]
 
