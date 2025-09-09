@@ -5,6 +5,7 @@ const TokenType = [
 	"Verify",
 	"Esp32",
 	"Esp32Cam",
+	"Sms",
 ] as const
 type TokenType = (typeof TokenType)[number]
 
