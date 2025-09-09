@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Greenhouse Log Notification - iGreenMon</title>
+	</head>
+
+	<body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+		<h2>New Log Entry</h2>
+		<p>Hi <%= user %>,</p>
+		<p>
+			A new log has been recorded in your greenhouse 
+			<strong><%= greenhouse %></strong>.
+		</p>
+		<p style="margin: 1rem 0; color: #555">
+			<strong>Title:</strong> <%= title %><br />
+			<strong>Level:</strong> <%= level %><br />
+			<strong>Message:</strong><br />
+			<em><%= message %></em>
+		</p>
+		<p style="margin: 2rem 0; color: #555">
+			Please sign in to your iGreenMon account to review this log in detail
+			and take any necessary actions.
+		</p>
+		<p style="margin-top: 2rem">
+			Kind regards,<br />
+			The iGreenMon Team
+		</p>
+	</body>
+</html>

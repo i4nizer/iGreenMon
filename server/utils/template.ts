@@ -57,6 +57,15 @@ type Template =
 			class: string
 			confidence: number
 		}
+	} | {
+		type: "Log",
+		data: {
+			user: string
+			greenhouse: string
+			title: string
+			level: string
+			message: string
+		}
 	}
 
 //
