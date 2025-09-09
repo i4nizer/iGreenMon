@@ -14,6 +14,7 @@ const LogSchema = z.object({
     level: z.enum(LogLevel),
     viewed: z.boolean(),
     emailed: z.boolean(),
+    messaged: z.boolean(),
     greenhouseId: z.number().int(),
     userId: z.number().int(),
     createdAt: z.date(),
