@@ -20,6 +20,7 @@ class Log extends Model<
     declare level: CreationOptional<LogLevel>
     declare viewed: CreationOptional<boolean>
     declare emailed: CreationOptional<boolean>
+    declare messaged: CreationOptional<boolean>
     declare greenhouseId: ForeignKey<number>
     declare userId: ForeignKey<number>
     declare createdAt: CreationOptional<Date>
@@ -53,6 +54,11 @@ const logAttributes: ModelAttributes<Log, InferAttributes<Log>> = {
         defaultValue: false,
     },
     emailed: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    messaged: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
