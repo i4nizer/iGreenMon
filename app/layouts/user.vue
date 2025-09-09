@@ -34,6 +34,12 @@
 					></v-list-item>
 					<v-list-item
 						link
+						title="SMS"
+						prepend-icon="mdi-message-text"
+						:to="`/user/${user?.name}/sms`"
+					></v-list-item>
+					<v-list-item
+						link
 						title="Settings"
 						prepend-icon="mdi-cog"
 						:to="`/user/${user?.name}/settings`"
