@@ -299,10 +299,8 @@ const onWSCreateReading: WebSocketEventHandler<Reading> = (ws, data) => {
 const onWSUpdateInput: WebSocketEventHandler<Input> = (ws, data) => {
     if (!isOwnGH.value && !canAccessInput.value) return
     for (const i of data) {
-        const included = actuators.some((a) => a.id == i.actuatorId)
-        if (!included) continue
-        inputs.shift()
-        inputs.push(i)
+        const idx = inputs.findIndex((ip) => ip.id == i.id)
+        if (idx != -1) inputs.splice(idx, 1, i)
     }
 }
 
