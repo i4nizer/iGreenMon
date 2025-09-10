@@ -66,8 +66,9 @@ const chartOptions = reactive({
     scales: {
         x: {
             type: 'time',
-            time: { unit: 'second' },
+            time: { unit: 'minute' },
             grid: { color: 'rgba(128, 128, 128, 0.5)' },
+            ticks: { source: 'auto', autoSkip: true },
         },
         y: {
             grid: { color: 'rgba(128, 128, 128, 0.5)' },
