@@ -36,6 +36,7 @@ const pull = async () => {
 	})
     
     if (!log) return
+    console.info(`Log service sending ${log.id}.`)
     const user = (log as any).user
     const greenhouse = (log as any).greenhouse
     
@@ -52,12 +53,19 @@ const pull = async () => {
     })
     if (!ssres.success) return 
 
+    const callback = async (e: any, i: any) => {
+        if (e) return
+        console.info(`Log service emailed ${log.id}.`)
+        await log.update({ emailed: true })
+        sent = true
+    }
+
     queueEmail(
         user.name,
         "Log - iGreenMon",
         undefined,
         ssres.data,
-        (e, i) => sent = !e
+        callback
     )
 }
 
