@@ -41,6 +41,11 @@ export default defineNuxtConfig({
 			jwtVerifyLife: 0,
 		},
 	},
+	vite: {
+		server: {
+			allowedHosts: [".trycloudflare.com"],
+		},
+	},
 	vuetify: {
 		vuetifyOptions: {
 			defaults: {
