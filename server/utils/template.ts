@@ -66,6 +66,9 @@ type Template =
 			level: string
 			message: string
 		}
+	} | {
+		type: "Cloudflared-Tunnel",
+		data: { url: string }
 	}
 
 //

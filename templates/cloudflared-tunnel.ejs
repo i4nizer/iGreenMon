@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cloudflared Tunnel - iGreenMon</title>
+  </head>
+
+  <body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+    <h2>New Tunnel Created</h2>
+    <p>Hi,</p>
+    <p>
+      A temporary Cloudflared tunnel has been established.
+    </p>
+    <p style="margin: 1rem 0; color: #555">
+      <strong>Temporary Access URL:</strong><br />
+      <a href="<%= url %>" target="_blank" style="color: #1a73e8"><%= url %></a>
+    </p>
+    <p style="margin: 2rem 0; color: #555">
+      Please note that this is an <em>ephemeral domain</em>. It will remain active only 
+      while the tunnel is running, and may change if the connection is restarted. 
+    </p>
+    <p style="margin-top: 2rem">
+      Kind regards,<br />
+      The iGreenMon Team
+    </p>
+  </body>
+</html>
