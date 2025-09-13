@@ -151,7 +151,17 @@ const fetchCaptures = async () => {
     if (!isOwnGH.value && !canAccessCapture.value) return;
     if (ssred.value) return
     const esp32CamId = parseInt(esp32camid)
-    const res = await captureUtil.retrieveAllByEsp32Cam(esp32CamId)
+    const alpha = pagination.range.at(0)
+    const omega = pagination.range.at(-1)
+
+    const res = await captureUtil.retrieveAllByEsp32Cam(
+        esp32CamId,
+        alpha ? new Date(alpha) : undefined,
+        omega ? new Date(omega) : undefined,
+        pagination.limit,
+        pagination.offset,
+    )
+
     if (!res.success) return toastUtil.error(res.error)
 	captures.splice(0, captures.length)
     captures.push(...res.data)
