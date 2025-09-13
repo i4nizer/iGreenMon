@@ -9,9 +9,7 @@ import {
 export default defineNitroPlugin(async () => {
 	// --- Instance and config
 	const config = useRuntimeConfig()
-	const isProd = config.nodeEnv == "production"
-	const logging = isProd ? false : (data: any) => console.log("ℹ", data)
-	const sequelize = new Sequelize(config.databaseUrl, { logging })
+	const sequelize = new Sequelize(config.databaseUrl, { logging: false })
 
 	// --- Run initializations
 	initModels(sequelize)
@@ -19,10 +17,10 @@ export default defineNitroPlugin(async () => {
 
 	// --- Authenticate
 	await sequelize.authenticate()
-	if (!isProd) console.info("Sequelize database authenticated.")
+	console.info("Sequelize database authenticated.")
 
 	// --- Sync on command
 	const syncDB = config.databaseSync === "sync"
 	if (syncDB) await sequelize.sync({ alter: true })
-	if (!isProd) console.info("Sequelize database tables synced.")
+	if (syncDB) console.info("Sequelize database tables synced.")
 })
