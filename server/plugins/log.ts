@@ -7,5 +7,5 @@ export default defineNitroPlugin(async () => {
     // --- Run after db init
     await setTimeout(30000)
     console.info(`Log emailing service running.`)
-    setInterval(() => log.loop())
+    setInterval(() => log.loop(), 5000)
 })
