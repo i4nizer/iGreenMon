@@ -1,0 +1,1 @@
+export type CloudflaredEventListener = (url: string) => any
