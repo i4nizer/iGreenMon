@@ -111,6 +111,10 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32camid = route.params.esp32camid as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${esp32camid}-capture`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -145,11 +149,12 @@ const canAccessCapture = computed(() => canAccess("Capture", permissions))
 
 const fetchCaptures = async () => {
     if (!isOwnGH.value && !canAccessCapture.value) return;
-    if (captures.length > 0) return
+    if (ssred.value) return
     const esp32CamId = parseInt(esp32camid)
     const res = await captureUtil.retrieveAllByEsp32Cam(esp32CamId)
     if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((c) => captureStore.append(c))
+	captures.splice(0, captures.length)
+    captures.push(...res.data)
 }
 
 // --- Capture Navs
@@ -237,11 +242,12 @@ const canAccessDetection = computed(() => canAccess("Detection", permissions))
 
 const fetchDetections = async () => {
     if (!isOwnGH.value && !canAccessDetection.value) return;
-    if (detections.length > 0) return
+    if (ssred.value) return
     const esp32CamId = parseInt(esp32camid)
     const res = await detectionUtil.retrieveAllByEsp32Cam(esp32CamId)
     if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((c) => detectionStore.append(c))
+	detections.splice(0, detections.length)
+    detections.push(...res.data)
 }
 
 // --- Pagination

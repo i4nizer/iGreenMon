@@ -70,6 +70,10 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params?.ghname as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${ghname}-log`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -103,9 +107,11 @@ const { logs } = logStore
 
 const fetchLog = async () => {
     if (!isOwnGH.value && !canAccess("Log", permissions)) return
+    if (ssred.value) return
     const res = await logUtil.retrieveAllByGH(ghname)
 	if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((l) => logStore.append(l))
+    logs.splice(0, logs.length)
+    logs.push(...res.data)
 }
 
 // --- Log Pagination

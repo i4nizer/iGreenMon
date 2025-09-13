@@ -97,6 +97,10 @@ const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 const esp32name = route.params.esp32name as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${esp32id}-dashboard`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -131,11 +135,12 @@ const canAccessSensor = computed(() => canAccess("Sensor", permissions))
 
 const fetchSensors = async () => {
     if (!isOwnGH.value && !canAccessSensor.value) return
-    if (sensors.length > 0) return
+    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await sensorUtil.retrieveAll(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => sensorStore.append(p))
+    sensors.splice(0, sensors.length)
+    sensors.push(...res.data)
 }
 
 // --- Sensor Util
@@ -160,11 +165,12 @@ const canAccessOutput = computed(() => canAccess("Output", permissions))
 
 const fetchOutputs = async () => {
     if (!isOwnGH.value && !canAccessOutput.value) return
-    if (outputs.length > 0) return
+    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await outputUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => outputStore.append(p))
+    outputs.splice(0, outputs.length)
+    outputs.push(...res.data)
 }
 
 // --- Output Util
@@ -193,11 +199,12 @@ const canAccessReading = computed(() => canAccess("Reading", permissions))
 
 const fetchReadings = async () => {
     if (!isOwnGH.value && !canAccessReading.value) return
-    if (readings.length > 0) return
+    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await readingUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => readingStore.append(p))
+    readings.splice(0, readings.length)
+    readings.push(...res.data)
 }
 
 // --- Reading Util
@@ -226,11 +233,12 @@ const canAccessActuator = computed(() => canAccess("Actuator", permissions))
 
 const fetchActuators = async () => {
     if (!isOwnGH.value && !canAccessActuator.value) return
-    if (actuators.length > 0) return
+    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await actuatorUtil.retrieveAll(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((a) => actuatorStore.append(a))
+    actuators.splice(0, actuators.length)
+    actuators.push(...res.data)
 }
 
 // --- Actuator Util
@@ -256,11 +264,12 @@ const canModifyInput = computed(() => canModify("Input", permissions))
 
 const fetchInputs = async () => {
     if (!isOwnGH.value && !canAccessInput.value) return
-    if (inputs.length > 0) return
+    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await inputUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((a) => inputStore.append(a))
+    inputs.splice(0, inputs.length)
+    inputs.push(...res.data)
 }
 
 // --- Input Util

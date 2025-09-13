@@ -25,7 +25,7 @@
 						<pin-create-form
 							:esp32-id="parseInt(esp32id)"
 							class="bg-white rounded"
-							@error="(e) => toast.error(e)"
+							@error="(e) => toastUtil.error(e)"
 							@success="onCreatePinSuccess"
 						/>
 					</template>
@@ -39,7 +39,7 @@
 					<pin-update-form
 						class="bg-white rounded"
 						:pin="(pinUpdateData as Pin)"
-						@error="(e) => toast.error(e)"
+						@error="(e) => toastUtil.error(e)"
 						@success="onUpdatePinSuccess"
 					/>
 				</template>
@@ -73,65 +73,68 @@ import type { Greenhouse } from "~~/shared/schema/greenhouse"
 
 //
 
-// --- Utils
+// --- Preserve nuxt context between awaits
+const nctx = useNuxtApp()
+const rwnctx = nctx.runWithContext
+
+// --- User
+const userUtil = useUser()
+
+// --- Notit
+const toastUtil = useToast()
+
+// --- Route data
 const route = useRoute()
-const toast = useToast()
-const ghUtil = useGreenhouse()
-const pinUtil = usePin()
-const userUtil = useUser({ hydrate: false })
-
-// --- Store
-const pinStore = usePinStore()
-
-// --- Params
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
-// --- Greenhouse Permissions
+// --- SSR'ed state
+const ssred = useState<boolean>(`${esp32id}-pin`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
+// --- Greenhouse
+const ghUtil = useGreenhouse()
+const gh = useState<Greenhouse | undefined>(`greenhouse`)
+
+const isOwnGH = computed(() => gh.value?.userId == userUtil.user.value?.id)
+
+const fetchGH = async () => {
+	const req = async () => await ghUtil.retrieve(ghname)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	gh.value = res.data
+}
+
+// --- Permissions
 const permUtil = usePermission()
-const { canCreate, canModify, canDelete } = permUtil
 const permStore = usePermissionStore()
 const { permissions } = permStore
+const { canCreate, canAccess, canModify, canDelete } = permUtil
 
-const gh = useState<Greenhouse | undefined>(`gh-${ghname}`, () => undefined)
-const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
+const fetchPerms = async () => {
+	if (isOwnGH.value || permissions.length > 0) return;
+	const req = async () => await permUtil.retrieveAll(ghname)
+	const res = await rwnctx(req)
+	if (!res.success) return toastUtil.error(res.error)
+	res.data.forEach((p) => permStore.append(p))
+}
+
+// --- Pins
+const pinUtil = usePin()
+const pinStore = usePinStore()
+const { pins } = pinStore
+
 const canModifyPin = computed(() => canModify("Pin", permissions))
 const canDeletePin = computed(() => canDelete("Pin", permissions))
 
-// --- Data
-const { user } = userUtil
-const { pins } = pinStore
-
-const fetchData = async () => {
-	// --- Preserve nuxt context between awaits
-	const nctx = useNuxtApp()
-	const rwnctx = nctx.runWithContext
-	if (!user.value) await rwnctx(userUtil.whoami)
-
-	if (!gh.value) {
-		const req = async () => await ghUtil.retrieve(ghname)
-		const res = await rwnctx(req)
-		if (res.success) gh.value = res.data
-		else toast.error(res.error)
-	}
-
-    if (gh.value && pins.length <= 0) {
-		const req = async () => pinUtil.retrieveAll(parseInt(esp32id))
-		const res = await rwnctx(req)
-		if (res.success) res.data.forEach((e) => pinStore.append(e))
-		else toast.error(res.error)
-	}
-
-	if (!isOwnGH.value && permissions.length <= 0) {
-		const req = async () => await permUtil.retrieveAll(ghname)
-		const res = await rwnctx(req)
-		if (res.success) res.data.forEach((p) => permStore.append(p))
-		else toast.error(res.error)
-	}
+const fetchPins = async () => {
+	if (ssred.value) return;
+	const esp32Id = parseInt(esp32id)
+	const res = await pinUtil.retrieveAll(esp32Id)
+	if (!res.success) return toastUtil.error(res.error)
+	pins.splice(0, pins.length)
+    pins.push(...res.data)
 }
-
-onBeforeMount(fetchData)
-onServerPrefetch(fetchData)
 
 // --- For performance, single instance of update form dialog
 const pinUpdateData = ref<Pin>()
@@ -140,18 +143,18 @@ const pinUpdateDialog = ref(false)
 // --- CRUD
 const onCreatePinSuccess = (pin: Pin) => {
 	pinStore.append(pin)
-	toast.success("Pin created successfully.")
+	toastUtil.success("Pin created successfully.")
 }
 
 const onUpdatePinSuccess = (pin: Pin) => {
 	pinStore.change(pin)
-	toast.success("Pin updated successfully.")
+	toastUtil.success("Pin updated successfully.")
 	pinUpdateDialog.value = false
 }
 
 const onDeletePinSuccess = (pin: Pin) => {
 	pinStore.remove(pin.id)
-	toast.success("Pin deleted successfully.")
+	toastUtil.success("Pin deleted successfully.")
 }
 
 // --- Navigations from the table
@@ -165,9 +168,22 @@ const onDeletePin = async (pin: Pin, opts: { loading: Ref<boolean> }) => {
 	const res = await pinUtil.destroy(pin.id)
 	opts.loading.value = false
 
-	if (!res.success) toast.error(res.error)
+	if (!res.success) toastUtil.error(res.error)
 	else onDeletePinSuccess(pin)
 }
+
+// --- Sequential data fetching on life cycle hooks
+const fetchData = async () => {
+	await rwnctx(userUtil.whoami)
+	await rwnctx(fetchGH)
+	await Promise.all([
+		rwnctx(fetchPins),
+		rwnctx(fetchPerms),
+	])
+}
+
+onBeforeMount(fetchData)
+onServerPrefetch(fetchData)
 
 //
 

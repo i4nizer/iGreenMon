@@ -95,6 +95,10 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params.ghname as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${ghname}-dashboard`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -129,10 +133,11 @@ const canAccessEsp32 = computed(() => canAccess("Esp32", permissions))
 
 const fetchEsp32s = async () => {
     if (!isOwnGH.value && !canAccessEsp32.value) return
-    if (!gh.value || esp32s.length > 0) return
+    if (!gh.value || ssred.value) return
     const res = await esp32Util.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => esp32Store.append(p))
+    esp32s.splice(0, esp32s.length)
+    esp32s.push(...res.data)
 }
 
 // --- Sensors
@@ -144,10 +149,11 @@ const canAccessSensor = computed(() => canAccess("Sensor", permissions))
 
 const fetchSensors = async () => {
     if (!isOwnGH.value && !canAccessSensor.value) return
-    if (sensors.length > 0) return
+    if (ssred.value) return
     const res = await sensorUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => sensorStore.append(p))
+    sensors.splice(0, sensors.length)
+    sensors.push(...res.data)
 }
 
 // --- Sensor Util
@@ -174,10 +180,11 @@ const canAccessOutput = computed(() => canAccess("Output", permissions))
 
 const fetchOutputs = async () => {
     if (!isOwnGH.value && !canAccessOutput.value) return
-    if (outputs.length > 0) return
+    if (ssred.value) return
     const res = await outputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => outputStore.append(p))
+    outputs.splice(0, outputs.length)
+    outputs.push(...res.data)
 }
 
 // --- Output Util
@@ -210,10 +217,11 @@ const canAccessReading = computed(() => canAccess("Reading", permissions))
 
 const fetchReadings = async () => {
     if (!isOwnGH.value && !canAccessReading.value) return
-    if (readings.length > 0) return
+    if (ssred.value) return
     const res = await readingUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((p) => readingStore.append(p))
+    readings.splice(0, readings.length)
+    readings.push(...res.data)
 }
 
 // --- Reading Util
@@ -242,10 +250,11 @@ const canAccessActuator = computed(() => canAccess("Actuator", permissions))
 
 const fetchActuators = async () => {
     if (!isOwnGH.value && !canAccessActuator.value) return
-    if (actuators.length > 0) return
+    if (ssred.value) return
     const res = await actuatorUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((a) => actuatorStore.append(a))
+    actuators.splice(0, actuators.length)
+    actuators.push(...res.data)
 }
 
 // --- Actuator Util
@@ -273,10 +282,11 @@ const canModifyInput = computed(() => canModify("Input", permissions))
 
 const fetchInputs = async () => {
     if (!isOwnGH.value && !canAccessInput.value) return
-    if (inputs.length > 0) return
+    if (ssred.value) return
     const res = await inputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((a) => inputStore.append(a))
+    inputs.splice(0, inputs.length)
+    inputs.push(...res.data)
 }
 
 // --- Input Util

@@ -228,6 +228,10 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${esp32id}-sensor`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -262,11 +266,12 @@ const canAccessPin = computed(() => canAccess("Pin", permissions))
 
 const fetchPins = async () => {
 	if (!isOwnGH && !canAccessPin.value) return
-	if (pins.length > 0) return;
+	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((p) => pinStore.append(p))
+	pins.splice(0, pins.length)
+    pins.push(...res.data)
 }
 
 // --- Sensors
@@ -280,10 +285,11 @@ const canDeleteSensor = computed(() => canDelete("Sensor", permissions))
 
 const fetchSensors = async () => {
 	if (!isOwnGH && !canAccessSensor.value) return
-	if (sensors.length > 0) return;
+	if (ssred.value) return;
 	const res = await sensorUtil.retrieveAll(parseInt(esp32id))
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((s) => sensorStore.append(s))
+	sensors.splice(0, sensors.length)
+    sensors.push(...res.data)
 }
 
 // --- Sensor CRUD
@@ -341,11 +347,12 @@ const canDeleteOutput = computed(() => canDelete("Output", permissions))
 
 const fetchOutputs = async () => {
 	if (!isOwnGH && !canAccessOutput.value) return
-	if (outputs.length > 0) return;
+	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await outputUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((o) => outputStore.append(o))
+	outputs.splice(0, outputs.length)
+    outputs.push(...res.data)
 }
 
 // --- Output CRUD
@@ -397,10 +404,11 @@ const canAccessAction = computed(() => canAccess("Action", permissions))
 
 const fetchActions = async () => {
 	if (!isOwnGH && !canAccessAction.value) return
-	if (!gh.value || actions.length > 0) return;
+	if (!gh.value || ssred.value) return;
 	const res = await actionUtil.retrieveAll(gh.value.id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((a) => actionStore.append(a))
+	actions.splice(0, actions.length)
+    actions.push(...res.data)
 }
 
 // --- Hooks
@@ -415,11 +423,12 @@ const canDeleteHook = computed(() => canDelete("Hook", permissions))
 
 const fetchHooks = async () => {
 	if (!isOwnGH && !canAccessHook.value) return;
-	if (hooks.length > 0) return;
+	if (ssred) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await hookUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((o) => hookStore.append(o))
+	hooks.splice(0, hooks.length)
+    hooks.push(...res.data)
 }
 
 // --- Hook CRUD

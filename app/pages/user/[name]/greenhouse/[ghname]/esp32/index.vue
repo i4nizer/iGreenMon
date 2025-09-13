@@ -25,7 +25,7 @@
                         <esp32-create-form
                             :greenhouse-id="gh?.id ?? -1"
                             class="bg-white rounded"
-                            @error="e => toast.error(e)"
+                            @error="e => toastUtil.error(e)"
                             @success="onCreateEsp32Success"
                         />
                     </template>
@@ -39,7 +39,7 @@
                     <esp32-update-form
                         class="bg-white rounded"
                         :esp32="(esp32UpdateData as Esp32)"
-                        @error="e => toast.error(e)"
+                        @error="e => toastUtil.error(e)"
                         @success="onUpdateEsp32Success"
                     />
                 </template>
@@ -83,63 +83,65 @@ import type { Greenhouse } from '~~/shared/schema/greenhouse'
 
 //
 
-// --- Utils
+// --- Preserve nuxt context between awaits
+const nctx = useNuxtApp()
+const rwnctx = nctx.runWithContext
+
+// --- User
+const userUtil = useUser()
+const { user } = userUtil
+
+// --- Notit
+const toastUtil = useToast()
+
+// --- Route data
 const route = useRoute()
-const toast = useToast()
-const ghUtil = useGreenhouse()
-const userUtil = useUser({ hydrate: false })
-const permUtil = usePermission()
-const { canCreate, canModify, canDelete } = permUtil
-const esp32Util = useEsp32()
-
-// --- Store
-const permStore = usePermissionStore()
-const esp32Store = useEsp32Store()
-
-// --- Params
 const ghname = route.params.ghname as string
 
-// --- Data
-const gh = useState<Greenhouse | undefined>(`gh-${ghname}`, () => undefined)
-const isOwnGH = computed(() => gh.value?.userId == user.value?.id)
-const { user } = userUtil
-const { esp32s } = esp32Store
-const { permissions } = permStore
+// --- SSR'ed state
+const ssred = useState<boolean>(`${ghname}-esp32`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
 
-const fetchData = async () => {
-    // --- Preserve nuxt context between awaits
-    const nctx = useNuxtApp()
-    const rwnctx = nctx.runWithContext
+// --- Greenhouse
+const ghUtil = useGreenhouse()
+const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
+const isOwnGH = computed(() => gh.value?.userId == userUtil.user.value?.id)
 
-    if (!user.value) await userUtil.whoami()
-
-    if (!gh.value) {
-        const req = async () => await ghUtil.retrieve(ghname)
-        const res = await rwnctx(req)
-        if (res.success) gh.value = res.data
-        else toast.error(res.error);
-    }
-
-    if (gh.value && esp32s.length <= 0) {
-        const req = async () => esp32Util.retrieveAll(gh.value?.id as number)
-        const res = await rwnctx(req)
-        if (res.success) res.data.forEach((e) => esp32Store.append(e))
-        else toast.error(res.error);
-    }
-
-    if (!isOwnGH.value && permissions.length <= 0) {
-        const req = async () => await permUtil.retrieveAll(ghname)
-        const res = await rwnctx(req)
-        if (res.success) res.data.forEach((p) => permStore.append(p))
-        else toast.error(res.error);
-    }
+const fetchGH = async () => {
+    if (gh.value) return;
+    const res = await ghUtil.retrieve(ghname)
+    if (!res.success) return toastUtil.error(res.error)
+    gh.value = res.data
 }
 
-onBeforeMount(fetchData)
-onServerPrefetch(async () => {
-    const nctx = useNuxtApp()
-    await nctx.runWithContext(fetchData)
-})
+// --- Permissions
+const permUtil = usePermission()
+const permStore = usePermissionStore()
+const { permissions } = permStore
+const { canCreate, canAccess, canModify, canDelete } = permUtil
+
+const fetchPerms = async () => {
+    if (isOwnGH.value || permissions.length > 0) return;
+    const res = await permUtil.retrieveAll(ghname)
+    if (!res.success) return toastUtil.error(res.error)
+    res.data.forEach((p) => permStore.append(p))
+}
+
+// --- Esp32s
+const esp32Util = useEsp32()
+const esp32Store = useEsp32Store()
+const { esp32s } = esp32Store
+
+const canAccessEsp32 = computed(() => canAccess("Esp32", permissions))
+
+const fetchEsp32s = async () => {
+    if (!isOwnGH.value && !canAccessEsp32.value) return
+    if (!gh.value || ssred.value) return
+    const res = await esp32Util.retrieveAll(gh.value.id)
+    if (!res.success) return toastUtil.error(res.error)
+    esp32s.splice(0, esp32s.length)
+    esp32s.push(...res.data)
+}
 
 // --- For performance, single instance of update form dialog
 const esp32UpdateData = ref<Esp32>()
@@ -148,18 +150,18 @@ const esp32UpdateDialog = ref(false)
 // --- CRUD
 const onCreateEsp32Success = (esp32: Esp32) => {
     esp32Store.append(esp32)
-    toast.success("Esp32 created successfully.")
+    toastUtil.success("Esp32 created successfully.")
 }
 
 const onUpdateEsp32Success = (esp32: Esp32) => {
     esp32Store.change(esp32)
-    toast.success("Esp32 updated successfully.")
+    toastUtil.success("Esp32 updated successfully.")
     esp32UpdateDialog.value = false
 }
 
 const onDeleteEsp32Success = (esp32: Esp32) => {
     esp32Store.remove(esp32.id)
-    toast.success("Esp32 deleted successfully.")
+    toastUtil.success("Esp32 deleted successfully.")
 }
 
 // --- Navigations from the card
@@ -181,9 +183,19 @@ const onDeleteEsp32 = async (esp32: Esp32, opts: { loading: Ref<boolean> }) => {
     const res = await esp32Util.destroy(esp32.id)
     opts.loading.value = false
 
-    if (!res.success) toast.error(res.error)
+    if (!res.success) toastUtil.error(res.error)
     else onDeleteEsp32Success(esp32)
 }
+
+// --- Data Fetching
+const fetchData = async () => {
+    await rwnctx(fetchGH)
+    await rwnctx(fetchPerms)
+    await rwnctx(fetchEsp32s)
+}
+
+onBeforeMount(fetchData)
+onServerPrefetch(fetchData)
 
 //
 

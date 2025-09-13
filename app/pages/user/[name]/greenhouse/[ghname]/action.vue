@@ -106,6 +106,10 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params.ghname as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${ghname}-action`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -141,10 +145,11 @@ const canAccessSchedule = computed(() => canAccess("Schedule", permissions))
 
 const fetchSchedules = async () => {
     if (!isOwnGH && !canAccessSchedule.value) return
-    if (!gh.value || schedules.length > 0) return;
+    if (!gh.value || ssred.value) return;
     const res = await scheduleUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((t) => scheduleStore.append(t))
+    schedules.splice(0, schedules.length)
+	schedules.push(...res.data)
 }
 
 // --- Thresholds
@@ -156,10 +161,11 @@ const canAccessThreshold = computed(() => canAccess("Threshold", permissions))
 
 const fetchThresholds = async () => {
     if (!isOwnGH && !canAccessThreshold.value) return
-    if (!gh.value || thresholds.length > 0) return;
+    if (!gh.value || ssred.value) return;
     const res = await thresholdUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((t) => thresholdStore.append(t))
+    thresholds.splice(0, thresholds.length)
+	thresholds.push(...res.data)
 }
 
 // --- Inputs
@@ -171,10 +177,11 @@ const canAccessInput = computed(() => canAccess("Input", permissions))
 
 const fetchInputs = async () => {
     if (!isOwnGH && !canAccessInput.value) return;
-    if (inputs.length > 0) return;
+    if (ssred.value) return;
     const res = await inputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((o) => inputStore.append(o))
+    inputs.splice(0, inputs.length)
+	inputs.push(...res.data)
 }
 
 // --- Actions
@@ -189,10 +196,11 @@ const canDeleteAction = computed(() => canDelete("Action", permissions))
 
 const fetchActions = async () => { 
     if (!isOwnGH && !canAccessAction.value) return
-    if (!gh.value || actions.length > 0) return;
+    if (!gh.value || ssred.value) return;
     const res = await actionUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
-    res.data.forEach((c) => actionStore.append(c))
+    actions.splice(0, actions.length)
+	actions.push(...res.data)
 }
 
 // --- Action CRUD

@@ -167,6 +167,10 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
+// --- SSR'ed state
+const ssred = useState<boolean>(`${esp32id}-actuator`, () => import.meta.server)
+onBeforeUnmount(() => ssred.value = false)
+
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -200,12 +204,12 @@ const pinStore = usePinStore()
 const { pins } = pinStore
 
 const fetchPins = async () => {
-	if (pins.length > 0) return;
+	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
-	const req = () => pinUtil.retrieveAll(esp32Id)
-	const res = await rwnctx(req)
+	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((p) => pinStore.append(p))
+	pins.splice(0, pins.length)
+    pins.push(...res.data)
 }
 
 // --- Actuators
@@ -217,11 +221,11 @@ const canModifyActuator = computed(() => canModify("Actuator", permissions))
 const canDeleteActuator = computed(() => canDelete("Actuator", permissions))
 
 const fetchActuators = async () => {
-	if (actuators.length > 0) return;
-	const req = async () => actuatorUtil.retrieveAll(parseInt(esp32id))
-	const res = await rwnctx(req)
+	if (ssred.value) return;
+	const res = await actuatorUtil.retrieveAll(parseInt(esp32id))
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((s) => actuatorStore.append(s))
+	actuators.splice(0, actuators.length)
+	actuators.push(...res.data)
 }
 
 // --- Actuator CRUD
@@ -278,12 +282,12 @@ const canModifyInput = computed(() => canModify("Input", permissions))
 const canDeleteInput = computed(() => canDelete("Input", permissions))
 
 const fetchInputs = async () => {
-	if (inputs.length > 0) return;
+	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
-	const req = async () => await inputUtil.retrieveAllByEsp32(esp32Id)
-	const res = await rwnctx(req)
+	const res = await inputUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
-	res.data.forEach((o) => inputStore.append(o))
+	inputs.splice(0, inputs.length)
+    inputs.push(...res.data)
 }
 
 // --- Input CRUD
