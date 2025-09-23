@@ -98,7 +98,7 @@ const routeUtil = useRoute()
 const ghname = routeUtil.params.ghname as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-esp32-cam`, () => import.meta.server)
+const ssred = useState<boolean>(`${ghname}-esp32-cam`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -201,6 +201,7 @@ const fetchData = async () => {
         rwnctx(fetchPerms),
         rwnctx(fetchEsp32Cams),
     ])
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

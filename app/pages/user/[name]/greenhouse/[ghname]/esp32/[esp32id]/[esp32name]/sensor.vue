@@ -229,7 +229,7 @@ const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-sensor`, () => import.meta.server)
+const ssred = useState<boolean>(`${esp32id}-sensor`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -483,6 +483,7 @@ const fetchData = async () => {
 		rwnctx(fetchActions),
 		rwnctx(fetchHooks),
 	])
+	ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

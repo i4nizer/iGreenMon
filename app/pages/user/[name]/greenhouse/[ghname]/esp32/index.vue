@@ -99,7 +99,7 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-esp32`, () => import.meta.server)
+const ssred = useState<boolean>(`${ghname}-esp32`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -192,6 +192,7 @@ const fetchData = async () => {
     await rwnctx(fetchGH)
     await rwnctx(fetchPerms)
     await rwnctx(fetchEsp32s)
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

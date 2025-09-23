@@ -98,7 +98,7 @@ const esp32id = route.params.esp32id as string
 const esp32name = route.params.esp32name as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-dashboard`, () => import.meta.server)
+const ssred = useState<boolean>(`${esp32id}-dashboard`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -333,6 +333,7 @@ const fetchData = async () => {
         rwnctx(fetchActuators),
         rwnctx(fetchInputs),
     ])
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

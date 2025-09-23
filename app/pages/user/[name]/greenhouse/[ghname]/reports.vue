@@ -133,7 +133,7 @@ const routeUtil = useRoute()
 const ghname = routeUtil.params?.ghname as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-reports`, () => import.meta.server)
+const ssred = useState<boolean>(`${ghname}-reports`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -293,6 +293,7 @@ const fetchData = async () => {
     ])
     outputSelection.value.splice(0, outputSelection.value.length)
     outputSelection.value.push(...outputs)
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

@@ -232,7 +232,7 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-automation`, () => import.meta.server)
+const ssred = useState<boolean>(`${ghname}-automation`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -508,6 +508,7 @@ const fetchData = async () => {
         rwnctx(fetchInputs),
         rwnctx(fetchActions),
     ])
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

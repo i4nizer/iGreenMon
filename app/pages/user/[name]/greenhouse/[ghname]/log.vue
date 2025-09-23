@@ -71,7 +71,7 @@ const route = useRoute()
 const ghname = route.params?.ghname as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-log`, () => import.meta.server)
+const ssred = useState<boolean>(`${ghname}-log`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -153,6 +153,7 @@ const fetchData = async () => {
     await rwnctx(fetchGH)
     await rwnctx(fetchPerms)
     await rwnctx(fetchLog)
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

@@ -112,7 +112,7 @@ const ghname = route.params.ghname as string
 const esp32camid = route.params.esp32camid as string
 
 // --- SSR'ed state
-const ssred = useState<boolean>(`${esp32camid}-capture`, () => import.meta.server)
+const ssred = useState<boolean>(`${esp32camid}-capture`, () => false)
 onBeforeUnmount(() => ssred.value = false)
 
 // --- Greenhouse
@@ -350,6 +350,7 @@ const fetchData = async () => {
         rwnctx(fetchCaptures),
         rwnctx(fetchDetections),
     ])
+    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)
