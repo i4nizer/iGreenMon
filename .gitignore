@@ -26,3 +26,6 @@ logs
 
 # Large gen image
 storage/capture
+
+# Generated pdf
+*.pdf
