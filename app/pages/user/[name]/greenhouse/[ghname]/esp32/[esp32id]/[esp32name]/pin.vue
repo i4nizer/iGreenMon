@@ -88,10 +88,6 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-pin`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -128,7 +124,6 @@ const canModifyPin = computed(() => canModify("Pin", permissions))
 const canDeletePin = computed(() => canDelete("Pin", permissions))
 
 const fetchPins = async () => {
-	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -180,7 +175,6 @@ const fetchData = async () => {
 		rwnctx(fetchPins),
 		rwnctx(fetchPerms),
 	])
-	ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

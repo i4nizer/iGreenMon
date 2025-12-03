@@ -132,10 +132,6 @@ const toastUtil = useToast()
 const routeUtil = useRoute()
 const ghname = routeUtil.params?.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-reports`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -169,7 +165,7 @@ const canAccessOutput = computed(() => canAccess("Output", permissions))
 
 const fetchOutputs = async (force: boolean = false) => {
     if (!isOwnGH.value && !canAccessOutput.value) return
-    if (!force && ssred.value) return
+    if (!force) return
     const res = await outputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
     outputs.splice(0, outputs.length)
@@ -184,7 +180,7 @@ const canAccessReading = computed(() => canAccess("Reading", permissions))
 
 const fetchReadings = async (force: boolean = false) => {
     if (!isOwnGH.value && !canAccessReading.value) return
-    if (!force && ssred.value) return
+    if (!force) return
 
     const alpha = pagination.range.at(0)
     const omega = pagination.range.at(-1)
@@ -293,7 +289,6 @@ const fetchData = async () => {
     ])
     outputSelection.value.splice(0, outputSelection.value.length)
     outputSelection.value.push(...outputs)
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

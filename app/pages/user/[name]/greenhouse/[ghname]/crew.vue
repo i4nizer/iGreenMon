@@ -63,21 +63,15 @@ const toast = useToast()
 const route = useRoute()
 const ghname = route.params?.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-crew`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Crew
 const crews = useState<CrewGet[]>(`${ghname}-crews`, () => [])
 const crewUtil = useCrew()
 
 const fetchCrews = async () => {
-    if (ssred.value) return;
     const res = await crewUtil.retrieveAll(ghname)
     if (!res.success) return toast.error(res.error)
     crews.value.splice(0, crews.value.length)
     crews.value.push(...res.data)
-    ssred.value = ssred.value || import.meta.server
 }
 
 const onRemoveCrew = async (crew: CrewGet) => {

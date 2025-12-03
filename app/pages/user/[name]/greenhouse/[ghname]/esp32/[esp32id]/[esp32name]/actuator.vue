@@ -167,10 +167,6 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-actuator`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -204,7 +200,6 @@ const pinStore = usePinStore()
 const { pins } = pinStore
 
 const fetchPins = async () => {
-	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -221,7 +216,6 @@ const canModifyActuator = computed(() => canModify("Actuator", permissions))
 const canDeleteActuator = computed(() => canDelete("Actuator", permissions))
 
 const fetchActuators = async () => {
-	if (ssred.value) return;
 	const res = await actuatorUtil.retrieveAll(parseInt(esp32id))
 	if (!res.success) return toastUtil.error(res.error)
 	actuators.splice(0, actuators.length)
@@ -282,7 +276,6 @@ const canModifyInput = computed(() => canModify("Input", permissions))
 const canDeleteInput = computed(() => canDelete("Input", permissions))
 
 const fetchInputs = async () => {
-	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await inputUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -340,7 +333,6 @@ const fetchData = async () => {
 		rwnctx(fetchActuators),
 		rwnctx(fetchInputs),
 	])
-	ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

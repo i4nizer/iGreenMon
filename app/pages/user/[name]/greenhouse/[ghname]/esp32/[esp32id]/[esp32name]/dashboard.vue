@@ -97,10 +97,6 @@ const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 const esp32name = route.params.esp32name as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-dashboard`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -135,7 +131,6 @@ const canAccessSensor = computed(() => canAccess("Sensor", permissions))
 
 const fetchSensors = async () => {
     if (!isOwnGH.value && !canAccessSensor.value) return
-    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await sensorUtil.retrieveAll(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
@@ -165,7 +160,6 @@ const canAccessOutput = computed(() => canAccess("Output", permissions))
 
 const fetchOutputs = async () => {
     if (!isOwnGH.value && !canAccessOutput.value) return
-    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await outputUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
@@ -199,7 +193,6 @@ const canAccessReading = computed(() => canAccess("Reading", permissions))
 
 const fetchReadings = async () => {
     if (!isOwnGH.value && !canAccessReading.value) return
-    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await readingUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
@@ -233,7 +226,6 @@ const canAccessActuator = computed(() => canAccess("Actuator", permissions))
 
 const fetchActuators = async () => {
     if (!isOwnGH.value && !canAccessActuator.value) return
-    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await actuatorUtil.retrieveAll(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
@@ -264,7 +256,6 @@ const canModifyInput = computed(() => canModify("Input", permissions))
 
 const fetchInputs = async () => {
     if (!isOwnGH.value && !canAccessInput.value) return
-    if (ssred.value) return
     const esp32Id = parseInt(esp32id)
     const res = await inputUtil.retrieveAllByEsp32(esp32Id)
     if (!res.success) return toastUtil.error(res.error)
@@ -333,7 +324,6 @@ const fetchData = async () => {
         rwnctx(fetchActuators),
         rwnctx(fetchInputs),
     ])
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

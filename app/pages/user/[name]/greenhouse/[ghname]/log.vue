@@ -70,10 +70,6 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params?.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-log`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -107,7 +103,6 @@ const { logs } = logStore
 
 const fetchLog = async () => {
     if (!isOwnGH.value && !canAccess("Log", permissions)) return
-    if (ssred.value) return
     const res = await logUtil.retrieveAllByGH(ghname)
 	if (!res.success) return toastUtil.error(res.error)
     logs.splice(0, logs.length)
@@ -153,7 +148,6 @@ const fetchData = async () => {
     await rwnctx(fetchGH)
     await rwnctx(fetchPerms)
     await rwnctx(fetchLog)
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

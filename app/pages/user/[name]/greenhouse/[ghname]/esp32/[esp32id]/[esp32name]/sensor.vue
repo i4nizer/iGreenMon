@@ -228,10 +228,6 @@ const route = useRoute()
 const ghname = route.params.ghname as string
 const esp32id = route.params.esp32id as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${esp32id}-sensor`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -266,7 +262,6 @@ const canAccessPin = computed(() => canAccess("Pin", permissions))
 
 const fetchPins = async () => {
 	if (!isOwnGH && !canAccessPin.value) return
-	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await pinUtil.retrieveAll(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -285,7 +280,6 @@ const canDeleteSensor = computed(() => canDelete("Sensor", permissions))
 
 const fetchSensors = async () => {
 	if (!isOwnGH && !canAccessSensor.value) return
-	if (ssred.value) return;
 	const res = await sensorUtil.retrieveAll(parseInt(esp32id))
 	if (!res.success) return toastUtil.error(res.error)
 	sensors.splice(0, sensors.length)
@@ -347,7 +341,6 @@ const canDeleteOutput = computed(() => canDelete("Output", permissions))
 
 const fetchOutputs = async () => {
 	if (!isOwnGH && !canAccessOutput.value) return
-	if (ssred.value) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await outputUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -404,7 +397,7 @@ const canAccessAction = computed(() => canAccess("Action", permissions))
 
 const fetchActions = async () => {
 	if (!isOwnGH && !canAccessAction.value) return
-	if (!gh.value || ssred.value) return;
+	if (!gh.value) return;
 	const res = await actionUtil.retrieveAll(gh.value.id)
 	if (!res.success) return toastUtil.error(res.error)
 	actions.splice(0, actions.length)
@@ -423,7 +416,6 @@ const canDeleteHook = computed(() => canDelete("Hook", permissions))
 
 const fetchHooks = async () => {
 	if (!isOwnGH && !canAccessHook.value) return;
-	if (ssred) return;
 	const esp32Id = parseInt(esp32id)
 	const res = await hookUtil.retrieveAllByEsp32(esp32Id)
 	if (!res.success) return toastUtil.error(res.error)
@@ -483,7 +475,6 @@ const fetchData = async () => {
 		rwnctx(fetchActions),
 		rwnctx(fetchHooks),
 	])
-	ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

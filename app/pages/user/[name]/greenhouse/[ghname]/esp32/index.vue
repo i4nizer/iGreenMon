@@ -98,10 +98,6 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-esp32`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -136,7 +132,7 @@ const canAccessEsp32 = computed(() => canAccess("Esp32", permissions))
 
 const fetchEsp32s = async () => {
     if (!isOwnGH.value && !canAccessEsp32.value) return
-    if (!gh.value || ssred.value) return
+    if (!gh.value) return
     const res = await esp32Util.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
     esp32s.splice(0, esp32s.length)
@@ -192,7 +188,6 @@ const fetchData = async () => {
     await rwnctx(fetchGH)
     await rwnctx(fetchPerms)
     await rwnctx(fetchEsp32s)
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

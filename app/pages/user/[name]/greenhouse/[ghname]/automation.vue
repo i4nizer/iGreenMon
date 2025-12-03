@@ -231,10 +231,6 @@ const toastUtil = useToast()
 const route = useRoute()
 const ghname = route.params.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-automation`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`greenhouse`)
@@ -273,7 +269,7 @@ const canDeleteThreshold = computed(() => canDelete("Threshold", permissions))
 
 const fetchThresholds = async () => {
     if (!isOwnGH && !canAccessThreshold.value) return
-    if (!gh.value || ssred.value) return;
+    if (!gh.value) return;
     const res = await thresholdUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
     thresholds.splice(0, thresholds.length)
@@ -341,7 +337,6 @@ const canAccessOutput = computed(() => canAccess("Output", permissions))
 
 const fetchOutputs = async () => {
     if (!isOwnGH && !canAccessOutput.value) return;
-    if (ssred.value) return
     const res = await outputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
     outputs.splice(0, outputs.length)
@@ -360,7 +355,6 @@ const canDeleteCondition = computed(() => canDelete("Condition", permissions))
 
 const fetchConditions = async () => { 
     if (!isOwnGH && !canAccessCondition.value) return
-    if (ssred.value) return
     const res = await conditionUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
     conditions.splice(0, conditions.length)
@@ -423,7 +417,6 @@ const canAccessInput = computed(() => canAccess("Input", permissions))
 
 const fetchInputs = async () => {
     if (!isOwnGH && !canAccessInput.value) return;
-    if (ssred.value) return;
     const res = await inputUtil.retrieveAllByGH(ghname)
     if (!res.success) return toastUtil.error(res.error)
     inputs.splice(0, inputs.length)
@@ -442,7 +435,7 @@ const canDeleteAction = computed(() => canDelete("Action", permissions))
 
 const fetchActions = async () => { 
     if (!isOwnGH && !canAccessAction.value) return
-    if (!gh.value || ssred.value) return;
+    if (!gh.value) return;
     const res = await actionUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
     actions.splice(0, actions.length)
@@ -508,7 +501,6 @@ const fetchData = async () => {
         rwnctx(fetchInputs),
         rwnctx(fetchActions),
     ])
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)

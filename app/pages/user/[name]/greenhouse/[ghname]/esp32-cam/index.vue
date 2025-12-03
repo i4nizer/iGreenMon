@@ -97,10 +97,6 @@ const toastUtil = useToast()
 const routeUtil = useRoute()
 const ghname = routeUtil.params.ghname as string
 
-// --- SSR'ed state
-const ssred = useState<boolean>(`${ghname}-esp32-cam`, () => false)
-onBeforeUnmount(() => ssred.value = false)
-
 // --- Greenhouse
 const ghUtil = useGreenhouse()
 const gh = useState<Greenhouse | undefined>(`gh-${ghname}`)
@@ -135,7 +131,7 @@ const canAccessEsp32Cam = computed(() => canAccess("Esp32Cam", permissions))
 
 const fetchEsp32Cams = async () => {
     if (!isOwnGH.value && !canAccessEsp32Cam.value) return;
-    if (!gh.value || ssred.value) return;
+    if (!gh.value) return;
     const res = await esp32CamUtil.retrieveAll(gh.value.id)
     if (!res.success) return toastUtil.error(res.error)
     esp32Cams.splice(0, esp32Cams.length)
@@ -201,7 +197,6 @@ const fetchData = async () => {
         rwnctx(fetchPerms),
         rwnctx(fetchEsp32Cams),
     ])
-    ssred.value = ssred.value || import.meta.server
 }
 
 onBeforeMount(fetchData)
