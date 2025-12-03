@@ -2,10 +2,14 @@ import { z } from "zod"
 import { Esp32Cam } from "~~/server/models/esp32-cam"
 import { Capture } from "~~/server/models/capture"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
+import { PaginationSchema } from "#shared/schema/pagination"
+import { Op } from "sequelize"
 
 //
 
-const QuerySchema = z.object({ esp32camid: z.coerce.number().int() })
+const QuerySchema = PaginationSchema
+	.partial()
+	.merge(z.object({ esp32camid: z.coerce.number().int() }))
 
 //
 
@@ -22,7 +26,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// --- Trace esp32-cam for the greenhouseId
-	const { esp32camid } = queryResult.data
+	const { esp32camid, alpha, omega, limit, offset } = queryResult.data
 	const esp32Cam = await Esp32Cam.findOne({
 		where: { id: esp32camid },
 		attributes: ["id", "greenhouseId"],
@@ -56,7 +60,12 @@ export default defineEventHandler(async (event) => {
 
 	// --- Provide all of the esp32Cam's captures
 	const captures = await Capture.findAll({
-		where: { esp32CamId: esp32Cam.id }
+		where: {
+			esp32CamId: esp32Cam.id,
+			...((alpha && omega) && { createdAt: { [Op.between]: [alpha, omega] } }),
+		},
+		...(limit && { limit }),
+		...(offset && { offset }),
 	})
 	
 	return captures.map((g) => g.dataValues)
