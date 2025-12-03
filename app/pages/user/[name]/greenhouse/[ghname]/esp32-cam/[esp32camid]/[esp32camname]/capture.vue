@@ -73,6 +73,13 @@
                     </template>
                 </capture-card>
             </v-col>
+            <v-col v-if="captures.length <= 0">
+                <v-empty-state
+                    icon="mdi-image-off"
+                    title="No Images"
+                    text="You may try changing the filters."
+                ></v-empty-state>
+            </v-col>
         </v-row>
         <v-row>
             <!-- Pagination Control -->
@@ -88,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { NPKModelClass } from '~~/shared/types/model/index'
 import type { WebSocketEventHandler } from '~/schema/websocket'
 import type { Capture } from '~~/shared/schema/capture'
 import type { Detection } from '~~/shared/schema/detection'
@@ -158,9 +166,42 @@ const fetchCaptures = async () => {
     )
 
     if (!res.success) return toastUtil.error(res.error)
-    const within = (d: Date, a: Date, o: Date) => d.getTime() >= a.getTime() && d.getTime() <= o.getTime()
-	captures.splice(0, captures.length)
-    captures.push(...res.data.filter((c) => within(new Date(c.createdAt), alpha, omega)))
+    captures.splice(0, captures.length)
+    const filtered = filterCaptures(
+        res.data, 
+        detections, 
+        alpha, 
+        omega, 
+        pagination.limit, 
+        pagination.classes as any
+    )
+    filtered.forEach((c) => captureStore.append(c))
+}
+
+const filterCaptures = (
+    captures: Capture[],
+    detections: Detection[],
+    alpha: Date,
+    omega: Date,
+    limit: number,
+    classes: NPKModelClass[],
+) => { 
+    const result: Capture[] = []
+    const nolettuce = classes.includes("No Lettuce" as any)
+    for (const capture of captures) {
+        if (result.length >= limit) break;
+
+        const time = new Date(capture.createdAt).getTime()
+        const within = time >= alpha.getTime() && time <= omega.getTime()
+        if (!within) continue
+
+        const capdets = detections.filter((d) => d.captureId == capture.id)
+        let passclass = capdets.length <= 0 && nolettuce
+        passclass = passclass || (capdets.some((d) => classes.includes(d.class as any)) && classes.length > 0)
+        if (!passclass) continue
+        result.push(capture)
+    }
+    return result
 }
 
 // --- Capture Navs
@@ -271,8 +312,8 @@ const onUpdatePagination = () => paginate()
 
 const onPaginateCallback = async () => {
     const esp32CamId = parseInt(esp32camid)
-    const alpha = pagination.range.at(0)
-    const omega = pagination.range.at(-1)
+    const alpha = pagination.range.at(0) ?? new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const omega = pagination.range.at(-1) ?? new Date()
 
     const res = await captureUtil.retrieveAllByEsp32Cam(
         esp32CamId,
@@ -284,7 +325,15 @@ const onPaginateCallback = async () => {
 
     if (!res.success) return toastUtil.error(res.error)
     captures.splice(0, captures.length)
-    res.data.forEach((c) => captureStore.append(c))
+    const filtered = filterCaptures(
+        res.data, 
+        detections, 
+        alpha, 
+        omega, 
+        pagination.limit, 
+        pagination.classes as any
+    )
+    filtered.forEach((c) => captureStore.append(c))
 }
 
 // --- WebSocket Syncing
