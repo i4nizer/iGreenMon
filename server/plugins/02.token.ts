@@ -1,9 +1,13 @@
 import type { TokenType } from "../types/token"
 import { tokenMetas } from "~~/server/services/token"
+import { setTimeout } from "timers/promises"
 
 //
 
-export default defineNitroPlugin(() => {
+export default defineNitroPlugin(async (nitro) => {
+	// --- Wait for the database
+	while (!nitro.sequelize) await setTimeout(5000)
+	
 	// --- Deconstruct and set configurations
 	const config = useRuntimeConfig()
 	const {

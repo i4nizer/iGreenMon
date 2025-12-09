@@ -6,7 +6,7 @@ import {
 
 //
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (nitro) => {
 	// --- Instance and config
 	const config = useRuntimeConfig()
 	const sequelize = new Sequelize(config.databaseUrl, { logging: false })
@@ -23,4 +23,7 @@ export default defineNitroPlugin(async () => {
 	const syncDB = config.databaseSync === "sync"
 	if (syncDB) await sequelize.sync({ alter: true })
 	if (syncDB) console.info("Sequelize database tables synced.")
+	
+	// --- Attach to nitro
+	nitro.sequelize = sequelize
 })
