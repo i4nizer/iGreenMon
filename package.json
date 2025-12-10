@@ -20,6 +20,7 @@
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "cloudflared": "^0.7.1",
+    "cookie": "^1.1.1",
     "ejs": "^3.1.10",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
