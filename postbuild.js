@@ -23,13 +23,13 @@ const copy = async (from, to) => {
 // --- Copy @tensorflow/tfjs-node
 const cwd = process.cwd()
 const tsrc = `${cwd}/node_modules/@tensorflow/tfjs-node`
-const tdest = `${cwd}.output/server/node_modules/@tensorflow/tfjs-node`
+const tdest = `${cwd}/.output/server/node_modules/@tensorflow/tfjs-node`
 await fs.rm(tdest, { recursive: true, force: true })
 await copy(tsrc, tdest)
 
 // --- Copy cloudflared/bin
 const csrc = `${cwd}/node_modules/cloudflared/bin`
-const cdest = `${cwd}.output/server/node_modules/cloudflared/bin`
+const cdest = `${cwd}/.output/server/node_modules/cloudflared/bin`
 await fs.rm(cdest, { recursive: true, force: true })
 await copy(csrc, cdest)
 
