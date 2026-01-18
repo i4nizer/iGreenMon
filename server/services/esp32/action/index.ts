@@ -26,7 +26,9 @@ const loop = () => {
 		if (action.status == "Active") {
 			const { delay, duration, timeout } = action
 			const dead = now - birth - delay - duration > timeout
-			if (!dead) continue
+			
+			// --- Negative duration such as -1 means endless
+			if (!dead || duration < 0) continue
 			pool.dequeue(aid)
 			event.invoke("Timeout", action)
 		}
