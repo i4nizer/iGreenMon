@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tailscale Connection - iGreenMon</title>
+  </head>
+
+  <body style="font-family: Arial, sans-serif; padding: 2rem; color: #333">
+    <h2>New Tailscale Connection Established</h2>
+    <p>Hi,</p>
+    <p>
+      A Tailscale connection has been established for your device.
+    </p>
+
+    <p style="margin: 1rem 0; color: #555">
+      <strong>Tailscale IP:</strong><br />
+      <span style="color: #1a73e8"><%= ip %></span>
+    </p>
+
+    <p style="margin: 1rem 0; color: #555">
+      <strong>MagicDNS Hostname:</strong><br />
+      <a href="ssh://<%= hostname %>" target="_blank" style="color: #1a73e8"><%= hostname %></a>
+    </p>
+
+    <p style="margin: 2rem 0; color: #555">
+      You can use the IP or hostname above to SSH into the device. Please ensure 
+      your SSH key is configured and access is secured.
+    </p>
+
+    <p style="margin-top: 2rem">
+      Kind regards,<br />
+      The iGreenMon Team
+    </p>
+  </body>
+</html>

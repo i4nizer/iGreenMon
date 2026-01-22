@@ -69,6 +69,9 @@ type Template =
 	} | {
 		type: "Cloudflared-Tunnel",
 		data: { url: string }
+	} | {
+		type: "Tailscaled-SSH",
+		data: { ip: string, hostname: string }
 	}
 
 //
