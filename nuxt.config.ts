@@ -9,8 +9,9 @@ export default defineNuxtConfig({
 	},
 	modules: [
 		"vuetify-nuxt-module",
+		"motion-v/nuxt",
 		"@vee-validate/nuxt",
-		"@pinia/nuxt"
+		"@pinia/nuxt",
 	],
 	components: [
 		{

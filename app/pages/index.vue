@@ -61,12 +61,18 @@
 					color="green" 
 					prepend-icon="mdi-lightning-bolt"
 				></v-chip>
-				<h1 class="text-h4 font-weight-black mt-4 my-0">
-					<span>Smart IoT Greenhouse:&nbsp;</span>
-					<span class="text-green">
-						Lettuce NPK Deficiency Detection
-					</span>
-				</h1>
+				<motion
+					:initial="{ scale: 0.9, opacity: 0 }"
+					:whileInView="{ scale: 1, opacity: 1 }"
+					:inViewOptions="{ once: true }"
+				>
+					<h1 class="text-h4 font-weight-black mt-4 my-0">
+						<span>Smart IoT Greenhouse:&nbsp;</span>
+						<span class="text-green">
+							Lettuce NPK Deficiency Detection
+						</span>
+					</h1>
+				</motion>
 				<p class="text-grey-darken-2 mt-5">
 					Revolutionary AI-powered camera system that automatically 
 					detects nutrient deficiencies in lettuce crops,
@@ -75,56 +81,77 @@
 				</p>
 				<p class="text-h6 mt-5">How It Works:</p>
 				<v-list>
-					<v-list-item>
-						<template #prepend>
-							<v-chip 
-								text="1" 
-								class="font-weight-bold" 
-								color="green"
-							></v-chip>
-						</template>
-						<div class="pl-4">
-							<p>IoT Camera Capture</p>
-							<p class="text-grey">
-								IoT camera such as esp32cam captures
-								image and sends it to the server.
-							</p>
-						</div>
-					</v-list-item>
-					<v-list-item>
-						<template #prepend>
-							<v-chip 
-								text="2" 
-								class="font-weight-bold" 
-								color="green"
-							></v-chip>
-						</template>
-						<div class="pl-4">
-							<p>AI Model Image Analysis</p>
-							<p class="text-grey">
-								The machine learning model then processes 
-								the image containing lettuce to 
-								check for nutrient deficiencies.
-							</p>
-						</div>
-					</v-list-item>
-					<v-list-item>
-						<template #prepend>
-							<v-chip 
-								text="3" 
-								class="font-weight-bold" 
-								color="green"
-							></v-chip>
-						</template>
-						<div class="pl-4">
-							<p>Alert & Recommendation</p>
-							<p class="text-grey">
-								Once deficiencies are found, the user is 
-								alerted  with the image and given 
-								recommendations to solve the deficiency.
-							</p>
-						</div>
-					</v-list-item>
+					<motion
+						:initial="{ opacity: 0, x: -40 }"
+						:whileInView="{ opacity: 1, x: 0 }"
+						:inViewOptions="{ once: true }"
+						:transition="{ delay: 0, duration: 0.4 }"
+					>
+						<v-list-item>
+							<template #prepend>
+								<v-chip 
+									text="1" 
+									class="font-weight-bold" 
+									color="green"
+								></v-chip>
+							</template>
+							<div class="pl-4">
+								<p>IoT Camera Capture</p>
+								<p class="text-grey">
+									IoT camera such as esp32cam captures
+									image and sends it to the server.
+								</p>
+							</div>
+						</v-list-item>
+					</motion>
+					<motion
+						:initial="{ opacity: 0, x: -40 }"
+						:whileInView="{ opacity: 1, x: 0 }"
+						:inViewOptions="{ once: true }"
+						:transition="{ delay: 0.1, duration: 0.4 }"
+					>
+						<v-list-item>
+							<template #prepend>
+								<v-chip 
+									text="2" 
+									class="font-weight-bold" 
+									color="green"
+								></v-chip>
+							</template>
+							<div class="pl-4">
+								<p>AI Model Image Analysis</p>
+								<p class="text-grey">
+									The machine learning model then processes 
+									the image containing lettuce to 
+									check for nutrient deficiencies.
+								</p>
+							</div>
+						</v-list-item>
+					</motion>
+					<motion
+						:initial="{ opacity: 0, x: -40 }"
+						:whileInView="{ opacity: 1, x: 0 }"
+						:inViewOptions="{ once: true }"
+						:transition="{ delay: 0.2, duration: 0.4 }"
+					>
+						<v-list-item>
+							<template #prepend>
+								<v-chip 
+									text="3" 
+									class="font-weight-bold" 
+									color="green"
+								></v-chip>
+							</template>
+							<div class="pl-4">
+								<p>Alert & Recommendation</p>
+								<p class="text-grey">
+									Once deficiencies are found, the user is 
+									alerted  with the image and given 
+									recommendations to solve the deficiency.
+								</p>
+							</div>
+						</v-list-item>
+					</motion>
 				</v-list>
 			</v-col>
 			<v-col cols="12" sm="12" md="6">
