@@ -38,7 +38,6 @@ export default defineNuxtConfig({
 		jwtEsp32Secret: "",
 		jwtEsp32CamSecret: "",
 		jwtSmsSecret: "",
-		tailscaledAuthKey: "",
 		public: {
 			jwtResetLife: 0,
 			jwtVerifyLife: 0,

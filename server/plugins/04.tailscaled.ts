@@ -9,6 +9,6 @@ export default defineNitroPlugin(async (nitro) => {
         
     // --- Init tailscale ssh
     const config = useRuntimeConfig()
-    await tailscaled.init(config.tailscaledAuthKey)
+    await tailscaled.init()
     console.info("Tailscaled service initialized.")
 })
