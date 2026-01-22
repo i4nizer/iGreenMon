@@ -23,6 +23,7 @@ export default defineNuxtConfig({
 		databaseSync: "",
 		gmailAddress: "",
 		gmailPassword: "",
+		devGmailAddress: "",
 		jwtAccessLife: 0,
 		jwtRefreshLife: 0,
 		jwtResetLife: 0,
@@ -37,6 +38,7 @@ export default defineNuxtConfig({
 		jwtEsp32Secret: "",
 		jwtEsp32CamSecret: "",
 		jwtSmsSecret: "",
+		tailscaledAuthKey: "",
 		public: {
 			jwtResetLife: 0,
 			jwtVerifyLife: 0,
