@@ -194,7 +194,7 @@ const onClickSignOut = async () => {
 	content: "";
 	position: absolute;
 	inset: 0;
-	background-image: url("https://res.cloudinary.com/dqgnetjlz/image/upload/f_auto,q_auto/bg-doa.png");
+	background-image: url("/assets/image/bg-doa.png");
 	background-size: clamp(200px, 40vw, 400px);
 	background-repeat: no-repeat;
 	background-position: center;

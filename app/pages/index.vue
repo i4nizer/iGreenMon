@@ -44,7 +44,7 @@
 				>
 					<v-card-text class="d-flex justify-center align-center">
 						<v-img
-							src="https://res.cloudinary.com/dqgnetjlz/image/upload/f_auto,q_auto/art-greenhouse.png"
+							src="/assets/image/art-greenhouse.png"
 						/>
 					</v-card-text>
 				</v-card>
