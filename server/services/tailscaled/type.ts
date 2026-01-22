@@ -1,0 +1,1 @@
+export type TailScaledEventListener = (ip: string, hostname: string) => any
