@@ -7,7 +7,7 @@ import event from "./event"
 
 // --- Receives event from websocket
 const hear = (peer: Peer, message: Message) => {
-	const msg = message.text()
+	const msg = message.json()
 	const res = WebSocketEventSchema.safeParse(msg)
 	if (!res.success) return console.warn(`Data websocket received invalid message.`, msg)
 
