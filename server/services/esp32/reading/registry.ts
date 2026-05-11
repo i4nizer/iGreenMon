@@ -61,6 +61,19 @@ const unregister = (id: string) => {
     if (sitem) console.info(`Reading esp32 unregistered ${sitem.size} sensors.`)
 }
 
+const unregisterSensor = (peerId: string, sensorId: number) => {
+	const sitem = sensors.get(peerId)
+	if (!sitem) return
+	for (const s of sitem) {
+		if (s.id != sensorId) continue
+		sitem.delete(s)
+		outputs.delete(s.id)
+		hooks.delete(s.id)
+		console.info(`Reading sensor ${s.name} unregistered.`)
+		break
+	}
+}
+
 //
 
-export default { sensors, outputs, hooks, register, unregister }
+export default { sensors, outputs, hooks, register, unregister, unregisterSensor }

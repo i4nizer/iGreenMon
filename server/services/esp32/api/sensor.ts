@@ -34,7 +34,7 @@ const update = (sensor: Sensor) => {
 const destroy = (sensor: Pick<Sensor, "id" | "esp32Id">) => {
     for (const [peer, esp32] of registry.esp32s) {
         if (esp32.id != sensor.esp32Id) continue
-        reading.registry.unregister(peer.id)
+        reading.registry.unregisterSensor(peer.id, sensor.id)
 		websocket.talk(peer.id, [sensor], "sensor", "Delete")
 	}
 }
