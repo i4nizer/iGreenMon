@@ -61,7 +61,7 @@ const pull = async () => {
     }
 
     queueEmail(
-        user.name,
+        user.email,
         "Log - iGreenMon",
         undefined,
         ssres.data,
