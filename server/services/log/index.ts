@@ -60,6 +60,7 @@ const pull = async () => {
         sent = true
     }
 
+    sent = false
     queueEmail(
         user.email,
         "Log - iGreenMon",
