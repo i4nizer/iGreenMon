@@ -13,7 +13,7 @@ const QuerySchema = z.object({
 	omega: z.coerce.date().optional(),
 	limit: z.coerce.number().int().optional().default(30),
 	offset: z.coerce.number().int().optional().default(0),
-	ghname: z.coerce.number().int(),
+	ghname: z.string(),
 })
 
 //
