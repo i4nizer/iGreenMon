@@ -18,7 +18,7 @@ const register = async (pid: string, threshold: any) => {
     if (!tres.success) return
 
     const tset = thresholds.get(pid)
-    if (tset) tset.add(threshold)
+    if (tset) tset.add(tres.data)
     else thresholds.set(pid, new Set([tres.data]))
     console.info(`Threshold threshold ${threshold.name} registered.`)
     
