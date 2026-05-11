@@ -5,7 +5,7 @@ import * as schema from "./schema"
 
 //
 
-let refreshed = true
+let refreshed = false
 
 //
 
@@ -35,6 +35,7 @@ const loop = () => {
             pool.queue(schedule)
 		}
     }
+    refreshed = true
     console.log(`Schedule schedules refreshed.`)
 }
 
