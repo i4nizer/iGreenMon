@@ -1,4 +1,5 @@
 import { Detection } from "~~/shared/schema/detection";
+import { NPKModelClass } from "#shared/types/model/npk";
 import { Capture as CaptureModel } from "~~/server/models/capture";
 import { Esp32Cam as Esp32CamModel } from "~~/server/models/esp32-cam"
 import { Greenhouse as GreenhouseModel } from "~~/server/models/greenhouse"
