@@ -5,7 +5,7 @@ import * as schema from "./schema"
 
 //
 
-let refreshed = false
+let refreshedMonth = -1
 
 //
 
@@ -26,16 +26,15 @@ const loop = () => {
         }
     }
 
-    // --- Refresh loop
-    if (refreshed && now.getDate() == 2) refreshed = false
-    if (refreshed || now.getDate() != 1) return
+    // --- Refresh loop (re-queue on new month or first run)
+    if (refreshedMonth == now.getMonth()) return
 
     for (const [pid, set] of registry.schedules) {
         for (const schedule of set) {
             pool.queue(schedule)
 		}
     }
-    refreshed = true
+    refreshedMonth = now.getMonth()
     console.log(`Schedule schedules refreshed.`)
 }
 
