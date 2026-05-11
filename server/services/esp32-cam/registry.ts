@@ -10,6 +10,13 @@ const esp32Cams = new Map<string, Esp32Cam>() // Peer.id => Esp32Cam
 //
 
 const register = async (peer: Peer, esp32Cam: Esp32Cam) => {
+    // --- Dedup esp32Cam
+    for (const [pid, cam] of esp32Cams) {
+        if (cam.id != esp32Cam.id) continue
+        peers.delete(pid)
+        esp32Cams.delete(pid)
+    }
+
     peers.set(peer.id, peer)
     esp32Cams.set(peer.id, esp32Cam)
     
