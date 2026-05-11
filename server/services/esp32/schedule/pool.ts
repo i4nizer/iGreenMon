@@ -21,6 +21,8 @@ const queue = (schedule: ScheduleItem) => {
 				min
 			)
 
+			// --- Skip if day rolled over to next month (e.g. Feb 31 → Mar 3)
+			if (date.getMonth() != now.getMonth()) continue
 			if (now.getTime() > date.getTime()) continue
 			unixs.add(date.getTime())
 		}
