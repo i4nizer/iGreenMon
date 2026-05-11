@@ -19,6 +19,7 @@ const unregister = (pid: string) => {
     peers.delete(pid)
     const user = users.get(pid)
     if (user) console.info(`Data user ${user.name} unregistered.`)
+    users.delete(pid)
 }
 
 //
