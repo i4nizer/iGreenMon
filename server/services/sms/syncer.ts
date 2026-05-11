@@ -27,7 +27,7 @@ const onUpdateLog: WebSocketEventHandler<LogUpdate> = async (peer, data, user) =
         
         const promise = LogModel
             .findByPk(l.id)
-            .then(async (l) => await l?.update({ messaged: l.messaged }))
+            .then(async (l) => await l?.update({ messaged: lres.data.messaged }))
             .then((l) => { if (l) hook.log.update(l) })
         promises.push(promise)
     }
