@@ -30,31 +30,31 @@ export default defineEventHandler(async (event) => {
 
     // --- Get the invitation with a join
     const invitation = (await Invitation.findOne({
-        where: { id: invid },
-        include: [
-            {
-                model: User,
-                as: "invitee",
-                required: true,
-                foreignKey: "inviteeId",
-                attributes: ["name"],
-            },
-            {
-                model: User,
-                as: "inviter",
-                required: true,
-                foreignKey: "inviterId",
-                attributes: ["name"],
-            },
-            {
-                model: Greenhouse,
-                as: "greenhouse",
-                required: true,
-                foreignKey: "greenhouseId",
-                attributes: ["name"],
-            },
-        ],
-    })) as Invitation
+		where: { id: invitationId },
+		include: [
+			{
+				model: User,
+				as: "invitee",
+				required: true,
+				foreignKey: "inviteeId",
+				attributes: ["name"],
+			},
+			{
+				model: User,
+				as: "inviter",
+				required: true,
+				foreignKey: "inviterId",
+				attributes: ["name"],
+			},
+			{
+				model: Greenhouse,
+				as: "greenhouse",
+				required: true,
+				foreignKey: "greenhouseId",
+				attributes: ["name"],
+			},
+		],
+	})) as Invitation
 
     // --- Return the invitation
     return invitation.dataValues as InvitationGet

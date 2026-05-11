@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
 	// --- Get the invitation with a join
 	const invitation = (await Invitation.findOne({
-		where: { id: invid },
+		where: { id: invitationId },
 		include: [
 			{
 				model: User,
