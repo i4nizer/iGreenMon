@@ -45,11 +45,13 @@ const onUpdateActionStatus: ActionEventListener = async (action) => {
 		],
 	})
 
+	if (!ares) return
+
 	// --- Craft payload
 	const data = [{ id, status }]
 	const event: WebSocketEventName = "action"
 	const query: WebSocketEventQuery = "Update"
-	
+
 	// --- Send to the responsible esp32 websocket
 	const esp32Id = (ares as any).input.actuator.esp32Id as number
 	for (const [p, e] of registry.esp32s) {
