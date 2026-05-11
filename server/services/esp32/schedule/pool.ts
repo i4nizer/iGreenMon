@@ -7,9 +7,6 @@ const schedules = new Map<number, Set<number>>() // Schedule.id => unix[]
 //
 
 const queue = (schedule: ScheduleItem) => {
-	const sitem = schedules.get(schedule.id)
-	if (sitem) sitem.delete(schedule.id)
-
 	const now = new Date()
 	const unixs = new Set<number>()
 
