@@ -9,6 +9,8 @@ import { Greenhouse as GreenhouseModel } from "~~/server/models/greenhouse"
 //
 
 const onUpdate = async (threshold: Threshold) => {
+    if (!threshold.activated) return
+
     const greenhouse = await GreenhouseModel.findOne({
         where: { id: threshold.greenhouseId },
         attributes: ["name"],
