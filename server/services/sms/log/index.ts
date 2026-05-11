@@ -14,7 +14,7 @@ const loop = () => {
 		if (!birth) birth = now
 
 		const timedout = now - birth > 60000
-		if (!timedout) return
+		if (!timedout) continue
 		pool.timer.set(uid, now)
 		event.invoke("Timeout", uid, lid)
 	}
