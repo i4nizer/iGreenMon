@@ -35,15 +35,14 @@ const evalthresh = (tid: number) => {
             
             const { operator, activated } = threshold
             const all = operator == "All"
-            let satisfied = false
-            
+            let satisfied = all
+
             const cset = registry.conditions.get(tid)
             if (!cset) continue
 
             for (const condition of cset) {
-                if (satisfied) break
-                if (all) satisfied = satisfied && condition.satisfied
-                else satisfied = satisfied || condition.satisfied
+                if (all && !condition.satisfied) { satisfied = false; break }
+                else if (!all && condition.satisfied) { satisfied = true; break }
             }               
 
             const changed = activated != satisfied
