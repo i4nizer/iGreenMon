@@ -56,7 +56,7 @@ const register = async (id: string, sensor: any) => {
 
 const unregister = (id: string) => {
 	const sitem = sensors.get(id)
-	if (sitem) sitem.forEach((s) => outputs.delete(s.id))
+	if (sitem) sitem.forEach((s) => { outputs.delete(s.id); hooks.delete(s.id) })
     sensors.delete(id)
     if (sitem) console.info(`Reading esp32 unregistered ${sitem.size} sensors.`)
 }
