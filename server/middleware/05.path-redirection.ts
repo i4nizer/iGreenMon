@@ -45,5 +45,5 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// --- Redirect to user page
-	return sendRedirect(event, `/user/${user.name}/greenhouse`)
+	return sendRedirect(event, `/user/${user?.name}/greenhouse`)
 })
