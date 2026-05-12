@@ -1,0 +1,163 @@
+# Setup
+ - Ubuntu Jammy Server
+ - Flash SD Card using Win32DiskImager
+ - wsl2 to access filesystem
+
+# Access File System Using Wsl2
+usbipd list
+usbipd attach --busid 1-4 --wsl
+
+# Handle Usb in Wsl2
+sudo mkdir -p /mnt/orangepi
+sudo mount /dev/sde1 /mnt/orangepi
+
+# /etc/netplan/01-netcfg.yaml
+    network:
+        version: 2
+        ethernets:
+            eth0:
+                dhcp4: true
+# Clean
+sudo umount /mnt/orangepi
+usbipd detach --busid 1-4
+
+##### Orange Pi Config Below #####
+# Hotspot
+    sudo systemctl disable systemd-resolved.service
+    sudo systemctl stop systemd-resolved.service
+    sudo systemctl status systemd-resolved.service
+    sudo curl -L https://raw.githubusercontent.com/garywill/linux-router/master/lnxrouter -o lnxrouter
+    sudo chmod +x lnxrouter
+    sudo mv lnxrouter /usr/local/bin/
+    sudo lnxrouter --ap wlan0 "iGreenMon" -p "<HOTSPOT_PASSWORD>" --no-virt
+    // ap will appear and internet is shared properly
+
+# Persistent Hotspot
+    sudo nano /usr/local/bin/hotspot.sh
+    sudo chmod +x /usr/local/bin/hotspot.sh
+    sudo nano /etc/systemd/system/hotspot.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable hotspot.service
+    sudo systemctl start hotspot.service
+    sudo systemctl status hotspot.service
+    sudo reboot
+
+# /usr/local/bin/hotspot.sh
+    #!/bin/bash
+    # Start WiFi Hotspot via lnxrouter
+
+    # Interface for hotspot
+    WIFI_IFACE="wlan0"
+
+    # Hotspot SSID and password
+    SSID="MyOrangePiHotspot"
+    PASS="<HOTSPOT_PASSWORD>"
+
+    # Start AP (no internet sharing needed if ethernet not present)
+    lnxrouter --ap "$WIFI_IFACE" "$SSID" -p "$PASS" --no-virt
+
+# /etc/systemd/system/hotspot.service
+    [Unit]
+    Description=OrangePi Hotspot using lnxrouter
+    After=network.target
+    Wants=network.target
+
+    [Service]
+    Type=simple
+    ExecStart=/usr/local/bin/hotspot.sh
+    Restart=always
+    RestartSec=5
+    User=root
+
+    [Install]
+    WantedBy=multi-user.target
+
+# mysql
+    sudo apt install -y mysql-server
+    sudo mysql_secure_installation
+    sudo mysql -u root -p
+    CREATE DATABASE igreenmon;
+    CREATE USER 'igreenmon'@'localhost' IDENTIFIED BY '<MYSQL_PASSWORD>';
+    GRANT ALL PRIVILEGES ON igreenmon.* TO 'igreenmon'@'localhost';
+    FLUSH PRIVILEGES;
+
+# build
+    sudo apt update
+    sudo apt install -y python3 make g++ build-essential
+    npm install -g node-gyp
+
+# node
+    sudo curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    sudo apt install -y nodejs
+    sudo npm i -g pm2
+
+# app
+    sudo git clone https://github.com/i4nizer/iGreenMon.git
+    cd iGreenMon
+    sudo nano .env
+    npm rm -rf package-lock.json
+    npm i
+    npm uninstall @tensorflow/tfjs-node
+    npm i --build-from-source @tensorflow/tfjs-node
+    npm uninstall cloudflared
+    npm i --build-from-source cloudflared
+    npm run build
+    npm run output
+
+# pm2
+    pm2 startup
+    pm2 start npm --name "igreenmon" -- start
+    pm2 save
+
+# avahi
+    sudo hostnamectl set-hostname igreenmon
+    sudo apt install avahi-daemon avahi-utils libnss-mdns -y
+    sudo systemctl enable avahi-daemon
+    sudo systemctl start avahi-daemon
+    sudo systemctl status avahi-daemon
+
+# nginx
+    sudo apt install nginx openssl -y 
+    sudo mkdir -p /etc/ssl/igreenmon
+    sudo openssl req -x509 -nodes -days 3650 -newkey rsa:4096 \
+        -keyout /etc/ssl/igreenmon/igreenmon.key \
+        -out /etc/ssl/igreenmon/igreenmon.crt
+    sudo nano /etc/nginx/sites-available/igreenmon
+    sudo ln -s /etc/nginx/sites-available/igreenmon /etc/nginx/sites-enabled/
+    sudo nginx -t
+    sudo systemctl restart nginx
+
+# /etc/nginx/sites-available/igreenmon
+    server {
+        listen 80;
+        server_name igreenmon.local;
+
+        # Redirect all HTTP to HTTPS
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name igreenmon.local;
+
+        ssl_certificate /etc/ssl/igreenmon/igreenmon.crt;
+        ssl_certificate_key /etc/ssl/igreenmon/igreenmon.key;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_prefer_server_ciphers on;
+
+        location / {
+            proxy_pass http://127.0.0.1:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+# Use SSD
+sudo mkdir -p /mnt/ssd/mysql
+sudo mkdir -p /mnt/ssd/www
+sudo mkdir -p /mnt/ssd/apps
+sudo mkdir -p /mnt/ssd/logs
