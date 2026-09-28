@@ -6,6 +6,7 @@ import tailscaled from "../services/tailscaled"
 export default defineNitroPlugin(async (nitro) => {
     // --- Wait for the database
     while (!nitro.sequelize) await setTimeout(5000)
+    return;
         
     // --- Init tailscale ssh
     const config = useRuntimeConfig()

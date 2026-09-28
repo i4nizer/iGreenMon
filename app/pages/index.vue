@@ -183,16 +183,17 @@
 					></v-select>
 				</div>
 				<div v-if="mediaSource == `Image`">
-					<v-file-upload
-						v-if="!imageUpload"
-						clearable
-						type="file"
-						class="h-100"
-						title="Drag and Drop Lettuce Image Here"
-						accept="image/*"
-						:multiple="false"
-						@update:model-value="(onUploadImage as any)"
-					></v-file-upload>
+					<client-only v-if="!imageUpload">
+						<v-file-upload
+							clearable
+							type="file"
+							class="h-100"
+							title="Drag and Drop Lettuce Image Here"
+							accept="image/*"
+							:multiple="false"
+							@update:model-value="(onUploadImage as any)"
+						></v-file-upload>
+					</client-only>
 					<div v-else>
 						<image-canvas
 							v-if="imageIsDetected"

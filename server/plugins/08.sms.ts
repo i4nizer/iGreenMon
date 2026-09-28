@@ -6,6 +6,7 @@ import { setTimeout } from "timers/promises"
 export default defineNitroPlugin(async (nitro) => {
     // --- Wait for the database
     while (!nitro.sequelize) await setTimeout(5000)
+    return;
     
     // --- Initialize and run
     sms.init()

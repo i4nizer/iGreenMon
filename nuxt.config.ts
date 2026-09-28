@@ -2,7 +2,7 @@ export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	css: ["@mdi/font/css/materialdesignicons.css"],
 	devtools: { enabled: false },
-	$production: { ssr: false },
+	$production: { ssr: true },
 	nitro: {
 		preset: "node-server",
 		experimental: { websocket: true },
@@ -51,6 +51,9 @@ export default defineNuxtConfig({
 		},
 	},
 	vuetify: {
+		moduleOptions: {
+			prefixComposables: true,
+		},
 		vuetifyOptions: {
 			defaults: {
 				VBtn: { class: "text-none" },
