@@ -1,11 +1,23 @@
-import type { SendMailOptions, SentMessageInfo } from "nodemailer"
+//
+
+type EmailQueueItem = {
+	to: string
+	subject: string
+	text?: string
+	html?: string
+	callback?: EmailQueueItemCallback
+}
+
+type EmailQueueItemCallback = (err: Error | null, info: unknown) => any
+
+/** Connection and sender details for the Archmail microservice. */
+type ArchmailConfig = {
+	url: string
+	apikey: string
+	gmailAddress: string
+	gmailPassword: string
+}
 
 //
 
-type EmailQueueItem = SendMailOptions & { callback?: EmailQueueItemCallback }
-
-type EmailQueueItemCallback = (err: Error | null, info: SentMessageInfo) => any
-
-//
-
-export type { EmailQueueItem, EmailQueueItemCallback }
+export type { EmailQueueItem, EmailQueueItemCallback, ArchmailConfig }

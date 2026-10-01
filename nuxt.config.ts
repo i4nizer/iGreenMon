@@ -35,6 +35,8 @@ export default defineNuxtConfig({
 		gmailAddress: "",
 		gmailPassword: "",
 		devGmailAddress: "",
+		archmailUrl: "",
+		archmailApikey: "",
 		jwtAccessLife: 0,
 		jwtRefreshLife: 0,
 		jwtResetLife: 0,

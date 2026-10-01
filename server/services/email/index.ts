@@ -1,20 +1,16 @@
-import nodemailer from "nodemailer"
 import { emailConfig } from "./config"
 import { queueEmail, loopEmailQueue } from "./queue"
+import type { ArchmailConfig } from "./type"
 
 //
 
-/** Initializes the nodemailer.transporter. */
-const initEmail = async (emailAddress: string, emailPassword: string) => {
-    emailConfig.transporter = nodemailer.createTransport({
-        auth: {
-            user: emailAddress,
-            pass: emailPassword,
-        },
-        secure: true,
-        service: "gmail",
-    })
-    return await emailConfig.transporter.verify()
+/** Configures the Archmail microservice used to deliver emails. */
+const initEmail = async (archmail: ArchmailConfig) => {
+    const missing = Object.entries(archmail).filter(([, v]) => !v).map(([k]) => k)
+    if (missing.length > 0) throw Error(`Email service is missing config: ${missing.join(", ")}.`)
+
+    emailConfig.archmail = { ...archmail, url: archmail.url.replace(/\/+$/, "") }
+    return true
 }
 
 /** Must be called in an interval. */

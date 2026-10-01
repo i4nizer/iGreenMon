@@ -22,17 +22,17 @@ const queueEmail = (
 
 /** Sends a queued email. */
 const loopEmailQueue = async () => {
-    const { transporter } = emailConfig
-	if (!transporter) throw Error("Email service has no transporter.")
+    const { archmail } = emailConfig
+	if (!archmail) throw Error("Email service is not configured.")
 	if (emailQueue.length <= 0 || emailQueueBusy) return
 
 	// --- Get email and mark as busy
 	const email = emailQueue.shift() as EmailQueueItem
 	emailQueueBusy = true
 
-	// --- Promise wrapped email sending
-    await sendEmailQueueItemAsync(email, transporter)
-        .catch(() => emailQueue.unshift(email))
+    // --- Re-queue unless Archmail rejected the email as invalid
+    await sendEmailQueueItemAsync(email, archmail)
+        .catch((err) => err?.statusCode !== 400 && emailQueue.unshift(email))
 
 	emailQueueBusy = false
 }

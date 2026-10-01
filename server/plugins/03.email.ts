@@ -10,8 +10,13 @@ export default defineNitroPlugin(async (nitro) => {
     // --- Configure and run
     const config = useRuntimeConfig()
     const isProd = config.nodeEnv == "production"
-    await initEmail(config.gmailAddress, config.gmailPassword)
-        .then(() => !isProd && console.info("Email service verified."))
+    await initEmail({
+        url: config.archmailUrl,
+        apikey: config.archmailApikey,
+        gmailAddress: config.gmailAddress,
+        gmailPassword: config.gmailPassword,
+    })
+        .then(() => !isProd && console.info("Email service configured."))
         .catch(console.error)
         
     setInterval(() => loopEmail(), 5000)

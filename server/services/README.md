@@ -131,9 +131,9 @@ Connects services that don't directly know about each other.
 
 ### `email/` - Email Queue Service
 
-- **`config.ts`** - Holds the nodemailer transporter singleton.
+- **`config.ts`** - Holds the Archmail microservice config (URL, API key, Gmail credentials). Emails go through Archmail over HTTPS because SMTP ports are blocked on Render.
 - **`queue.ts`** - FIFO queue. `queueEmail()` pushes to array. `loopEmailQueue()` shifts one email, sends it, and on failure re-queues it at the front.
-- **`util.ts`** - Promise wrapper around `transporter.sendMail()`.
+- **`util.ts`** - POSTs the email to Archmail's `/api/send`. A 400 response drops the email instead of re-queuing it.
 
 ### `log/` - Log Email Service
 

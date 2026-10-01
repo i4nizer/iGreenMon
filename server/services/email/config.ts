@@ -1,12 +1,9 @@
-import type SMTPTransport from "nodemailer/lib/smtp-transport"
-import nodemailer, { type SentMessageInfo } from "nodemailer"
+import type { ArchmailConfig } from "./type"
 
 //
 
 const emailConfig = {
-	transporter: undefined as
-		| nodemailer.Transporter<SentMessageInfo, SMTPTransport.Options>
-		| undefined,
+	archmail: undefined as ArchmailConfig | undefined,
 }
 
 //
