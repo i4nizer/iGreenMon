@@ -2,9 +2,11 @@
     <div class="text-center text-wrap overflow-wrap">
         <video
             autoplay
+            muted
+            playsinline
             ref="videoRef"
-            class="position-absolute w-100 h-100"
-            style="top: -999px; left: -999px;"
+            aria-hidden="true"
+            style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;"
         ></video>
         <canvas
             ref="canvasRef"
