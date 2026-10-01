@@ -270,23 +270,42 @@ import type { DetectionBBox } from '~~/shared/schema/detection'
 // --- Notif
 const toastUtil = useToast()
 
-// --- Detection WebSocket
+// --- Detection
+const detections = reactive<DetectionBBox[]>([])
+
+// --- Browser Detection (LiteRT)
+const npkDetection = useNPKDetection()
+let npkDetectionReady: Promise<boolean> = Promise.resolve(false)
+
+/** Loads the browser model, falls back to the server websocket when it can't. */
+const loadNPKDetection = async () => {
+	try {
+		await npkDetection.load()
+		await npkDetection.warmup()
+		return true
+	} catch (error) {
+		console.warn(`Browser NPK detection unavailable, using the server instead.`, error)
+		openDetectionWebSocket()
+		return false
+	}
+}
+
+// --- Server Detection (WebSocket fallback)
 const websocketUrl = "/api/websocket/model/npk"
 const detectionBBoxWebSocket = useDetectionBBoxWebSocket(websocketUrl, {
 	onError: (ws, event) => toastUtil.error(`Something went wrong.`),
-	onMessage: (ws, bboxes) => onReceiveDetectionBBoxes(ws, bboxes),
+	onMessage: (ws, bboxes) => onReceiveDetectionBBoxes(bboxes),
 })
 
 const {
-	detections,
 	send: sendDetectionWebSocket,
-	open: openDetectionWebSocket
+	open: openDetectionWebSocket,
+	close: closeDetectionWebSocket,
 } = detectionBBoxWebSocket
 
-const onReceiveDetectionBBoxes = async (
-	ws: WebSocket,
-	bboxes: DetectionBBox[]
-) => {
+const onReceiveDetectionBBoxes = async (bboxes: DetectionBBox[]) => {
+	detections.splice(0, detections.length, ...bboxes)
+
 	// --- For image
 	imageIsDetected.value = true
 
@@ -379,17 +398,22 @@ const onUploadImage = async (file: File) => {
 	if (!file) return toastUtil.error("No image file uploaded.")
 	const valid = file.type.startsWith("image/")
 	if (!valid) return toastUtil.error("Invalid image file uploaded.")
-
-	// --- Compress image file for server
-	const image = await imageCompression(file, {
-		maxWidthOrHeight: NPKModelInputSize[0],
-		maxSizeMB: 5,
-		useWebWorker: true,
-	})
-
-	// --- Send compressed to server
-	sendDetectionWebSocket(image)
 	imageIsDetected.value = false
+
+	// --- Detect in the browser when the model is available
+	if (await npkDetectionReady) {
+		detectImageInBrowser(file)
+	} else {
+		// --- Compress image file for server
+		const image = await imageCompression(file, {
+			maxWidthOrHeight: NPKModelInputSize[0],
+			maxSizeMB: 5,
+			useWebWorker: true,
+		})
+
+		// --- Send compressed to server
+		sendDetectionWebSocket(image)
+	}
 
 	// --- Helper
 	const onLoadReader = (e: ProgressEvent<FileReader>) => {
@@ -404,11 +428,48 @@ const onUploadImage = async (file: File) => {
 	imageUpload.value = file
 }
 
+/** Crops the center square the image canvas displays, so boxes line up with it. */
+const detectImageInBrowser = async (file: File) => {
+	try {
+		const full = await createImageBitmap(file)
+		const side = Math.min(full.width, full.height)
+		const sx = (full.width - side) / 2
+		const sy = (full.height - side) / 2
+		const square = await createImageBitmap(full, sx, sy, side, side)
+		full.close()
+
+		onReceiveDetectionBBoxes(await npkDetection.predict(square))
+	} catch (error) {
+		console.error(error)
+		toastUtil.error(`Something went wrong.`)
+	}
+}
+
 // --- WebCam Streaming
 const videoCtx = ref<CanvasRenderingContext2D>()
 const videoCanvasEl = ref<HTMLCanvasElement>()
 const videoFrameAge = ref(Date.now())
 const videoFrameDelay = 1000
+const videoFrameBrowserDelay = 250
+let videoFrameDetecting = false
+
+/** Snapshots the frame before boxes are drawn on it, one prediction at a time. */
+const detectFrameInBrowser = async (canvas: HTMLCanvasElement) => {
+	if (videoFrameDetecting) return
+	if (Date.now() - videoFrameAge.value < videoFrameBrowserDelay) return
+	videoFrameAge.value = Date.now()
+	videoFrameDetecting = true
+
+	try {
+		const frame = await createImageBitmap(canvas)
+		const bboxes = await npkDetection.predict(frame)
+		if (mediaVideoStream.value) onReceiveDetectionBBoxes(bboxes)
+	} catch (error) {
+		console.error(error)
+	} finally {
+		videoFrameDetecting = false
+	}
+}
 
 const onDrawFrame = async (
 	video: HTMLVideoElement,
@@ -418,6 +479,9 @@ const onDrawFrame = async (
 	// --- Catch canvas and its ctx
 	videoCtx.value ??= context
 	videoCanvasEl.value ??= canvas
+
+	// --- Detect in the browser when the model is available
+	if (npkDetection.loaded.value) detectFrameInBrowser(canvas)
 
 	// --- Draw current bboxes on each frame
 	drawDetectionBBoxes(
@@ -429,6 +493,7 @@ const onDrawFrame = async (
 	)
 
 	// --- Throttle sending frame to server
+	if (npkDetection.loaded.value) return
 	if (Date.now() - videoFrameAge.value < videoFrameDelay) return;
 	videoFrameAge.value = Date.now()
 	
@@ -450,7 +515,11 @@ const onDrawFrame = async (
 }
 
 // --- LifeCycle Hooks
-onBeforeMount(openDetectionWebSocket)
+onMounted(() => npkDetectionReady = loadNPKDetection())
+onBeforeUnmount(() => {
+	npkDetection.dispose()
+	closeDetectionWebSocket()
+})
 
 //
 

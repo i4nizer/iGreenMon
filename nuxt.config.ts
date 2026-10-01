@@ -57,6 +57,7 @@ export default defineNuxtConfig({
 		},
 	},
 	vite: {
+		worker: { format: "es" },
 		server: {
 			allowedHosts: [".trycloudflare.com"],
 		},

@@ -11,6 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@litertjs/core": "^2.5.3",
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.11.2",
     "@tensorflow/tfjs-node": "^4.22.0",
@@ -21,6 +22,7 @@
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "cloudflared": "^0.7.1",
+    "comlink": "^4.4.2",
     "cookie": "^1.1.1",
     "ejs": "^3.1.10",
     "html2canvas": "^1.4.1",
