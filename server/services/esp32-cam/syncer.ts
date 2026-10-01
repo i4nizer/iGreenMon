@@ -18,7 +18,9 @@ const onReceiveImage = async (
     // --- Save image file
     const raw = Buffer.from(image)
     const file = `${Date.now()}.jpg`
-    const path = `${process.cwd()}/storage/capture/${file}`
+    const dir = `${process.cwd()}/storage/capture`
+    const path = `${dir}/${file}`
+    await fs.mkdir(dir, { recursive: true }) // gitignored, absent on fresh deploys
     await fs.writeFile(path, raw)
 
     // --- Save capture
