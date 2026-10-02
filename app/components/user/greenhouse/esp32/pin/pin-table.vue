@@ -58,7 +58,7 @@ const onClickDelete = (pin: Pin) => emit("delete", pin, { loading })
 
 
 // --- Format
-const date = useDate()
+const date = useVDate()
 const headers = [
     { title: "Pin", value: "number" },
     { title: "Type", value: "type" },

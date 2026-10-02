@@ -46,7 +46,7 @@ import type { Log, LogLevel } from '~~/shared/schema/log';
 const props = defineProps<{ logs: Log[] }>()
 
 // --- Formatting
-const date = useDate()
+const date = useVDate()
 const headers = [
     { title: "Log", value: "title" },
     { title: "Message", value: "message", width: "25%" },

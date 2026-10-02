@@ -48,7 +48,7 @@ const onToggle = (schedule: Schedule) => emit("toggle", schedule, { loading })
 const onDelete = (schedule: Schedule) => emit("delete", schedule, { loading })
 
 // --- Formatting
-const date = useDate()
+const date = useVDate()
 
 const times = computed(() =>
     props.schedule.times

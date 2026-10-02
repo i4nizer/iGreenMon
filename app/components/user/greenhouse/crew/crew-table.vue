@@ -64,7 +64,7 @@ const props = defineProps<{
 }>()
 
 // --- Format
-const date = useDate()
+const date = useVDate()
 const headers = [
     { title: "Crew", value: "user" },
     { title: "Permissions", value: "permissions", width: "50%" },

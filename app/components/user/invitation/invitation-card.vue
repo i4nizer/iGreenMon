@@ -86,7 +86,7 @@ const props = defineProps<{
 }>()
 
 // --- State
-const date = useDate()
+const date = useVDate()
 const accepted = ref(false)
 const responded = ref(false)
 const creation = ref("")

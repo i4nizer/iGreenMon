@@ -51,7 +51,7 @@ import type { Capture } from '~~/shared/schema/capture';
 // --- Data Binding
 const props = defineProps<{ capture: Capture }>()
 
-const date = useDate()
+const date = useVDate()
 
 // --- State Binding
 const emit = defineEmits<{

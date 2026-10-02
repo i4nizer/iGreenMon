@@ -213,7 +213,7 @@ const pagination = reactive({
 })
 
 // --- Header Formatting
-const date = useDate()
+const date = useVDate()
 const dateAlpha = computed(() => pagination.range.at(0))
 const dateOmega = computed(() => pagination.range.at(-1))
 
