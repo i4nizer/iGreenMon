@@ -1,10 +1,10 @@
-import fs from "fs/promises"
 import hook from "./hook"
 import event from "./event"
 import { Peer } from "crossws"
 import { Esp32Cam } from "~~/shared/schema/esp32-cam"
 import { Capture as CaptureModel } from "~~/server/models/capture"
 import { NPKModel } from "../model"
+import { uploadImageAsync } from "../cloudinary"
 import { Detection as DetectionModel } from "~~/server/models/detection"
 
 //
@@ -15,13 +15,10 @@ const onReceiveImage = async (
     image: ArrayBuffer | SharedArrayBuffer,
     esp32Cam: Esp32Cam
 ) => {
-    // --- Save image file
+    // --- Upload image file
     const raw = Buffer.from(image)
     const file = `${Date.now()}.jpg`
-    const dir = `${process.cwd()}/storage/capture`
-    const path = `${dir}/${file}`
-    await fs.mkdir(dir, { recursive: true }) // gitignored, absent on fresh deploys
-    await fs.writeFile(path, raw)
+    await uploadImageAsync(raw, file)
 
     // --- Save capture
     const capture = await CaptureModel.create({

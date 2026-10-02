@@ -1,29 +1,13 @@
-import fs from "fs/promises"
-import { createReadStream } from "fs"
 import { Capture } from "~~/server/models/capture"
 import { Esp32Cam } from "~~/server/models/esp32-cam"
 import { hasPermission } from "~~/server/services/greenhouse/crew/permission"
+import { fetchImageAsync } from "~~/server/services/cloudinary"
 
 //
 
 export default defineEventHandler(async (event) => {
     // --- Get filename from params
     const { filename } = getRouterParams(event)
-
-    // --- Check path
-    const path = `${process.cwd()}/storage/capture/${filename}`
-    
-    const exists = await fs
-        .access(path)
-        .then(() => true)
-        .catch(() => false)
-
-    if (!exists) {
-        throw createError({
-            statusCode: 404,
-            statusMessage: "Capture not found.",
-        })
-    }
 
     // --- Trace greenhouseId
     const userId = event.context.accessTokenPayload.id
@@ -49,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     // --- Check permission
     const greenhouseId = (capture as any).esp32Cam.greenhouseId as number
-    
+
     const permResult = await hasPermission(
         "Retrieve",
         "Capture",
@@ -57,7 +41,7 @@ export default defineEventHandler(async (event) => {
         greenhouseId
     )
 
-    if (!permResult.success) {
+    if (!permResult.success || !permResult.data) {
         const error = permResult.success
 			? "User doesn't have permission."
 			: permResult.error
@@ -67,7 +51,17 @@ export default defineEventHandler(async (event) => {
 		})
     }
 
+    // --- Pull the capture image from cloudinary
+    const image = await fetchImageAsync(filename).catch((error) => {
+        console.error(error)
+        throw createError({
+            statusCode: 404,
+            statusMessage: "Capture not found.",
+        })
+    })
+
     // --- Send the capture image
-    setHeader(event, "Content-Type", "application/octet-stream")
-    return createReadStream(path)
+    setHeader(event, "Content-Type", "image/jpeg")
+    setHeader(event, "Cache-Control", "private, max-age=86400")
+    return image
 })
