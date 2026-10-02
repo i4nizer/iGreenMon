@@ -1,6 +1,12 @@
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
-	css: ["@mdi/font/css/materialdesignicons.css"],
+	css: [
+		"@mdi/font/css/materialdesignicons.css",
+		"@fontsource/roboto/300.css",
+		"@fontsource/roboto/400.css",
+		"@fontsource/roboto/500.css",
+		"@fontsource/roboto/700.css",
+	],
 	devtools: { enabled: false },
 	$production: { ssr: true },
 	nitro: {
