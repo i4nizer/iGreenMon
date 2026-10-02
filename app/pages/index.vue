@@ -11,26 +11,37 @@
 					prepend-icon="mdi-lightning-bolt"
 				></v-chip>
 				<h1 class="text-h3 font-weight-black mt-4 my-0">
-					Connect Everything.
+					Monitor. Automate.
 				</h1>
 				<h1 class="text-h3 font-weight-black text-green my-0">
-					Transform Everything.
+					Protect Your Greenhouse.
 				</h1>
 				<p class="text-grey-darken-2 mt-5">
-					Unlock the power of the Internet of Things with our
-					comprehensive platform. Connect devices, analyze data, and
-					automate processes to drive innovation and efficiency.
+					From soil to leaf, iGreenMon connects your ESP32 sensors,
+					actuators, and cameras to stream live readings, run your
+					equipment on rules you set, and catch nutrient deficiencies
+					before they spread.
 				</p>
-				<v-btn
-					link
-					to="/auth/sign-up"
-					size="large"
-					text="Sign Up"
-					color="green"
-					class="mt-5"
-					elevation="0"
-					append-icon="mdi-login"
-				></v-btn>
+				<div class="d-flex flex-wrap ga-3 mt-5">
+					<v-btn
+						link
+						to="/auth/sign-up"
+						size="large"
+						text="Sign Up"
+						color="green"
+						elevation="0"
+						append-icon="mdi-login"
+					></v-btn>
+					<v-btn
+						href="#npk-detection"
+						size="large"
+						text="Try NPK Detection"
+						color="white"
+						class="border"
+						elevation="0"
+						append-icon="mdi-arrow-down"
+					></v-btn>
+				</div>
 			</v-col>
 			<v-col
 				cols="12"
@@ -50,8 +61,10 @@
 				</v-card>
 			</v-col>
 		</v-row>
+		<home-steps-section></home-steps-section>
 		<v-row 
-			class="bg-white px-5 px-md-8 px-lg-10 my-0" 
+			id="npk-detection"
+			class="bg-green-lighten-5 px-5 px-md-8 px-lg-10 py-12 my-0" 
 			style="min-height: 100dvh" 
 			align="center"
 		>
@@ -80,7 +93,7 @@
 					and optimize yield quality.
 				</p>
 				<p class="text-h6 mt-5">How It Works:</p>
-				<v-list>
+				<v-list class="bg-transparent">
 					<motion
 						:initial="{ opacity: 0, x: -40 }"
 						:whileInView="{ opacity: 1, x: 0 }"
@@ -255,8 +268,13 @@
 				</div>
 			</v-col>
 		</v-row>
+		<home-automation-section></home-automation-section>
+		<home-monitoring-section></home-monitoring-section>
+		<home-alerts-section></home-alerts-section>
+		<home-teamwork-section></home-teamwork-section>
+		<home-cta-section></home-cta-section>
 		<v-footer class="bg-green-darken-4 pa-5">
-			<span>© 2025 iGreenMon. All rights reserved.</span>
+			<span>© {{ new Date().getFullYear() }} iGreenMon. All rights reserved.</span>
 		</v-footer>
 	</v-container>
 </template>
