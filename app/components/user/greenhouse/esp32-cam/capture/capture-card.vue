@@ -11,7 +11,7 @@
         </v-card-subtitle>
         <v-card-subtitle class="text-wrap">
             <span class="text-caption">
-                {{ useDate().format(capture.createdAt, "fullDateTime12h") }}
+                {{ date.format(capture.createdAt, "fullDateTime12h") }}
             </span>
         </v-card-subtitle>
         <v-card-actions class="text-wrap overflow-wrap">
@@ -50,6 +50,8 @@ import type { Capture } from '~~/shared/schema/capture';
 
 // --- Data Binding
 const props = defineProps<{ capture: Capture }>()
+
+const date = useDate()
 
 // --- State Binding
 const emit = defineEmits<{
