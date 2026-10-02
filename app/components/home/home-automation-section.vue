@@ -72,17 +72,63 @@
 				:inViewOptions="{ once: true }"
 				:transition="{ delay: 0.3, duration: 0.4 }"
 			>
-				<v-alert
-					class="border"
-					color="green-darken-2"
-					variant="tonal"
-					icon="mdi-sort-numeric-ascending"
-					title="Priority-Based Actions"
-				>
-					When two rules target the same actuator, the higher priority
-					action interrupts the lower one, so conflicting rules never
-					fight over your equipment.
-				</v-alert>
+				<v-card class="pa-5 pa-md-8 bg-green-darken-4" elevation="0">
+					<v-row align="center">
+						<v-col cols="12" md="5">
+							<v-chip
+								text="Priority-Based Actions"
+								prepend-icon="mdi-podium"
+								variant="outlined"
+							></v-chip>
+							<p class="text-h5 font-weight-black mt-4">
+								When rules collide,
+								<span class="text-green-lighten-2">the most important one wins.</span>
+							</p>
+							<p class="text-green-lighten-4 mt-3">
+								Every action has a priority. A higher priority
+								action takes over the actuator, and a lower one
+								that arrives late is simply skipped, so your
+								equipment never gets mixed signals.
+							</p>
+						</v-col>
+						<v-col cols="12" md="7">
+							<v-card class="pa-4" elevation="0">
+								<div class="d-flex align-center ga-2 mb-3">
+									<v-icon color="green">mdi-fan</v-icon>
+									<span class="font-weight-bold">Exhaust Fan</span>
+									<span class="text-caption text-grey ml-auto">Sample</span>
+								</div>
+								<div
+									v-for="(contender, i) in contenders"
+									:key="contender.rule"
+									class="d-flex align-center ga-3 py-3"
+									:class="{ 'border-t': i > 0 }"
+								>
+									<span class="text-caption text-grey" style="min-width: 56px">
+										{{ contender.time }}
+									</span>
+									<v-avatar color="green-lighten-5" size="36">
+										<v-icon size="small" color="green">{{ contender.icon }}</v-icon>
+									</v-avatar>
+									<div class="flex-grow-1">
+										<p
+											class="font-weight-medium"
+											:class="{ 'text-grey text-decoration-line-through': contender.status != `Active` }"
+										>{{ contender.rule }}</p>
+										<p class="text-caption text-grey">
+											Priority {{ contender.priority }} · {{ contender.note }}
+										</p>
+									</div>
+									<v-chip
+										size="small"
+										:color="StatusColor[contender.status]"
+										:text="contender.status"
+									></v-chip>
+								</div>
+							</v-card>
+						</v-col>
+					</v-row>
+				</v-card>
 			</motion>
 		</v-col>
 	</v-row>
@@ -90,6 +136,40 @@
 
 <script setup lang="ts">
 //
+
+// --- Sample Priority Contest (higher number wins, as in the action invoker)
+const StatusColor = {
+	Active: "green",
+	Interrupted: "orange",
+	Discarded: "grey",
+} as const
+
+const contenders = [
+	{
+		time: "6:00 AM",
+		icon: "mdi-calendar-clock",
+		rule: "Daily ventilation, fan at low speed",
+		priority: 1,
+		note: "Taken over by the heat rule",
+		status: "Interrupted",
+	},
+	{
+		time: "6:12 AM",
+		icon: "mdi-thermometer-alert",
+		rule: "Above 40 °C, fan at full speed",
+		priority: 3,
+		note: "Now running the fan",
+		status: "Active",
+	},
+	{
+		time: "6:15 AM",
+		icon: "mdi-hook",
+		rule: "Before humidity reading, fan off",
+		priority: 2,
+		note: "Skipped, the heat rule outranks it",
+		status: "Discarded",
+	},
+] as const
 
 // --- Triggers
 const triggers = [

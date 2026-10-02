@@ -11,6 +11,15 @@
 				:inViewOptions="{ once: true }"
 				:transition="{ duration: 0.4 }"
 			>
+				<v-row dense class="mb-2">
+					<v-col v-for="stat in stats" :key="stat.label" cols="4">
+						<v-card class="pa-3 border h-100" elevation="0">
+							<v-icon color="green">{{ stat.icon }}</v-icon>
+							<p class="text-h6 font-weight-black mt-1">{{ stat.value }}</p>
+							<p class="text-caption text-grey">{{ stat.label }}</p>
+						</v-card>
+					</v-col>
+				</v-row>
 				<v-card class="pa-5 border" elevation="0">
 					<div class="d-flex align-center justify-space-between">
 						<div class="d-flex align-center ga-2">
@@ -97,6 +106,13 @@
 
 // --- Sample Chart
 const readings = [27.4, 28.1, 29.6, 31.2, 32.8, 33.5, 32.9, 31.4, 30.2, 29.8]
+
+// --- Sample Stats
+const stats = [
+	{ icon: "mdi-water-percent", value: "71%", label: "Humidity" },
+	{ icon: "mdi-sprout", value: "42%", label: "Soil Moisture" },
+	{ icon: "mdi-fan", value: "On", label: "Exhaust Fan" },
+]
 
 // --- Features
 const features = [

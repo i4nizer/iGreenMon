@@ -268,10 +268,11 @@
 				</div>
 			</v-col>
 		</v-row>
-		<home-automation-section></home-automation-section>
-		<home-monitoring-section></home-monitoring-section>
-		<home-alerts-section></home-alerts-section>
-		<home-teamwork-section></home-teamwork-section>
+		<home-automation-section id="automation"></home-automation-section>
+		<home-monitoring-section id="monitoring"></home-monitoring-section>
+		<home-alerts-section id="alerts"></home-alerts-section>
+		<home-crew-section id="crew"></home-crew-section>
+		<home-hardware-section id="hardware"></home-hardware-section>
 		<home-cta-section></home-cta-section>
 		<v-footer class="bg-green-darken-4 pa-5">
 			<span>© {{ new Date().getFullYear() }} iGreenMon. All rights reserved.</span>

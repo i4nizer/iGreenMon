@@ -1,7 +1,9 @@
 <template>
 	<v-row
 		class="bg-white px-5 px-md-8 px-lg-10 py-12 my-0"
+		style="min-height: 100dvh"
 		align="center"
+		align-content="center"
 	>
 		<v-col cols="12" class="text-center">
 			<v-chip
@@ -9,10 +11,20 @@
 				color="green"
 				prepend-icon="mdi-lightning-bolt"
 			></v-chip>
-			<h1 class="text-h4 font-weight-black mt-4 my-0">
-				<span>From Seedling to Harvest,&nbsp;</span>
-				<span class="text-green">in Four Steps</span>
-			</h1>
+			<motion
+				:initial="{ scale: 0.9, opacity: 0 }"
+				:whileInView="{ scale: 1, opacity: 1 }"
+				:inViewOptions="{ once: true }"
+			>
+				<h1 class="text-h4 font-weight-black mt-4 my-0">
+					<span>From Seedling to Harvest,&nbsp;</span>
+					<span class="text-green">in Four Steps</span>
+				</h1>
+			</motion>
+			<p class="text-grey-darken-2 mt-5 mx-auto" style="max-width: 640px">
+				Everything runs on hardware you can wire up yourself, managed
+				from a single dashboard.
+			</p>
 		</v-col>
 		<v-col
 			v-for="(step, i) in steps"
@@ -28,17 +40,34 @@
 				:inViewOptions="{ once: true }"
 				:transition="{ delay: i * 0.1, duration: 0.4 }"
 			>
-				<v-card class="h-100 pa-5 border" elevation="0">
-					<div class="d-flex align-center ga-3">
+				<v-card class="h-100 border d-flex flex-column" elevation="0">
+					<v-sheet
+						class="d-flex justify-center align-center bg-green-lighten-5 position-relative"
+						height="160"
+					>
 						<v-chip
-							class="font-weight-bold"
+							class="font-weight-bold position-absolute"
+							style="top: 12px; left: 12px"
 							color="green"
 							:text="`${i + 1}`"
 						></v-chip>
-						<v-icon color="green" size="large">{{ step.icon }}</v-icon>
+						<v-icon color="green" size="72">{{ step.icon }}</v-icon>
+					</v-sheet>
+					<div class="pa-5">
+						<p class="text-h6">{{ step.title }}</p>
+						<p class="text-grey-darken-2 mt-1">{{ step.text }}</p>
+						<v-list density="compact" class="mt-2 pa-0">
+							<v-list-item
+								v-for="point in step.points"
+								:key="point"
+								class="px-0"
+								prepend-icon="mdi-check-circle"
+								base-color="green"
+							>
+								<span class="text-grey-darken-3">{{ point }}</span>
+							</v-list-item>
+						</v-list>
 					</div>
-					<p class="text-h6 mt-4">{{ step.title }}</p>
-					<p class="text-grey-darken-2 mt-1">{{ step.text }}</p>
 				</v-card>
 			</motion>
 		</v-col>
@@ -53,22 +82,42 @@ const steps = [
 	{
 		icon: "mdi-chip",
 		title: "Connect",
-		text: "Plug in your ESP32 sensors, actuators, and ESP32-CAM, then link them to your greenhouse.",
+		text: "Link your ESP32 boards and ESP32-CAM to your greenhouse.",
+		points: [
+			"Sensors and actuators",
+			"Pins set from the dashboard",
+			"Cameras for crop images",
+		],
 	},
 	{
 		icon: "mdi-tune-variant",
 		title: "Set Rules",
-		text: "Create thresholds, schedules, and reading hooks that run your actuators for you.",
+		text: "Decide when your actuators should run.",
+		points: [
+			"Sensor thresholds",
+			"Daily schedules",
+			"Before and after reading hooks",
+		],
 	},
 	{
 		icon: "mdi-bell-ring",
 		title: "Get Alerted",
-		text: "Receive email and SMS alerts the moment something in your greenhouse needs attention.",
+		text: "Hear about problems the moment they happen.",
+		points: [
+			"Email notifications",
+			"SMS through a phone app",
+			"Warning and error logs",
+		],
 	},
 	{
 		icon: "mdi-leaf",
 		title: "Detect",
-		text: "Let the camera spot nitrogen, phosphorus, and potassium deficiencies in your lettuce.",
+		text: "Let the camera check your lettuce for nutrient problems.",
+		points: [
+			"Nitrogen deficiency",
+			"Phosphorus deficiency",
+			"Potassium deficiency",
+		],
 	},
 ]
 
